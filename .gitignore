@@ -1,0 +1,16 @@
+.DS_Store
+.env
+.env.*
+.env*.local
+.vercel
+node_modules
+dist
+build
+*.zip
+*.log
+
+# Local/raw scrape exports can be regenerated and are too large for normal Git.
+data/capitoltrades_historical.json
+data/capitoltrades_committee_risk_2y.json
+data/capitoltrades_committee_risk_2y.csv
+data/capitoltrades_committee_relationships_2y.csv
