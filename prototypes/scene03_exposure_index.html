@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scene 03 — Exposure Index</title>
+<style id="fullscreen-base">
+:root { color-scheme: dark; }
+html, body { width:100%; height:100%; margin:0; padding:0; overflow:hidden; background:#000; }
+body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.rl-wrap { position:fixed !important; inset:0 !important; width:100vw !important; height:100vh !important; min-height:0 !important; overflow:hidden !important; background:#000 !important; }
+.rl-wrap canvas { display:block !important; width:100% !important; height:100% !important; }
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+<h2 class="sr-only">Scene 03, Exposure Index: a black-and-white data-art machine in the spirit of Ryoji Ikeda, driven by real Capitol Trades committee-risk data. The piece cycles continuously through five movements. First a census wall: every tracked member of Congress rendered as a flickering row of eleven market-sector cells while a scanline hunts and locks onto one member. The locked row is then extracted and blown up to full screen with glitch displacement. A sector spectrum follows: eleven dense barcode columns, one per market sector, with the member's committee-oversight mask above and disclosed trades below; a stepping needle sweeps the spectrum and strikes a crosshair on every sector where oversight and trading overlap, accumulating the conflicted dollar exposure. The verdict movement isolates the single worst flagged trade: giant ticker typography, the execution-to-disclosure reporting gap drawn as a calibrated timeline, risk flags stamped one by one, and a risk score counting to its value before a one-frame inversion flash. Finally the image corrupts into block noise and the census wall reassembles for the next member. The score is a triage heuristic, not an allegation of unlawful conduct.</h2>
+<div class="rl-wrap"><canvas id="rl-canvas"></canvas></div>
+<script>
+const DATA = {"sectors":["communication-services","consumer-discretionary","consumer-staples","energy","financials","health-care","industrials","information-technology","materials","real-estate","utilities"],"codes":["COMM","DISC","STPL","ENGY","FIN","HLTH","INDU","TECH","MATL","RE","UTIL"],"members":[{"name":"John Boozman","party":"R","chamber":"S","state":"AR","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"CSCE","n":"Commission on Security and Cooperation in Europe","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"ENVPW","n":"Environment & Public Works","j":[0,0,0,1,0,0,0,0,1,0,1]},{"c":"AGNUTR","n":"Agriculture, Nutrition & Forestry","j":[0,0,1,0,0,0,0,0,1,0,0]},{"c":"VETAFF","n":"Veteran\u2019s Affairs","j":[0,0,1,0,0,1,0,0,0,0,0]}],"jur":[1,0,1,1,0,1,1,1,1,0,1],"cnt":[17,9,7,3,18,15,12,52,1,0,7],"val":[160500,72000,56000,24000,144000,120000,96000,416000,8000,0,56000],"lock":[1,0,1,1,0,1,1,1,1,0,1],"resp":[1,-1,3,0,-1,0,0,0,2,-1,2],"nlock":8,"riskMax":100,"conflictVal":936500,"trades":327,"worst":{"ticker":"ADBE","issuer":"Adobe Inc","sector":"TECH","si":7,"ci":1,"value":8000,"side":"BUY","txDate":"2025-09-04","pub":"2026-05-11","gap":249,"rep":8,"risk":100,"committee":"Commission on Security and Cooperation in Europe","flags":["committee-sector-overlap","reporting-gap-180d-plus","repeat-committee-sector-trades-90d","owner-joint"]}},{"name":"Lisa McClain","party":"R","chamber":"H","state":"MI","coms":[{"c":"ARMSVC","n":"Armed Services","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"EDLABR","n":"Education & Labor","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"BUDGET","n":"Budget","j":[0,0,0,0,1,0,0,0,0,0,0]},{"c":"OVRSGT","n":"Oversight and Reform","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,1,0,1,1,1,1,0,0,0],"cnt":[47,169,130,73,190,173,178,275,72,68,38],"val":[376000,1401000,1040000,584000,1520000,1384000,1473000,4036500,576000,568500,304000],"lock":[1,0,1,0,1,1,1,1,0,0,0],"resp":[0,-1,1,-1,2,1,0,0,-1,-1,-1],"nlock":6,"riskMax":100,"conflictVal":9829500,"trades":1440,"worst":{"ticker":"NVDA","issuer":"NVIDIA Corporation","sector":"TECH","si":7,"ci":0,"value":175000,"side":"SELL","txDate":"2024-10-23","pub":"2025-08-14","gap":294,"rep":5,"risk":100,"committee":"Armed Services","flags":["committee-sector-overlap","top-10pct-value","reporting-gap-180d-plus","repeat-committee-sector-trades-90d"]}},{"name":"John Hickenlooper","party":"D","chamber":"S","state":"CO","coms":[{"c":"COMMSC","n":"Commerce, Science & Transportation","j":[1,1,0,0,0,0,1,1,0,0,0]},{"c":"HELP","n":"Health, Education, Labor & Pensions","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"SMLBIZ","n":"Small Business & Entrepreneurship","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"ENRGNR","n":"Energy & Natural Resources","j":[0,0,0,1,0,0,0,0,1,0,1]}],"jur":[1,1,1,1,1,1,1,1,1,1,1],"cnt":[20,4,1,0,0,0,2,4,0,1,0],"val":[4290000,500000,175000,0,0,0,250000,366000,0,75000,0],"lock":[1,1,1,0,0,0,1,1,0,1,0],"resp":[0,0,1,-1,-1,-1,0,0,-1,2,-1],"nlock":6,"riskMax":100,"conflictVal":5656000,"trades":32,"worst":{"ticker":"LBRDA","issuer":"Liberty Broadband Corp","sector":"COMM","si":0,"ci":0,"value":750000,"side":"SELL","txDate":"2025-05-19","pub":"2026-05-05","gap":351,"rep":11,"risk":100,"committee":"Commerce, Science & Transportation","flags":["committee-sector-overlap","top-10pct-value","reporting-gap-180d-plus","repeat-committee-sector-trades-90d"]}},{"name":"Valerie Hoyle","party":"D","chamber":"H","state":"OR","coms":[{"c":"NATRES","n":"Natural Resources","j":[0,0,0,1,0,0,0,0,1,0,1]},{"c":"TRANSP","n":"Transportation & Infrastructure","j":[1,1,0,0,0,0,1,0,0,0,0]}],"jur":[1,1,0,1,0,0,1,0,1,0,1],"cnt":[24,36,27,10,71,42,68,82,18,3,10],"val":[241000,312500,216000,80000,568000,336000,544000,845500,144000,24000,80000],"lock":[1,1,0,1,0,0,1,0,1,0,1],"resp":[1,1,-1,0,-1,-1,1,-1,0,-1,0],"nlock":6,"riskMax":100,"conflictVal":1401500,"trades":393,"worst":{"ticker":"GOOGL","issuer":"Alphabet Inc","sector":"COMM","si":0,"ci":1,"value":8000,"side":"BUY","txDate":"2024-10-29","pub":"2025-09-15","gap":318,"rep":6,"risk":100,"committee":"Transportation & Infrastructure","flags":["committee-sector-overlap","reporting-gap-180d-plus","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Clifford Franklin","party":"R","chamber":"H","state":"FL","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"SCITEC","n":"Science, Space and Technology","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"VETAFF","n":"Veteran\u2019s Affairs","j":[0,0,1,0,0,1,0,0,0,0,0]}],"jur":[1,0,1,1,0,1,1,1,0,0,0],"cnt":[7,16,25,0,18,19,25,13,3,0,2],"val":[80500,435500,491447,0,4159000,341500,584000,336000,91000,0,83000],"lock":[1,0,1,0,0,1,1,1,0,0,0],"resp":[1,-1,2,-1,-1,0,0,0,-1,-1,-1],"nlock":5,"riskMax":100,"conflictVal":1833447,"trades":161,"worst":{"ticker":"ACN","issuer":"Accenture PLC","sector":"TECH","si":7,"ci":0,"value":8000,"side":"BUY","txDate":"2024-08-07","pub":"2025-07-04","gap":330,"rep":10,"risk":100,"committee":"Appropriations","flags":["committee-sector-overlap","reporting-gap-180d-plus","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Julia Letlow","party":"R","chamber":"H","state":"LA","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"EDLABR","n":"Education & Labor","j":[0,0,1,0,0,1,0,0,0,0,0]}],"jur":[0,0,1,1,0,1,1,1,0,0,0],"cnt":[22,16,17,10,29,43,26,59,4,6,7],"val":[176000,128000,136000,80000,232000,344000,208000,521000,32000,48000,56000],"lock":[0,0,1,1,0,1,1,1,0,0,0],"resp":[-1,-1,1,0,-1,0,0,0,-1,-1,-1],"nlock":5,"riskMax":100,"conflictVal":1289000,"trades":257,"worst":{"ticker":"AAPL","issuer":"Apple Inc","sector":"TECH","si":7,"ci":0,"value":32500,"side":"BUY","txDate":"2024-10-23","pub":"2026-01-14","gap":447,"rep":10,"risk":100,"committee":"Appropriations","flags":["committee-sector-overlap","top-25pct-value","reporting-gap-180d-plus","repeat-committee-sector-trades-90d"]}},{"name":"Katie Britt","party":"R","chamber":"S","state":"AL","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"BANKNG","n":"Banking, Housing & Urban Affairs","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"RULES","n":"Rules and Administration","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[0,0,0,1,1,1,1,1,0,1,0],"cnt":[2,4,1,3,4,2,1,7,0,0,0],"val":[16000,32000,8000,24000,32000,16000,8000,56000,0,0,0],"lock":[0,0,0,1,1,1,1,1,0,0,0],"resp":[-1,-1,-1,0,1,0,0,0,-1,-1,-1],"nlock":5,"riskMax":100,"conflictVal":136000,"trades":24,"worst":{"ticker":"AAPL","issuer":"Apple Inc","sector":"TECH","si":7,"ci":0,"value":8000,"side":"BUY","txDate":"2025-04-30","pub":"2026-01-27","gap":271,"rep":5,"risk":100,"committee":"Appropriations","flags":["committee-sector-overlap","reporting-gap-180d-plus","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Michael McCaul","party":"R","chamber":"H","state":"TX","coms":[{"c":"HMLAND","n":"Homeland Security","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"FORAFF","n":"Foreign Affairs","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,0,0,0,0,1,1,0,0,0],"cnt":[157,121,50,72,264,170,266,421,57,32,14],"val":[6711000,6634500,3199000,5076500,12679500,9798500,12553500,20429500,2924500,1864500,1380000],"lock":[1,0,0,0,0,0,1,1,0,0,0],"resp":[0,-1,-1,-1,-1,-1,0,0,-1,-1,-1],"nlock":3,"riskMax":100,"conflictVal":39694000,"trades":2394,"worst":{"ticker":"MSFT","issuer":"Microsoft Corp","sector":"TECH","si":7,"ci":0,"value":8000,"side":"SELL","txDate":"2025-03-21","pub":"2025-09-12","gap":175,"rep":19,"risk":100,"committee":"Homeland Security","flags":["committee-sector-overlap","reporting-gap-90d-plus","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Jonathan Jackson","party":"D","chamber":"H","state":"IL","coms":[{"c":"AGRIC","n":"Agriculture","j":[0,0,1,0,0,0,0,0,1,0,0]},{"c":"FORAFF","n":"Foreign Affairs","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[0,0,1,0,0,0,0,0,1,0,0],"cnt":[15,16,10,6,20,19,3,29,3,3,2],"val":[370000,348500,220500,97000,459000,348000,97500,946000,140000,73000,65000],"lock":[0,0,1,0,0,0,0,0,1,0,0],"resp":[-1,-1,0,-1,-1,-1,-1,-1,0,-1,-1],"nlock":2,"riskMax":100,"conflictVal":360500,"trades":128,"worst":{"ticker":"FMX","issuer":"Fomento Economico Mexican SAB de C","sector":"STPL","si":2,"ci":0,"value":8000,"side":"BUY","txDate":"2025-05-21","pub":"2025-08-26","gap":96,"rep":6,"risk":100,"committee":"Agriculture","flags":["committee-sector-overlap","reporting-gap-90d-plus","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Ritchie Torres","party":"D","chamber":"H","state":"NY","coms":[{"c":"FINSVC","n":"Financial Services","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"CCP","n":"Strategic Competition between US and CCP","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[0,0,0,0,1,0,0,0,0,1,0],"cnt":[8,4,11,12,21,8,15,21,3,15,7],"val":[64000,32000,88000,96000,168000,64000,120000,168000,24000,120000,56000],"lock":[0,0,0,0,1,0,0,0,0,1,0],"resp":[-1,-1,-1,-1,0,-1,-1,-1,-1,0,-1],"nlock":2,"riskMax":100,"conflictVal":288000,"trades":156,"worst":{"ticker":"ARE","issuer":"Alexandria Real Estate Equities In","sector":"RE","si":9,"ci":0,"value":8000,"side":"BUY","txDate":"2024-09-26","pub":"2025-08-21","gap":328,"rep":9,"risk":100,"committee":"Financial Services","flags":["committee-sector-overlap","reporting-gap-180d-plus","repeat-committee-sector-trades-90d"]}},{"name":"James Scott","party":"R","chamber":"H","state":"GA","coms":[{"c":"ARMSVC","n":"Armed Services","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"INTEL","n":"Intelligence","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"AGRIC","n":"Agriculture","j":[0,0,1,0,0,0,0,0,1,0,0]}],"jur":[1,0,1,0,0,0,1,1,1,0,0],"cnt":[0,2,0,1,1,1,14,0,0,0,0],"val":[0,16000,0,8000,8000,8000,112000,0,0,0,0],"lock":[0,0,0,0,0,0,1,0,0,0,0],"resp":[-1,-1,-1,-1,-1,-1,0,-1,-1,-1,-1],"nlock":1,"riskMax":100,"conflictVal":112000,"trades":19,"worst":{"ticker":"GEV","issuer":"GE VERNOVA INC","sector":"INDU","si":6,"ci":1,"value":8000,"side":"SELL","txDate":"2024-10-02","pub":"2025-08-14","gap":315,"rep":4,"risk":100,"committee":"Intelligence","flags":["committee-sector-overlap","reporting-gap-180d-plus","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Markwayne Mullin","party":"R","chamber":"S","state":"OK","coms":[{"c":"ARMSVC","n":"Armed Services","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"HELP","n":"Health, Education, Labor & Pensions","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"ENVPW","n":"Environment & Public Works","j":[0,0,0,1,0,0,0,0,1,0,1]},{"c":"INDAFF","n":"Indian Affairs","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,1,1,0,1,1,1,1,0,1],"cnt":[4,24,17,8,27,24,42,58,0,6,0],"val":[357500,818000,405500,387500,1016500,968000,1218000,2763000,0,121500,0],"lock":[1,0,1,1,0,1,1,1,0,0,0],"resp":[0,-1,1,2,-1,1,0,0,-1,-1,-1],"nlock":6,"riskMax":96,"conflictVal":6099500,"trades":288,"worst":{"ticker":"LLY","issuer":"Eli Lilly and Co","sector":"HLTH","si":5,"ci":1,"value":75000,"side":"BUY","txDate":"2024-12-11","pub":"2025-08-13","gap":244,"rep":2,"risk":96,"committee":"Health, Education, Labor & Pensions","flags":["committee-sector-overlap","top-10pct-value","reporting-gap-180d-plus","owner-joint"]}},{"name":"Daniel Meuser","party":"R","chamber":"H","state":"PA","coms":[{"c":"FINSVC","n":"Financial Services","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"SMLBIZ","n":"Small business","j":[0,0,0,0,1,0,0,0,0,1,0]}],"jur":[0,0,0,0,1,0,0,0,0,1,0],"cnt":[1,1,1,0,1,1,0,11,0,0,0],"val":[75000,8000,8000,0,32500,8000,0,1613000,0,0,0],"lock":[0,0,0,0,1,0,0,0,0,0,0],"resp":[-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1],"nlock":1,"riskMax":95,"conflictVal":32500,"trades":18,"worst":{"ticker":"V","issuer":"Visa Inc","sector":"FIN","si":4,"ci":0,"value":32500,"side":"SELL","txDate":"2025-02-11","pub":"2025-08-21","gap":190,"rep":1,"risk":95,"committee":"Financial Services","flags":["committee-sector-overlap","top-25pct-value","reporting-gap-180d-plus","owner-spouse"]}},{"name":"John Fetterman","party":"D","chamber":"S","state":"PA","coms":[{"c":"ENVPW","n":"Environment & Public Works","j":[0,0,0,1,0,0,0,0,1,0,1]},{"c":"AGNUTR","n":"Agriculture, Nutrition & Forestry","j":[0,0,1,0,0,0,0,0,1,0,0]},{"c":"BANKNG","n":"Banking, Housing & Urban Affairs","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"AGING","n":"Aging","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[0,0,1,1,1,0,0,0,1,1,1],"cnt":[4,5,0,3,14,3,6,10,3,0,2],"val":[32000,40000,0,24000,112000,24000,48000,80000,24000,0,16000],"lock":[0,0,0,1,1,0,0,0,1,0,1],"resp":[-1,-1,-1,0,2,-1,-1,-1,0,-1,0],"nlock":4,"riskMax":93,"conflictVal":176000,"trades":58,"worst":{"ticker":"JPM","issuer":"JPMorgan Chase & Co","sector":"FIN","si":4,"ci":2,"value":8000,"side":"BUY","txDate":"2025-06-17","pub":"2026-05-15","gap":332,"rep":3,"risk":93,"committee":"Banking, Housing & Urban Affairs","flags":["committee-sector-overlap","reporting-gap-180d-plus","repeat-committee-sector-trades-90d"]}},{"name":"William Hagerty","party":"R","chamber":"S","state":"TN","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"BANKNG","n":"Banking, Housing & Urban Affairs","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"FORREL","n":"Foreign Relations","j":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"JTPRNT","n":"Joint Committee on Printing","j":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"RULES","n":"Rules and Administration","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[0,0,0,1,1,1,1,1,0,1,0],"cnt":[0,0,0,2,1,0,0,1,0,1,0],"val":[0,0,0,65000,32500,0,0,75000,0,8000,0],"lock":[0,0,0,1,1,0,0,1,0,1,0],"resp":[-1,-1,-1,0,1,-1,-1,0,-1,1,-1],"nlock":4,"riskMax":92,"conflictVal":180500,"trades":11,"worst":{"ticker":"ETRN","issuer":"Equitrans Midstream Corp","sector":"ENGY","si":3,"ci":0,"value":32500,"side":"EXCHANGE","txDate":"2024-07-22","pub":"2025-08-12","gap":385,"rep":2,"risk":92,"committee":"Appropriations","flags":["committee-sector-overlap","top-25pct-value","reporting-gap-180d-plus"]}},{"name":"Shri Thanedar","party":"D","chamber":"H","state":"MI","coms":[{"c":"HMLAND","n":"Homeland Security","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"SMLBIZ","n":"Small business","j":[0,0,0,0,1,0,0,0,0,1,0]}],"jur":[1,0,0,0,1,0,1,1,0,1,0],"cnt":[0,0,0,0,0,0,0,1,0,0,0],"val":[0,0,0,0,0,0,0,32500,0,0,0],"lock":[0,0,0,0,0,0,0,1,0,0,0],"resp":[-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1],"nlock":1,"riskMax":92,"conflictVal":32500,"trades":1,"worst":{"ticker":"MSTR","issuer":"MicroStrategy Inc","sector":"TECH","si":7,"ci":0,"value":32500,"side":"BUY","txDate":"2024-07-01","pub":"2025-08-12","gap":406,"rep":1,"risk":92,"committee":"Homeland Security","flags":["committee-sector-overlap","top-25pct-value","reporting-gap-180d-plus"]}},{"name":"Joshua Gottheimer","party":"D","chamber":"H","state":"NJ","coms":[{"c":"INTEL","n":"Intelligence","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"FINSVC","n":"Financial Services","j":[0,0,0,0,1,0,0,0,0,1,0]}],"jur":[1,0,0,0,1,0,1,1,0,1,0],"cnt":[39,105,44,19,137,129,111,231,22,10,12],"val":[312000,938000,376500,152000,1169500,1056500,888000,61570000,225000,80000,96000],"lock":[1,0,0,0,1,0,1,1,0,1,0],"resp":[0,-1,-1,-1,1,-1,0,0,-1,1,-1],"nlock":5,"riskMax":91,"conflictVal":64019500,"trades":859,"worst":{"ticker":"GOOGL","issuer":"Alphabet Inc","sector":"COMM","si":0,"ci":0,"value":8000,"side":"BUY","txDate":"2024-07-01","pub":"2024-08-16","gap":45,"rep":8,"risk":91,"committee":"Intelligence","flags":["committee-sector-overlap","reporting-gap-45d-plus","repeat-committee-sector-trades-90d","owner-joint"]}},{"name":"August Pfluger","party":"R","chamber":"H","state":"TX","coms":[{"c":"E&COMM","n":"Energy & Commerce","j":[1,1,0,1,0,0,1,0,1,0,1]},{"c":"HMLAND","n":"Homeland Security","j":[1,0,0,0,0,0,1,1,0,0,0]}],"jur":[1,1,0,1,0,0,1,1,1,0,1],"cnt":[8,2,0,4,2,0,1,0,0,0,0],"val":[64000,16000,0,130000,40500,0,32500,0,0,0,0],"lock":[1,1,0,1,0,0,1,0,0,0,0],"resp":[0,0,-1,0,-1,-1,0,-1,-1,-1,-1],"nlock":4,"riskMax":91,"conflictVal":242500,"trades":17,"worst":{"ticker":"SIRI","issuer":"Sirius XM Holdings Inc","sector":"COMM","si":0,"ci":1,"value":8000,"side":"EXCHANGE","txDate":"2024-09-10","pub":"2025-08-14","gap":337,"rep":2,"risk":91,"committee":"Homeland Security","flags":["committee-sector-overlap","reporting-gap-180d-plus","owner-spouse"]}},{"name":"Laurel Lee","party":"R","chamber":"H","state":"FL","coms":[{"c":"HMLAND","n":"Homeland Security","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"HSEADM","n":"House Administration","j":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"JUDIC","n":"Judiciary","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,0,0,0,0,1,1,0,0,0],"cnt":[1,0,0,0,1,2,1,4,0,0,0],"val":[8000,0,0,0,75000,40500,32500,130000,0,0,0],"lock":[1,0,0,0,0,0,1,1,0,0,0],"resp":[0,-1,-1,-1,-1,-1,0,0,-1,-1,-1],"nlock":3,"riskMax":91,"conflictVal":170500,"trades":12,"worst":{"ticker":"WBD","issuer":"Warner Bros Discover Inc","sector":"COMM","si":0,"ci":0,"value":8000,"side":"SELL","txDate":"2024-11-29","pub":"2025-08-12","gap":255,"rep":1,"risk":91,"committee":"Homeland Security","flags":["committee-sector-overlap","reporting-gap-180d-plus","owner-spouse"]}},{"name":"Kathy Manning","party":"D","chamber":"H","state":"NC","coms":[{"c":"EDLABR","n":"Education & Labor","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"FORAFF","n":"Foreign Affairs","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[0,0,1,0,0,1,0,0,0,0,0],"cnt":[5,11,4,0,15,12,4,17,3,0,0],"val":[40000,179500,32000,0,144500,96000,32000,185000,24000,0,0],"lock":[0,0,1,0,0,1,0,0,0,0,0],"resp":[-1,-1,0,-1,-1,0,-1,-1,-1,-1,-1],"nlock":2,"riskMax":91,"conflictVal":128000,"trades":89,"worst":{"ticker":"ABT","issuer":"Abbott Laboratories","sector":"HLTH","si":5,"ci":0,"value":8000,"side":"BUY","txDate":"2024-07-02","pub":"2024-08-19","gap":45,"rep":11,"risk":91,"committee":"Education & Labor","flags":["committee-sector-overlap","reporting-gap-45d-plus","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Edward Case","party":"D","chamber":"H","state":"HI","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"NATRES","n":"Natural Resources","j":[0,0,0,1,0,0,0,0,1,0,1]}],"jur":[0,0,0,1,0,1,1,1,1,0,1],"cnt":[0,0,1,0,0,0,0,8,0,0,0],"val":[0,0,8000,0,0,0,0,64000,0,0,0],"lock":[0,0,0,0,0,0,0,1,0,0,0],"resp":[-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1],"nlock":1,"riskMax":91,"conflictVal":64000,"trades":9,"worst":{"ticker":"AAPL","issuer":"Apple Inc","sector":"TECH","si":7,"ci":0,"value":8000,"side":"BUY","txDate":"2024-08-15","pub":"2026-04-08","gap":599,"rep":1,"risk":91,"committee":"Appropriations","flags":["committee-sector-overlap","reporting-gap-180d-plus","owner-spouse"]}},{"name":"Kevin Hern","party":"R","chamber":"H","state":"OK","coms":[{"c":"W&MEANS","n":"Ways & Means","j":[0,0,0,0,1,0,0,0,0,0,0]}],"jur":[0,0,0,0,1,0,0,0,0,0,0],"cnt":[1,9,2,11,16,13,8,11,1,3,1],"val":[32500,430500,65000,553000,13573000,1037000,180000,1645000,8000,833000,8000],"lock":[0,0,0,0,1,0,0,0,0,0,0],"resp":[-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1],"nlock":1,"riskMax":88,"conflictVal":13573000,"trades":83,"worst":{"ticker":"RY","issuer":"Royal Bank of Canada","sector":"FIN","si":4,"ci":0,"value":375000,"side":"BUY","txDate":"2026-01-07","pub":"2026-02-19","gap":42,"rep":5,"risk":88,"committee":"Ways & Means","flags":["committee-sector-overlap","top-10pct-value","repeat-committee-sector-trades-90d","owner-joint"]}},{"name":"Rohit Khanna","party":"D","chamber":"H","state":"CA","coms":[{"c":"ARMSVC","n":"Armed Services","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"OVRSGT","n":"Oversight and Reform","j":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"CCP","n":"Strategic Competition between US and CCP","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,0,0,0,0,1,1,0,0,0],"cnt":[391,829,575,48,1462,1112,969,1506,431,350,93],"val":[4534500,8535000,5818500,1349000,28214000,11816500,10779500,17856500,4322000,3184500,1440000],"lock":[1,0,0,0,0,0,1,1,0,0,0],"resp":[0,-1,-1,-1,-1,-1,0,0,-1,-1,-1],"nlock":3,"riskMax":86,"conflictVal":33170500,"trades":8176,"worst":{"ticker":"MSFT","issuer":"Microsoft Corp","sector":"TECH","si":7,"ci":0,"value":75000,"side":"SELL","txDate":"2025-02-19","pub":"2025-03-10","gap":15,"rep":121,"risk":86,"committee":"Armed Services","flags":["committee-sector-overlap","top-10pct-value","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Shelley Moore Capito","party":"R","chamber":"S","state":"WV","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"COMMSC","n":"Commerce, Science & Transportation","j":[1,1,0,0,0,0,1,1,0,0,0]},{"c":"ENVPW","n":"Environment & Public Works","j":[0,0,0,1,0,0,0,0,1,0,1]},{"c":"RULES","n":"Rules and Administration","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,1,0,1,0,1,1,1,1,0,1],"cnt":[10,10,5,4,20,4,12,31,4,1,3],"val":[80000,80000,40000,32000,184500,32000,96000,346000,32000,8000,24000],"lock":[1,1,0,1,0,1,1,1,1,0,1],"resp":[1,1,-1,0,-1,0,0,0,2,-1,2],"nlock":8,"riskMax":85,"conflictVal":722000,"trades":104,"worst":{"ticker":"AAPL","issuer":"Apple Inc","sector":"TECH","si":7,"ci":0,"value":32500,"side":"SELL","txDate":"2025-09-18","pub":"2025-10-05","gap":17,"rep":5,"risk":85,"committee":"Appropriations","flags":["committee-sector-overlap","top-25pct-value","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Thomas Tuberville","party":"R","chamber":"S","state":"AL","coms":[{"c":"ARMSVC","n":"Armed Services","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"AGNUTR","n":"Agriculture, Nutrition & Forestry","j":[0,0,1,0,0,0,0,0,1,0,0]},{"c":"HELP","n":"Health, Education, Labor & Pensions","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"VETAFF","n":"Veteran\u2019s Affairs","j":[0,0,1,0,0,1,0,0,0,0,0]}],"jur":[1,0,1,0,0,1,1,1,1,0,0],"cnt":[3,2,6,0,5,6,7,14,1,0,1],"val":[73000,65000,195000,0,162500,146000,178500,497500,8000,0,32500],"lock":[1,0,1,0,0,1,1,1,1,0,0],"resp":[0,-1,1,-1,-1,2,0,0,1,-1,-1],"nlock":6,"riskMax":85,"conflictVal":1098000,"trades":52,"worst":{"ticker":"TXN","issuer":"Texas Instruments Inc","sector":"TECH","si":7,"ci":0,"value":32500,"side":"SELL","txDate":"2025-01-10","pub":"2025-02-14","gap":35,"rep":6,"risk":85,"committee":"Armed Services","flags":["committee-sector-overlap","top-25pct-value","repeat-committee-sector-trades-90d","owner-joint"]}},{"name":"Gregory Landsman","party":"D","chamber":"H","state":"OH","coms":[{"c":"SMLBIZ","n":"Small business","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"VETAFF","n":"Veteran\u2019s Affairs","j":[0,0,1,0,0,1,0,0,0,0,0]}],"jur":[0,0,1,0,1,1,0,0,0,1,0],"cnt":[2,9,8,6,11,12,11,19,1,2,3],"val":[40500,194500,504500,146000,161500,218500,161500,457500,8000,40500,24000],"lock":[0,0,1,0,1,1,0,0,0,1,0],"resp":[-1,-1,1,-1,0,1,-1,-1,-1,0,-1],"nlock":4,"riskMax":85,"conflictVal":925000,"trades":84,"worst":{"ticker":"KR","issuer":"The Kroger Co","sector":"STPL","si":2,"ci":1,"value":375000,"side":"SELL","txDate":"2025-05-09","pub":"2025-05-14","gap":4,"rep":8,"risk":85,"committee":"Veteran\u2019s Affairs","flags":["committee-sector-overlap","top-10pct-value","repeat-committee-sector-trades-90d"]}},{"name":"James Hill","party":"R","chamber":"H","state":"AR","coms":[{"c":"INTEL","n":"Intelligence","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"FINSVC","n":"Financial Services","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"FORAFF","n":"Foreign Affairs","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,0,0,1,0,1,1,0,1,0],"cnt":[1,0,1,2,8,4,0,2,0,0,0],"val":[8000,0,8000,40500,572500,248000,0,40500,0,0,0],"lock":[1,0,0,0,1,0,0,1,0,0,0],"resp":[0,-1,-1,-1,1,-1,-1,0,-1,-1,-1],"nlock":3,"riskMax":85,"conflictVal":621000,"trades":19,"worst":{"ticker":"MKL","issuer":"Markel Corp","sector":"FIN","si":4,"ci":1,"value":32500,"side":"BUY","txDate":"2025-06-23","pub":"2025-07-25","gap":31,"rep":8,"risk":85,"committee":"Financial Services","flags":["committee-sector-overlap","top-25pct-value","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Douglas Lamborn","party":"R","chamber":"H","state":"CO","coms":[{"c":"ARMSVC","n":"Armed Services","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"NATRES","n":"Natural Resources","j":[0,0,0,1,0,0,0,0,1,0,1]}],"jur":[1,0,0,1,0,0,1,1,1,0,1],"cnt":[0,0,0,0,0,0,0,11,0,0,0],"val":[0,0,0,0,0,0,0,161500,0,0,0],"lock":[0,0,0,0,0,0,0,1,0,0,0],"resp":[-1,-1,-1,-1,-1,-1,-1,0,-1,-1,-1],"nlock":1,"riskMax":85,"conflictVal":161500,"trades":11,"worst":{"ticker":"NTAP","issuer":"NetApp Inc","sector":"TECH","si":7,"ci":0,"value":32500,"side":"BUY","txDate":"2024-07-24","pub":"2024-08-13","gap":19,"rep":6,"risk":85,"committee":"Armed Services","flags":["committee-sector-overlap","top-25pct-value","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Christine Smith","party":"D","chamber":"S","state":"MN","coms":[{"c":"HELP","n":"Health, Education, Labor & Pensions","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"AGNUTR","n":"Agriculture, Nutrition & Forestry","j":[0,0,1,0,0,0,0,0,1,0,0]},{"c":"BANKNG","n":"Banking, Housing & Urban Affairs","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"CSCE","n":"Commission on Security and Cooperation in Europe","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"INDAFF","n":"Indian Affairs","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,1,0,1,1,1,1,1,1,0],"cnt":[0,0,2,0,4,5,1,0,0,0,0],"val":[0,0,350000,0,600000,775000,75000,0,0,0,0],"lock":[0,0,1,0,1,1,1,0,0,0,0],"resp":[-1,-1,0,-1,2,0,3,-1,-1,-1,-1],"nlock":4,"riskMax":82,"conflictVal":1800000,"trades":12,"worst":{"ticker":"PODD","issuer":"Insulet Corp","sector":"HLTH","si":5,"ci":0,"value":175000,"side":"SELL","txDate":"2026-05-07","pub":"2026-05-10","gap":3,"rep":4,"risk":82,"committee":"Health, Education, Labor & Pensions","flags":["committee-sector-overlap","top-10pct-value","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Sheldon Whitehouse","party":"D","chamber":"S","state":"RI","coms":[{"c":"CSCE","n":"Commission on Security and Cooperation in Europe","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"BUDGET","n":"Budget","j":[0,0,0,0,1,0,0,0,0,0,0]},{"c":"FINANC","n":"Finance","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"ENVPW","n":"Environment & Public Works","j":[0,0,0,1,0,0,0,0,1,0,1]},{"c":"NARCO","n":"International Narcotics Control","j":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"JUDIC","n":"Judiciary","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,0,1,1,0,1,1,1,1,1],"cnt":[6,15,12,0,7,9,3,19,0,0,0],"val":[48000,385000,96000,0,105000,194500,73000,804500,0,0,0],"lock":[1,0,0,0,1,0,1,1,0,0,0],"resp":[0,-1,-1,-1,1,-1,0,0,-1,-1,-1],"nlock":4,"riskMax":82,"conflictVal":1030500,"trades":73,"worst":{"ticker":"MSFT","issuer":"Microsoft Corp","sector":"TECH","si":7,"ci":0,"value":32500,"side":"SELL","txDate":"2025-09-04","pub":"2025-10-03","gap":29,"rep":6,"risk":82,"committee":"Commission on Security and Cooperation in Europe","flags":["committee-sector-overlap","top-25pct-value","repeat-committee-sector-trades-90d"]}},{"name":"Thomas Kean Jr","party":"R","chamber":"H","state":"NJ","coms":[{"c":"SCITEC","n":"Science, Space and Technology","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"TRANSP","n":"Transportation & Infrastructure","j":[1,1,0,0,0,0,1,0,0,0,0]},{"c":"FORAFF","n":"Foreign Affairs","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,1,0,0,0,0,1,1,0,0,0],"cnt":[11,9,5,0,16,23,23,13,8,3,0],"val":[137000,72000,64500,0,250500,404500,355500,153000,64000,24000,0],"lock":[1,1,0,0,0,0,1,1,0,0,0],"resp":[0,1,-1,-1,-1,-1,0,0,-1,-1,-1],"nlock":4,"riskMax":82,"conflictVal":717500,"trades":115,"worst":{"ticker":"J","issuer":"Jacobs Engineering Group Inc","sector":"INDU","si":6,"ci":1,"value":32500,"side":"RECEIVE","txDate":"2024-09-30","pub":"2024-10-16","gap":15,"rep":13,"risk":82,"committee":"Transportation & Infrastructure","flags":["committee-sector-overlap","top-25pct-value","repeat-committee-sector-trades-90d"]}},{"name":"Marjorie Taylor Greene","party":"R","chamber":"H","state":"GA","coms":[{"c":"HMLAND","n":"Homeland Security","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"COVID","n":"Coronavirus Pandemic","j":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"OVRSGT","n":"Oversight and Reform","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,0,0,0,0,1,1,0,0,0],"cnt":[22,48,21,19,47,40,45,114,5,7,17],"val":[176000,408500,192500,152000,376000,369000,433500,912000,40000,80500,160500],"lock":[1,0,0,0,0,0,1,1,0,0,0],"resp":[0,-1,-1,-1,-1,-1,0,0,-1,-1,-1],"nlock":3,"riskMax":82,"conflictVal":1521500,"trades":420,"worst":{"ticker":"ADP","issuer":"Automatic Data Processing Inc","sector":"INDU","si":6,"ci":0,"value":32500,"side":"BUY","txDate":"2025-11-12","pub":"2025-11-14","gap":1,"rep":5,"risk":82,"committee":"Homeland Security","flags":["committee-sector-overlap","top-25pct-value","repeat-committee-sector-trades-90d"]}},{"name":"Angus King","party":"?","chamber":"S","state":"ME","coms":[{"c":"ARMSVC","n":"Armed Services","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"INTEL","n":"Intelligence","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"ENRGNR","n":"Energy & Natural Resources","j":[0,0,0,1,0,0,0,0,1,0,1]},{"c":"VETAFF","n":"Veteran\u2019s Affairs","j":[0,0,1,0,0,1,0,0,0,0,0]}],"jur":[1,0,1,1,0,1,1,1,1,0,1],"cnt":[6,3,0,1,6,3,7,9,0,0,0],"val":[48000,24000,0,8000,48000,24000,56000,72000,0,0,0],"lock":[1,0,0,1,0,1,1,1,0,0,0],"resp":[0,-1,-1,2,-1,3,0,0,-1,-1,-1],"nlock":5,"riskMax":81,"conflictVal":208000,"trades":37,"worst":{"ticker":"AMD","issuer":"Advanced Micro Devices Inc","sector":"TECH","si":7,"ci":1,"value":8000,"side":"BUY","txDate":"2025-07-21","pub":"2025-08-18","gap":28,"rep":7,"risk":81,"committee":"Intelligence","flags":["committee-sector-overlap","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Mark Warner","party":"D","chamber":"S","state":"VA","coms":[{"c":"INTEL","n":"Intelligence","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"BANKNG","n":"Banking, Housing & Urban Affairs","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"BUDGET","n":"Budget","j":[0,0,0,0,1,0,0,0,0,0,0]},{"c":"FINANC","n":"Finance","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"JTLIB","n":"Joint Committee on the Library","j":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"RULES","n":"Rules and Administration","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,0,0,1,0,1,1,0,1,0],"cnt":[1,0,1,2,7,3,1,5,0,0,1],"val":[3000000,0,8000,16000,56000,24000,8000,40000,0,0,8000],"lock":[1,0,0,0,1,0,1,1,0,0,0],"resp":[0,-1,-1,-1,1,-1,0,0,-1,-1,-1],"nlock":4,"riskMax":81,"conflictVal":3104000,"trades":50,"worst":{"ticker":"WFC","issuer":"Wells Fargo & Co","sector":"FIN","si":4,"ci":1,"value":8000,"side":"BUY","txDate":"2026-04-13","pub":"2026-05-01","gap":18,"rep":7,"risk":81,"committee":"Banking, Housing & Urban Affairs","flags":["committee-sector-overlap","repeat-committee-sector-trades-90d","owner-joint"]}},{"name":"Daniel Newhouse","party":"R","chamber":"H","state":"WA","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"CCP","n":"Strategic Competition between US and CCP","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[0,0,0,1,0,1,1,1,0,0,0],"cnt":[6,13,9,4,16,5,10,17,2,2,3],"val":[48000,104000,96500,32000,201500,40000,80000,136000,40500,16000,24000],"lock":[0,0,0,1,0,1,1,1,0,0,0],"resp":[-1,-1,-1,0,-1,0,0,0,-1,-1,-1],"nlock":4,"riskMax":81,"conflictVal":288000,"trades":88,"worst":{"ticker":"ACN","issuer":"Accenture PLC","sector":"TECH","si":7,"ci":0,"value":8000,"side":"SELL","txDate":"2025-04-11","pub":"2025-05-19","gap":35,"rep":11,"risk":81,"committee":"Appropriations","flags":["committee-sector-overlap","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Richard Blumenthal","party":"D","chamber":"S","state":"CT","coms":[{"c":"ARMSVC","n":"Armed Services","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"CSCE","n":"Commission on Security and Cooperation in Europe","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"HMLAND","n":"Homeland Security & Gov. Affairs","j":[1,0,0,0,0,0,1,1,0,0,0]},{"c":"VETAFF","n":"Veteran\u2019s Affairs","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"AGING","n":"Aging","j":[0,0,0,0,0,0,0,0,0,0,0]},{"c":"NARCO","n":"International Narcotics Control","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,0,1,0,0,1,1,1,0,0,0],"cnt":[0,1,0,0,1,14,3,0,0,0,0],"val":[0,8000,0,0,8000,112000,24000,0,0,0,0],"lock":[0,0,0,0,0,1,1,0,0,0,0],"resp":[-1,-1,-1,-1,-1,3,0,-1,-1,-1,-1],"nlock":2,"riskMax":81,"conflictVal":136000,"trades":719,"worst":{"ticker":"IRTC","issuer":"iRhythm Technologies Inc","sector":"HLTH","si":5,"ci":3,"value":8000,"side":"SELL","txDate":"2025-08-14","pub":"2025-09-12","gap":29,"rep":9,"risk":81,"committee":"Veteran\u2019s Affairs","flags":["committee-sector-overlap","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Byron Donalds","party":"R","chamber":"H","state":"FL","coms":[{"c":"FINSVC","n":"Financial Services","j":[0,0,0,0,1,0,0,0,0,1,0]},{"c":"OVRSGT","n":"Oversight and Reform","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[0,0,0,0,1,0,0,0,0,1,0],"cnt":[14,18,0,0,58,24,11,34,0,0,0],"val":[112000,144000,0,0,464000,192000,88000,272000,0,0,0],"lock":[0,0,0,0,1,0,0,0,0,0,0],"resp":[-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1],"nlock":1,"riskMax":81,"conflictVal":464000,"trades":161,"worst":{"ticker":"FCNCA","issuer":"First Citizens BancShares Inc","sector":"FIN","si":4,"ci":0,"value":8000,"side":"BUY","txDate":"2025-01-21","pub":"2025-02-11","gap":20,"rep":7,"risk":81,"committee":"Financial Services","flags":["committee-sector-overlap","repeat-committee-sector-trades-90d","owner-spouse"]}},{"name":"Susan Collins","party":"R","chamber":"S","state":"ME","coms":[{"c":"APPROP","n":"Appropriations","j":[0,0,0,1,0,1,1,1,0,0,0]},{"c":"HELP","n":"Health, Education, Labor & Pensions","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"INTEL","n":"Intelligence","j":[1,0,0,0,0,0,1,1,0,0,0]}],"jur":[1,0,1,1,0,1,1,1,0,0,0],"cnt":[0,0,0,0,3,2,0,0,0,0,0],"val":[0,0,0,0,97500,65000,0,0,0,0,0],"lock":[0,0,0,0,0,1,0,0,0,0,0],"resp":[-1,-1,-1,-1,-1,0,-1,-1,-1,-1,-1],"nlock":1,"riskMax":80,"conflictVal":65000,"trades":10,"worst":{"ticker":"PFE","issuer":"Pfizer Inc","sector":"HLTH","si":5,"ci":0,"value":32500,"side":"BUY","txDate":"2026-02-03","pub":"2026-03-26","gap":50,"rep":1,"risk":80,"committee":"Appropriations","flags":["committee-sector-overlap","top-25pct-value","reporting-gap-45d-plus","owner-spouse"]}},{"name":"Earl Carter","party":"R","chamber":"H","state":"GA","coms":[{"c":"BUDGET","n":"Budget","j":[0,0,0,0,1,0,0,0,0,0,0]},{"c":"E&COMM","n":"Energy & Commerce","j":[1,1,0,1,0,0,1,0,1,0,1]}],"jur":[1,1,0,1,1,0,1,0,1,0,1],"cnt":[0,0,0,0,4,0,0,0,0,0,0],"val":[0,0,0,0,700000,0,0,0,0,0,0],"lock":[0,0,0,0,1,0,0,0,0,0,0],"resp":[-1,-1,-1,-1,0,-1,-1,-1,-1,-1,-1],"nlock":1,"riskMax":79,"conflictVal":700000,"trades":9,"worst":{"ticker":"ABCB","issuer":"Ameris Bancorp","sector":"FIN","si":4,"ci":0,"value":175000,"side":"SELL","txDate":"2024-07-23","pub":"2024-07-25","gap":1,"rep":4,"risk":79,"committee":"Budget","flags":["committee-sector-overlap","top-10pct-value","repeat-committee-sector-trades-90d"]}},{"name":"John James","party":"R","chamber":"H","state":"MI","coms":[{"c":"TRANSP","n":"Transportation & Infrastructure","j":[1,1,0,0,0,0,1,0,0,0,0]},{"c":"EDLABR","n":"Education & Labor","j":[0,0,1,0,0,1,0,0,0,0,0]},{"c":"FORAFF","n":"Foreign Affairs","j":[0,0,0,0,0,0,0,0,0,0,0]}],"jur":[1,1,1,0,0,1,1,0,0,0,0],"cnt":[9,11,8,7,20,19,19,22,6,4,7],"val":[72000,88000,64000,56000,152985,152000,152000,200500,48000,32000,56000],"lock":[1,1,1,0,0,1,1,0,0,0,0],"resp":[0,0,1,-1,-1,1,0,-1,-1,-1,-1],"nlock":5,"riskMax":78,"conflictVal":528000,"trades":132,"worst":{"ticker":"VEEV","issuer":"Veeva Systems Inc","sector":"HLTH","si":5,"ci":1,"value":8000,"side":"SELL","txDate":"2024-07-16","pub":"2024-09-03","gap":48,"rep":3,"risk":78,"committee":"Education & Labor","flags":["committee-sector-overlap","reporting-gap-45d-plus","repeat-committee-sector-trades-90d"]}}],"meta":{"window":"2024-06-04 / 2026-05-14","note":"Triage heuristic. Not an allegation of unlawful conduct.","nPol":113,"nTrades":18720}};
+(function(){
+'use strict';
+const cv=document.getElementById('rl-canvas');
+const ctx=cv.getContext('2d');
+const off=document.createElement('canvas');
+const o=off.getContext('2d');
+let W=0,H=0,DPR=1,vg=null;
+const MONO='ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
+const RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,x)=>a+(b-a)*x;
+const smooth=x=>{x=clamp(x,0,1);return x*x*(3-2*x);};
+const ease4=x=>1-Math.pow(1-clamp(x,0,1),4);
+const z2=n=>String(n).padStart(2,'0');
+const aw=v=>'rgba(255,255,255,'+clamp(v,0,1).toFixed(3)+')';
+const h1=n=>{const s=Math.sin(n*127.1+311.7)*43758.5453123;return s-Math.floor(s);};
+const strobe=(t,f,s,k)=>Math.pow(Math.max(0,Math.sin((t*f+s)*Math.PI*2)),k);
+function money(v){if(v>=1e6)return '$'+(v/1e6).toFixed(2)+'M';if(v>=1e3)return '$'+Math.round(v/1e3)+'K';return '$'+Math.round(v);}
+function moneyJit(v,prog,seed,fr){if(prog>=1)return money(v);const x=v*ease4(prog)*(0.96+0.08*h1(seed+fr));return money(x);}
+const GLYPH='▮▯/\\<>|#%&@01▓▒░+×=*';
+const CODES=DATA.codes,NS=CODES.length,MEM=DATA.members,NM=MEM.length,META=DATA.meta;
+
+MEM.forEach((m,i)=>{
+  m.maxLog=Math.max(1,...m.val.map(v=>Math.log10(v+1)));
+  m.locked=[];for(let s=0;s<NS;s++)if(m.lock[s])m.locked.push(s);
+  m.maxCnt=Math.max(1,...m.cnt);
+  m.seed=i*37.31+7.7;
+});
+
+/* ---- timeline ---- */
+const PHASES=[['WALL',3.6],['EXTRACT',1.15],['SPECTRUM',5.0],['VERDICT',5.6],['DISSOLVE',1.25]];
+const CT=PHASES.reduce((s,p)=>s+p[1],0);
+const BOUNDS=(()=>{let acc=0;const b=[0];PHASES.forEach(p=>{acc+=p[1];b.push(acc);});return b;})();
+function phaseAt(tc){
+  let acc=0;
+  for(let i=0;i<PHASES.length;i++){
+    const d=PHASES[i][1];
+    if(tc<acc+d)return{name:PHASES[i][0],p:(tc-acc)/d,i};
+    acc+=d;
+  }
+  return{name:'DISSOLVE',p:1,i:PHASES.length-1};
+}
+function boundDist(tc){
+  let d=1e9;
+  for(let i=0;i<BOUNDS.length;i++){
+    d=Math.min(d,Math.abs(tc-BOUNDS[i]),Math.abs(tc-BOUNDS[i]+CT),Math.abs(tc-BOUNDS[i]-CT));
+  }
+  return d;
+}
+
+/* ---- text helpers ---- */
+function track(c,str,x,y,ls){let xx=x;for(let i=0;i<str.length;i++){c.fillText(str[i],xx,y);xx+=c.measureText(str[i]).width+ls;}return xx-x-ls;}
+function trackW(c,str,ls){let w=0;for(let i=0;i<str.length;i++)w+=c.measureText(str[i]).width+ls;return w-ls;}
+function gText(c,str,x,y,res,seed,fr){
+  let out='';
+  for(let i=0;i<str.length;i++){
+    const r=h1(seed+i*13.7+fr*0.61);
+    if(res>=1||(i+0.5)/str.length<res-r*0.22)out+=str[i];
+    else out+=GLYPH[Math.floor(h1(seed*1.7+i*5.3+fr)*GLYPH.length)%GLYPH.length];
+  }
+  c.fillText(out,x,y);
+}
+
+/* ---- ambient micro-field ---- */
+function microField(t){
+  o.save();
+  const d=Math.max(34,Math.min(W,H)/22);
+  o.fillStyle=aw(0.05);
+  for(let y=d*0.5;y<H;y+=d)for(let x=d*0.5;x<W;x+=d){
+    const f=0.4+0.6*strobe(t,0.22,x*0.013+y*0.027,6);
+    o.globalAlpha=0.06*f;
+    o.fillRect(x,y,1,1);
+  }
+  o.globalAlpha=1;
+  o.strokeStyle=aw(0.035);o.lineWidth=1;
+  const gx=[W*0.07,W*0.5,W*0.93];
+  gx.forEach(x=>{o.beginPath();o.moveTo(Math.round(x)+0.5,0);o.lineTo(Math.round(x)+0.5,H);o.stroke();});
+  o.restore();
+}
+
+/* ---- chrome: registration marks, progress, captions ---- */
+function chrome(t,tc,mi,phName){
+  o.save();
+  const M=Math.max(14,W*0.022);
+  /* house title block (matches scenes 01-05) */
+  o.textAlign='left';o.textBaseline='alphabetic';
+  o.fillStyle=aw(0.92);o.font='12px '+MONO;
+  o.fillText('CT · EXPOSURE INDEX',16,28);
+  o.fillStyle=aw(0.45);o.font='9px '+MONO;
+  o.fillText('SCENE 03 / OVERSIGHT × HOLDINGS — CONFLICT REGISTER',16,42);
+  o.fillStyle=aw(0.30);
+  o.fillText('REAL — CAPITOL TRADES · '+META.window.replace(' / ','–'),16,54);
+  o.strokeStyle=aw(0.30);o.lineWidth=1;
+  const L=9;
+  [[W-M,M,-1,1],[M,H-M,1,-1],[W-M,H-M,-1,-1]].forEach(c=>{
+    o.beginPath();
+    o.moveTo(c[0]+0.5,c[1]+0.5+L*c[3]);o.lineTo(c[0]+0.5,c[1]+0.5);o.lineTo(c[0]+0.5+L*c[2],c[1]+0.5);
+    o.stroke();
+  });
+  /* cycle progress ruler, top center */
+  const rw=Math.min(W*0.30,300),rx=(W-rw)/2,ry=M+0.5;
+  o.strokeStyle=aw(0.16);
+  o.beginPath();o.moveTo(rx,ry);o.lineTo(rx+rw,ry);o.stroke();
+  for(let i=0;i<BOUNDS.length;i++){
+    const x=rx+rw*BOUNDS[i]/CT;
+    o.beginPath();o.moveTo(x,ry-3);o.lineTo(x,ry+3);o.stroke();
+  }
+  o.fillStyle=aw(0.85);
+  o.fillRect(rx+rw*tc/CT-1,ry-4,2,8);
+  /* captions */
+  o.font='8px '+MONO;o.textBaseline='alphabetic';
+  o.fillStyle=aw(0.30);o.textAlign='left';
+  track(o,'CAPITOL ALPHA MACHINE — TRIAGE HEURISTIC, NOT AN ALLEGATION OF UNLAWFUL CONDUCT',M,H-M+11>H-4?H-4:H-M+11,1.2);
+  o.textAlign='right';
+  o.fillStyle=aw(0.42);
+  const tag='SCENE 03 / EXPOSURE INDEX · '+phName+' · SUBJECT '+z2(mi+1)+'/'+z2(NM);
+  let xx=W-M-14;
+  for(let i=tag.length-1;i>=0;i--){xx-=o.measureText(tag[i]).width+1.2;}
+  o.textAlign='left';
+  track(o,tag,xx,M+4>14?M+4:14,1.2);
+  o.restore();
+}
+
+/* ---- WALL: census ---- */
+function wallGeom(){
+  const top=H*0.135,bot=H*0.905,left=W*0.215,right=W*0.845;
+  return{top,bot,left,right,rowH:(bot-top)/NM,colW:(right-left)/NS};
+}
+function renderWall(t,p,mi,dim){
+  const g=wallGeom();
+  const fr=Math.floor(t*30);
+  o.save();
+  if(dim!==undefined)o.globalAlpha=dim;
+  /* header */
+  o.fillStyle=aw(0.85);o.font='700 11px '+MONO;o.textAlign='left';o.textBaseline='alphabetic';
+  track(o,'01 — CONFLICT CENSUS',g.left,g.top-26,3);
+  o.font='8px '+MONO;o.fillStyle=aw(0.38);
+  track(o,(META.nPol+' POLITICIANS · '+META.nTrades+' DISCLOSED TRADES · WINDOW '+META.window).toUpperCase(),g.left,g.top-13,1.4);
+  /* column codes */
+  o.font='7px '+MONO;o.textAlign='center';
+  for(let s=0;s<NS;s++){
+    o.fillStyle=aw(0.34+0.2*strobe(t,0.21,s*0.7,8));
+    o.fillText(CODES[s],g.left+(s+0.5)*g.colW,g.top-3);
+  }
+  /* scan position: sweep then lock */
+  const sweep=NM*(0.5-0.5*Math.cos(p*Math.PI*2.6));
+  const pos=lerp(sweep,mi+0.0001,smooth((p-0.55)/0.38));
+  const scanY=g.top+clamp(pos,0,NM-0.001)*g.rowH;
+  /* rows */
+  for(let i=0;i<NM;i++){
+    const m=MEM[i];
+    const y=g.top+i*g.rowH;
+    const near=clamp(1-Math.abs((y-scanY)/(g.rowH*2.5)),0,1);
+    const hot=near>0.6;
+    o.textAlign='right';o.font=(hot?'700 ':'')+Math.min(8,Math.max(6.5,g.rowH*0.62)).toFixed(1)+'px '+MONO;
+    o.fillStyle=aw(0.16+0.66*near);
+    o.fillText(m.name.toUpperCase().slice(0,18),g.left-8,y+g.rowH*0.72);
+    for(let s=0;s<NS;s++){
+      const v=m.val[s];
+      const x=g.left+s*g.colW;
+      if(v<=0){
+        o.fillStyle=aw(0.030+0.05*near);
+        o.fillRect(x+1,y+g.rowH*0.5,g.colW-2,1);
+        continue;
+      }
+      const b=Math.log10(v+1)/8;
+      const fl=0.72+0.28*((h1(m.seed+s*9.1+fr*((s*7+i)%5===0?1:0))));
+      const lk=m.lock[s]===1;
+      const base=lk?0.16+0.62*b:0.05+0.22*b;
+      o.fillStyle=aw((base+0.30*near)*fl);
+      const bh=Math.max(1,(g.rowH-2)*(0.25+0.75*b));
+      o.fillRect(x+1,y+(g.rowH-bh)/2,g.colW-2,bh);
+      if(lk&&hot){
+        o.fillStyle=aw(0.9*near*strobe(t,2.2,s*0.31,3));
+        o.fillRect(x+1,y+(g.rowH-bh)/2,g.colW-2,1);
+      }
+    }
+    /* right micro value */
+    o.textAlign='left';o.font='6.5px '+MONO;
+    o.fillStyle=aw(0.13+0.5*near);
+    o.fillText(money(m.conflictVal),g.right+8,y+g.rowH*0.72);
+  }
+  /* scanline */
+  const lockT=smooth((p-0.55)/0.38);
+  o.fillStyle=aw(0.05+0.06*lockT);
+  o.fillRect(g.left-2,scanY,g.right-g.left+4,g.rowH);
+  o.fillStyle=aw(0.55+0.4*strobe(t,RM?1:6,0,2)*lockT);
+  o.fillRect(g.left-2,scanY,g.right-g.left+4,1);
+  o.fillRect(g.left-2,scanY+g.rowH,g.right-g.left+4,1);
+  o.fillStyle=aw(0.8);
+  o.fillRect(g.left-14,scanY,8,g.rowH);
+  o.fillRect(g.right+W*0.06,scanY,8,g.rowH);
+  /* readout above scanline */
+  if(lockT>0.02){
+    const m=MEM[mi];
+    o.font='700 10px '+MONO;o.textAlign='left';
+    o.fillStyle=aw(0.9*lockT);
+    const ry2=clamp(scanY-8,g.top+10,g.bot);
+    gText(o,('LOCK '+z2(mi+1)+' · '+m.name+' ['+m.party+'-'+m.state+'] · CONFLICT '+money(m.conflictVal)).toUpperCase(),g.left,ry2,lockT,m.seed,fr);
+  }
+  o.restore();
+}
+
+/* ---- EXTRACT ---- */
+function renderExtract(t,p,mi){
+  const g=wallGeom();
+  const m=MEM[mi];
+  const fr=Math.floor(t*30);
+  const e=ease4(p);
+  const rowY=g.top+mi*g.rowH;
+  const cy=lerp(rowY+g.rowH/2,H*0.5,e);
+  const bandH=lerp(g.rowH,H*0.56,e);
+  /* residual wall collapsing away */
+  o.save();
+  o.globalAlpha=(1-e)*0.85;
+  renderWall(t,1,mi,1);
+  o.restore();
+  /* band */
+  const y0=cy-bandH/2,y1=cy+bandH/2;
+  o.fillStyle='#000';
+  o.fillRect(0,y0,W,bandH);
+  o.fillStyle=aw(0.85);
+  o.fillRect(W*0.05,Math.round(y0)+0.5,W*0.90,1);
+  o.fillRect(W*0.05,Math.round(y1)+0.5,W*0.90,1);
+  /* edge tick combs */
+  o.fillStyle=aw(0.5);
+  const n=Math.floor(W*0.9/14);
+  for(let i=0;i<n;i++){
+    if(h1(i*3.3+fr*0.23)>0.5)continue;
+    const x=W*0.05+i*14;
+    o.fillRect(x,y0+2,1,4);o.fillRect(x,y1-6,1,4);
+  }
+  /* name */
+  const fs=Math.min(W/(m.name.length*0.72),bandH*0.34);
+  o.font='700 '+fs.toFixed(0)+'px '+MONO;
+  o.textAlign='center';o.textBaseline='middle';
+  o.fillStyle=aw(0.96);
+  gText(o,m.name.toUpperCase(),W/2,cy-bandH*0.10,e*1.15,m.seed,fr);
+  o.font=(fs*0.18).toFixed(0)+'px '+MONO;
+  o.fillStyle=aw(0.55*e);
+  const sub=(m.party==='?'?'INDEPENDENT':m.party==='R'?'REPUBLICAN':'DEMOCRAT')+' · '+(m.chamber==='S'?'SENATE':'HOUSE')+' · '+m.state+' · '+m.trades+' TRADES · '+m.coms.length+' COMMITTEES';
+  o.fillText(sub,W/2,cy+bandH*0.16);
+  o.textBaseline='alphabetic';
+}
+
+/* ---- SPECTRUM ---- */
+function spectrumGeom(){
+  const left=W*0.075,right=W*0.925;
+  const top=H*0.315,bot=H*0.72;
+  return{left,right,top,bot,cw:(right-left)/NS};
+}
+function renderSpectrum(t,p,mi){
+  const m=MEM[mi];
+  const g=spectrumGeom();
+  const fr=Math.floor(t*30);
+  o.save();
+  /* header */
+  o.font='700 11px '+MONO;o.textAlign='left';o.fillStyle=aw(0.85);
+  track(o,'02 — OVERSIGHT × HOLDINGS',g.left,H*0.135,3);
+  o.font='8px '+MONO;o.fillStyle=aw(0.38);
+  track(o,'SECTOR SPECTRUM · JURISDICTION MASK ABOVE / DISCLOSED TRADES BELOW',g.left,H*0.135+13,1.4);
+  /* subject name */
+  const nfs=Math.min(W*0.045,30);
+  o.font='700 '+nfs+'px '+MONO;o.fillStyle=aw(0.94);
+  o.fillText(m.name.toUpperCase(),g.left,H*0.225);
+  o.textAlign='right';o.font='10px '+MONO;o.fillStyle=aw(0.6);
+  o.fillText('CONFLICT SECTORS '+z2(m.nlock)+'/'+z2(NS)+' · PEAK RISK '+m.riskMax,g.right,H*0.225);
+  /* needle: stepped sweep */
+  const steps=NS*6;
+  const np=Math.floor(smooth(p<0.92?p/0.92:1)*steps)/steps;
+  const nx=g.left+np*(g.right-g.left);
+  /* columns */
+  for(let s=0;s<NS;s++){
+    const x0=g.left+s*g.cw,xc=x0+g.cw/2;
+    const lk=m.lock[s]===1,jur=m.jur[s]===1;
+    const lit=lk&&xc<=nx;
+    const colA=lit?1:0.55;
+    /* code */
+    o.textAlign='center';o.font=(lit?'700 ':'')+'9px '+MONO;
+    o.fillStyle=aw((jur||lk?0.7:0.24)*colA);
+    o.fillText(CODES[s],xc,g.top-34);
+    /* jurisdiction mask */
+    if(jur){o.fillStyle=aw(lit?0.95:0.55);o.fillRect(x0+3,g.top-26,g.cw-6,5);}
+    else{o.strokeStyle=aw(0.16);o.lineWidth=1;o.strokeRect(x0+3.5,g.top-25.5,g.cw-7,4);}
+    /* barcode body */
+    const den=m.cnt[s]<=0?0.015:0.08+0.78*Math.sqrt(m.cnt[s]/m.maxCnt);
+    const bars=Math.floor((g.bot-g.top)/3);
+    for(let b=0;b<bars;b++){
+      const r=h1(m.seed+s*101.3+b*7.7);
+      if(r>den)continue;
+      const y=g.top+b*3;
+      const tw=h1(m.seed+s*55.1+b*3.1)>0.82?2:1;
+      const fl=((b+s*13+fr)%37===0)?0.25:1;
+      o.fillStyle=aw((lk?0.55:0.20)*colA*fl*(0.5+0.5*r/den));
+      o.fillRect(x0+3,y,g.cw-6,tw);
+    }
+    /* trade strip */
+    const v=m.val[s];
+    if(v>0){
+      const b=Math.log10(v+1)/8;
+      o.fillStyle=aw((lk?0.85:0.30)*colA);
+      o.fillRect(x0+3,g.bot+10,(g.cw-6)*clamp(b,0.06,1),5);
+    }else{
+      o.fillStyle=aw(0.10);o.fillRect(x0+3,g.bot+12,g.cw-6,1);
+    }
+    o.textAlign='center';o.font='6.5px '+MONO;
+    o.fillStyle=aw((v>0?0.45:0.15)*colA);
+    o.fillText(v>0?money(v):'—',xc,g.bot+28);
+    /* lock decoration once lit */
+    if(lit){
+      const since=clamp((nx-xc)/(g.cw*2),0,1);
+      const pulse=lerp(strobe(t,RM?0.8:3.1,s*0.37,2),0.35,since);
+      o.fillStyle=aw(0.12+0.20*pulse);
+      o.fillRect(x0+1,g.top,g.cw-2,g.bot-g.top);
+      o.strokeStyle=aw(0.65+0.35*pulse);o.lineWidth=1;
+      o.strokeRect(x0+1.5,g.top+0.5,g.cw-3,g.bot-g.top-1);
+      /* crosshair diamond on the jurisdiction row */
+      o.save();
+      o.translate(xc,g.top-23.5);o.rotate(Math.PI/4);
+      o.strokeStyle=aw(0.9);o.strokeRect(-4,-4,8,8);
+      o.restore();
+      /* responsible committee code */
+      if(m.resp[s]>=0&&m.coms[m.resp[s]]){
+        o.font='700 7px '+MONO;o.fillStyle=aw(0.7);
+        o.fillText(m.coms[m.resp[s]].c,xc,g.bot+40);
+      }
+    }
+  }
+  /* needle */
+  if(p<0.94){
+    o.fillStyle=aw(0.9);
+    o.fillRect(nx,g.top-40,1,g.bot-g.top+58);
+    o.fillRect(nx-3,g.top-44,7,3);
+    o.font='7px '+MONO;o.textAlign='center';o.fillStyle=aw(0.6);
+    o.fillText(z2(Math.floor(np*NS)+1>NS?NS:Math.floor(np*NS)+1)+'/'+z2(NS),nx,g.bot+54);
+  }
+  /* accumulated conflicted exposure */
+  let acc=0,nlit=0;
+  for(let s=0;s<NS;s++){const xc=g.left+s*g.cw+g.cw/2;if(m.lock[s]&&xc<=nx){acc+=m.val[s];nlit++;}}
+  const done=p>0.92;
+  const big=Math.min(W*0.062,44);
+  o.font='700 '+big+'px '+MONO;o.textAlign='center';
+  o.fillStyle=aw(done?0.96:0.78);
+  const shown=done?m.conflictVal:acc;
+  gText(o,money(shown),W/2,H*0.875,done?1:0.93,m.seed+5,fr);
+  o.font='8px '+MONO;o.fillStyle=aw(0.42);
+  track(o,'DISCLOSED VALUE TRADED INSIDE OWN OVERSIGHT JURISDICTION ('+z2(done?m.nlock:nlit)+' SECTORS)',W/2-trackW(o,'DISCLOSED VALUE TRADED INSIDE OWN OVERSIGHT JURISDICTION (00 SECTORS)',1.4)/2,H*0.875+18,1.4);
+  o.restore();
+}
+
+/* ---- VERDICT ---- */
+function renderVerdict(t,p,mi){
+  const m=MEM[mi],w=m.worst;
+  const fr=Math.floor(t*30);
+  const s1=clamp(p/0.16,0,1);           /* ticker slam */
+  const s2=clamp((p-0.13)/0.18,0,1);    /* issuer line */
+  const s3=clamp((p-0.26)/0.34,0,1);    /* gap timeline */
+  const s4=clamp((p-0.55)/0.26,0,1);    /* flags */
+  const s5=clamp((p-0.64)/0.27,0,1);    /* risk counter */
+  o.save();
+  o.font='700 11px '+MONO;o.textAlign='left';o.fillStyle=aw(0.85);
+  track(o,'03 — WORST FLAGGED TRANSACTION',W*0.075,H*0.135,3);
+  o.font='8px '+MONO;o.fillStyle=aw(0.38);
+  track(o,(m.name+' · COMMITTEE: '+w.committee).toUpperCase(),W*0.075,H*0.135+13,1.4);
+  /* ticker */
+  const tfs=Math.min(W/(w.ticker.length*0.78),H*0.30)*lerp(1.14,1,ease4(s1));
+  o.font='700 '+tfs.toFixed(0)+'px '+MONO;
+  o.textAlign='center';o.textBaseline='middle';
+  o.fillStyle=aw(0.97);
+  gText(o,w.ticker,W/2,H*0.385,s1*1.1,m.seed+9,fr);
+  o.textBaseline='alphabetic';
+  if(s2>0){
+    o.font='700 '+Math.min(W*0.022,14)+'px '+MONO;o.fillStyle=aw(0.8*s2);
+    const l2=(w.issuer+' · '+w.side+' '+money(w.value)+' · '+w.sector).toUpperCase();
+    gText(o,l2,W/2,H*0.555,s2,m.seed+11,fr);
+  }
+  /* reporting-gap timeline */
+  if(s3>0){
+    const lx=W*0.12,rx=W*0.88,y=H*0.655;
+    o.strokeStyle=aw(0.30);o.lineWidth=1;
+    o.beginPath();o.moveTo(lx,y+0.5);o.lineTo(lx+(rx-lx)*s3,y+0.5);o.stroke();
+    const days=Math.floor(w.gap*ease4(s3));
+    const nt=Math.floor(w.gap/30);
+    for(let i=0;i<=nt;i++){
+      const fx=lx+(rx-lx)*(i*30/w.gap);
+      if(fx>lx+(rx-lx)*s3)break;
+      o.fillStyle=aw(i%6===0?0.6:0.3);
+      o.fillRect(fx,y-(i%6===0?7:4),1,i%6===0?7:4);
+    }
+    o.fillStyle=aw(0.9);
+    o.fillRect(lx-1,y-9,2,9);
+    o.fillRect(lx+(rx-lx)*s3-1,y-9,2,9);
+    o.font='8px '+MONO;o.textAlign='left';o.fillStyle=aw(0.5);
+    o.fillText('EXECUTED '+w.txDate,lx,y+15);
+    o.textAlign='right';
+    o.fillText('DISCLOSED '+w.pub,rx,y+15);
+    o.textAlign='center';
+    o.font='700 '+Math.min(W*0.034,24)+'px '+MONO;
+    o.fillStyle=aw(0.95);
+    o.fillText(days+' DAYS',(lx+rx)/2,y-16);
+    if(w.gap>=180&&s3>0.85){
+      o.font='700 9px '+MONO;
+      o.fillStyle=aw(0.5+0.5*strobe(t,RM?0.8:2.6,0,2));
+      o.fillText('· 180D+ STATUTE WINDOW EXCEEDED ·',(lx+rx)/2,y+30);
+    }
+  }
+  /* flags */
+  if(s4>0){
+    const fy=H*0.80;
+    const nf=w.flags.length;
+    let widths=[],tot=0;
+    o.font='700 8px '+MONO;
+    w.flags.forEach(f=>{const ww=trackW(o,f.toUpperCase(),1.2)+18;widths.push(ww);tot+=ww+10;});
+    let x=(W-tot+10)/2;
+    for(let i=0;i<nf;i++){
+      const fi=clamp(s4*nf-i,0,1);
+      if(fi>0){
+        const blink=fi<0.12;
+        o.strokeStyle=aw(blink?1:0.45);o.lineWidth=1;
+        o.strokeRect(x+0.5,fy-11.5,widths[i],16);
+        if(blink){o.fillStyle=aw(0.9);o.fillRect(x,fy-12,widths[i]+1,17);o.fillStyle='rgba(0,0,0,1)';}
+        else o.fillStyle=aw(0.78*fi);
+        track(o,w.flags[i].toUpperCase(),x+9,fy,1.2);
+      }
+      x+=widths[i]+10;
+    }
+  }
+  /* risk counter */
+  if(s5>0){
+    const rv=Math.floor(w.risk*ease4(s5));
+    o.font='700 '+Math.min(W*0.05,36)+'px '+MONO;o.textAlign='center';
+    o.fillStyle=aw(0.96);
+    o.fillText('RISK '+(s5>=1?w.risk:Math.min(rv+Math.floor(h1(fr)*3),w.risk)),W/2,H*0.915);
+    /* meter */
+    const mw=Math.min(W*0.30,300);
+    o.fillStyle=aw(0.18);o.fillRect(W/2-mw/2,H*0.932,mw,2);
+    o.fillStyle=aw(0.9);o.fillRect(W/2-mw/2,H*0.932,mw*ease4(s5)*w.risk/100,2);
+  }
+  o.restore();
+}
+
+/* ---- DISSOLVE ---- */
+function renderDissolve(t,p,mi){
+  const nmi=(mi+1)%NM;
+  const bell=Math.sin(clamp(p,0,1)*Math.PI);
+  /* incoming wall ghost */
+  o.save();
+  o.globalAlpha=smooth((p-0.25)/0.75)*0.95;
+  renderWall(t,0.04,nmi,1);
+  o.restore();
+  /* block corruption */
+  const cs=Math.max(18,Math.floor(W/52));
+  const cols=Math.ceil(W/cs),rows=Math.ceil(H/cs);
+  const fr=Math.floor(t*(RM?10:24));
+  const n=Math.floor(bell*cols*rows*0.16);
+  for(let k=0;k<n;k++){
+    const gx=Math.floor(h1(k*9.7+fr*1.31)*cols);
+    const gy=Math.floor(h1(k*3.3+fr*2.17)*rows);
+    const r=h1(k*5.9+fr*0.71);
+    o.fillStyle=r>0.45?aw(0.12+0.8*r*bell):'#000';
+    const wq=cs*(r>0.85?Math.ceil(r*4):1);
+    o.fillRect(gx*cs,gy*cs,wq,cs);
+  }
+}
+
+/* ---- post chain ---- */
+let scanPat=null;
+function buildStatic(){
+  const sc=document.createElement('canvas');sc.width=4;sc.height=3;
+  const c2=sc.getContext('2d');
+  c2.fillStyle='rgba(0,0,0,0)';c2.fillRect(0,0,4,3);
+  c2.fillStyle='rgba(0,0,0,0.16)';c2.fillRect(0,2,4,1);
+  scanPat=ctx.createPattern(sc,'repeat');
+  vg=document.createElement('canvas');vg.width=Math.max(2,Math.floor(W/4));vg.height=Math.max(2,Math.floor(H/4));
+  const vc=vg.getContext('2d');
+  const gr=vc.createRadialGradient(vg.width/2,vg.height/2,Math.min(vg.width,vg.height)*0.36,vg.width/2,vg.height/2,Math.max(vg.width,vg.height)*0.72);
+  gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,0.42)');
+  vc.fillStyle=gr;vc.fillRect(0,0,vg.width,vg.height);
+}
+function post(t,tc,glitch,invert){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  ctx.drawImage(off,0,0,W,H);
+  const fr=Math.floor(t*60);
+  /* slice displacement */
+  if(glitch>0.05&&!RM){
+    const n=1+Math.floor(glitch*9);
+    for(let i=0;i<n;i++){
+      const sy=h1(i*7.13+fr*1.7)*H;
+      const sh=2+h1(i*3.7+fr*0.9)*H*0.06*glitch;
+      const dx=(h1(i*9.1+fr*2.3)-0.5)*W*0.12*glitch;
+      ctx.drawImage(off,0,sy*DPR,off.width,Math.max(1,sh*DPR),dx,sy,W,sh);
+    }
+    /* ghost double-exposure */
+    if(glitch>0.35){
+      ctx.globalAlpha=0.10*glitch;
+      ctx.drawImage(off,glitch*7,0,W,H);
+      ctx.globalAlpha=1;
+    }
+  }
+  /* slow sync band */
+  const by=((t*0.035)%1.25)*H*1.25-H*0.125;
+  const bg=ctx.createLinearGradient(0,by,0,by+90);
+  bg.addColorStop(0,'rgba(255,255,255,0)');bg.addColorStop(0.5,'rgba(255,255,255,0.022)');bg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=bg;ctx.fillRect(0,by,W,90);
+  /* scanlines */
+  if(scanPat){ctx.fillStyle=scanPat;ctx.fillRect(0,0,W,H);}
+  /* grain */
+  ctx.fillStyle='rgba(255,255,255,0.045)';
+  const gn=RM?30:90;
+  for(let i=0;i<gn;i++){
+    ctx.fillRect(h1(i*3.1+fr*5.7)*W,h1(i*7.7+fr*3.3)*H,1,1);
+  }
+  /* vignette */
+  if(vg)ctx.drawImage(vg,0,0,W,H);
+  /* one-frame inversion */
+  if(invert&&!RM){
+    ctx.globalCompositeOperation='difference';
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation='source-over';
+  }
+}
+
+/* ---- main loop ---- */
+function resize(){
+  const r=cv.parentElement.getBoundingClientRect();
+  W=Math.max(320,r.width);H=Math.max(360,r.height);
+  DPR=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);
+  off.width=cv.width;off.height=cv.height;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  o.setTransform(DPR,0,0,DPR,0,0);
+  buildStatic();
+}
+let t0=performance.now()/1000,shift=0;
+cv.addEventListener('pointerdown',()=>{
+  const t=performance.now()/1000-t0+shift;
+  shift+=CT-(t%CT);
+});
+function frame(now){
+  const t=now/1000-t0+shift;
+  const tc=t%CT;
+  const cyc=Math.floor(t/CT);
+  const mi=cyc%NM;
+  const ph=phaseAt(tc);
+  const gd=boundDist(tc);
+  let glitch=Math.exp(-gd*7.5);
+  /* rare spontaneous spikes */
+  const sp=h1(Math.floor(t*2.2)*3.7);
+  if(sp>0.965)glitch=Math.max(glitch,(sp-0.965)/0.035*0.7);
+  if(ph.name==='EXTRACT')glitch=Math.max(glitch,0.45*(1-ph.p));
+  if(ph.name==='DISSOLVE')glitch=Math.max(glitch,0.5*Math.sin(ph.p*Math.PI));
+  if(RM)glitch*=0.25;
+  /* offscreen scene */
+  o.fillStyle='#000';o.fillRect(0,0,W,H);
+  microField(t);
+  if(ph.name==='WALL')renderWall(t,ph.p,mi,1);
+  else if(ph.name==='EXTRACT')renderExtract(t,ph.p,mi);
+  else if(ph.name==='SPECTRUM')renderSpectrum(t,ph.p,mi);
+  else if(ph.name==='VERDICT')renderVerdict(t,ph.p,mi);
+  else renderDissolve(t,ph.p,mi);
+  chrome(t,tc,mi,ph.name);
+  const invert=(gd<0.024)||(ph.name==='VERDICT'&&ph.p>0.952&&ph.p<0.965);
+  post(t,tc,glitch,invert);
+  requestAnimationFrame(frame);
+}
+window.addEventListener('resize',resize);
+resize();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
