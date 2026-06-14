@@ -170,20 +170,39 @@ def build_scene01_data(payload: dict[str, Any], tape_limit: int = 900) -> dict[s
     first_week = first_date - dt.timedelta(days=first_date.weekday())
     last_week = last_date - dt.timedelta(days=last_date.weekday())
 
-    weekly: dict[dt.date, int] = {}
+    weekly: dict[dt.date, dict[str, int]] = {}
     for tx_date, signed_amount, _buy in signed_rows:
         week = tx_date - dt.timedelta(days=tx_date.weekday())
-        weekly[week] = weekly.get(week, 0) + signed_amount
+        bucket = weekly.setdefault(week, {"net": 0, "gross": 0, "buy": 0, "sell": 0})
+        amount = abs(signed_amount)
+        bucket["net"] += signed_amount
+        bucket["gross"] += amount
+        if signed_amount > 0:
+            bucket["buy"] += amount
+        else:
+            bucket["sell"] += amount
 
     weeks: list[dict[str, Any]] = []
     cum = 0
     max_abs = 0
+    max_gross = 0
+    total_gross = 0
+    total_buy = 0
+    total_sell = 0
     week = first_week
     index = 0
     while week <= last_week:
-        net = weekly.get(week, 0)
+        bucket = weekly.get(week, {"net": 0, "gross": 0, "buy": 0, "sell": 0})
+        net = bucket["net"]
+        gross = bucket["gross"]
+        buy = bucket["buy"]
+        sell = bucket["sell"]
         cum += net
         max_abs = max(max_abs, abs(net))
+        max_gross = max(max_gross, gross)
+        total_gross += gross
+        total_buy += buy
+        total_sell += sell
         weeks.append(
             {
                 "i": index,
@@ -192,6 +211,9 @@ def build_scene01_data(payload: dict[str, Any], tape_limit: int = 900) -> dict[s
                     * 1000
                 ),
                 "net": net,
+                "gross": gross,
+                "buy": buy,
+                "sell": sell,
                 "cum": cum,
             }
         )
@@ -212,15 +234,19 @@ def build_scene01_data(payload: dict[str, Any], tape_limit: int = 900) -> dict[s
             "pages": payload.get("pages"),
             "count": len(trades),
             "buySellCount": len(signed_rows),
-            "valueBasis": "disclosed value; buy positive, sell negative",
+            "valueBasis": "disclosed value; gross volume sums buys and sells; net flow uses buys positive and sells negative",
             "skippedTypes": skipped_types,
             "skippedAnomalousDates": skipped_anomalous_dates,
+            "totalGross": total_gross,
+            "totalBuy": total_buy,
+            "totalSell": total_sell,
         },
         "weeks": weeks,
         "N": len(weeks),
         "minCum": min(cums),
         "maxCum": max(cums),
         "maxAbs": max_abs or 1,
+        "maxGross": max_gross or 1,
         "trades": [{"buy": buy, "amt": abs(amount)} for _date, amount, buy in tape_rows],
     }
 
