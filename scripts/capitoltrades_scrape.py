@@ -9,6 +9,7 @@ import json
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from bisect import bisect_left
@@ -20,29 +21,47 @@ BFF_URL = "https://bff.capitoltrades.com"
 NEXT_CHUNK_RE = re.compile(
     r'self\.__next_f\.push\(\[1,"(.*?)"\]\)</script>', re.DOTALL
 )
+DEFAULT_HEADERS = {
+    "Accept-Language": "en-US,en;q=0.9",
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+    ),
+}
+
+
+def urlopen_with_retries(
+    url: str, timeout: float, accept: str, attempts: int = 5
+) -> Any:
+    for attempt in range(attempts):
+        request = urllib.request.Request(
+            url,
+            headers={
+                **DEFAULT_HEADERS,
+                "Accept": accept,
+            },
+        )
+        try:
+            return urllib.request.urlopen(request, timeout=timeout)
+        except urllib.error.HTTPError as error:
+            if error.code != 429 or attempt + 1 >= attempts:
+                raise
+            retry_after = error.headers.get("Retry-After")
+            delay = float(retry_after) if retry_after and retry_after.isdigit() else 5 * (attempt + 1)
+            time.sleep(min(delay, 60))
+        except urllib.error.URLError:
+            if attempt + 1 >= attempts:
+                raise
+            time.sleep(min(2 * (attempt + 1), 20))
 
 
 def get_json(url: str, timeout: float) -> Any:
-    request = urllib.request.Request(
-        url,
-        headers={
-            "Accept": "application/json",
-            "User-Agent": "capitoltrades-refresh/1.0",
-        },
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
+    with urlopen_with_retries(url, timeout, "application/json") as response:
         return json.load(response)
 
 
 def get_html(url: str, timeout: float) -> str:
-    request = urllib.request.Request(
-        url,
-        headers={
-            "Accept": "text/html,application/xhtml+xml",
-            "User-Agent": "capitoltrades-refresh/1.0",
-        },
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
+    with urlopen_with_retries(url, timeout, "text/html,application/xhtml+xml") as response:
         return response.read().decode("utf-8")
 
 

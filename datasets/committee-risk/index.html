@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Committee-Risk Dataset | Capitol Alpha Machine</title>
+<meta name="description" content="Controlled aggregate dataset page for Capitol Alpha Machine committee-sector and timing proximity heuristics, with sources, caveats, and generation policy.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://capitol-alpha-machine.vercel.app/datasets/committee-risk">
+<link rel="alternate" type="application/rss+xml" title="Capitol Alpha Machine updates" href="https://capitol-alpha-machine.vercel.app/rss.xml">
+<link rel="icon" type="image/png" href="/favicon-ct.png?v=20260604">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Capitol Alpha Machine">
+<meta property="og:title" content="Committee-Risk Dataset | Capitol Alpha Machine">
+<meta property="og:description" content="Controlled aggregate dataset page for Capitol Alpha Machine committee-sector and timing proximity heuristics, with sources, caveats, and generation policy.">
+<meta property="og:url" content="https://capitol-alpha-machine.vercel.app/datasets/committee-risk">
+<meta property="og:image" content="https://capitol-alpha-machine.vercel.app/og-image.svg">
+<meta property="og:image:type" content="image/svg+xml">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Committee-Risk Dataset | Capitol Alpha Machine">
+<meta name="twitter:description" content="Controlled aggregate dataset page for Capitol Alpha Machine committee-sector and timing proximity heuristics, with sources, caveats, and generation policy.">
+<meta name="twitter:image" content="https://capitol-alpha-machine.vercel.app/og-image.svg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Capitol Alpha Machine committee-risk dataset","url":"https://capitol-alpha-machine.vercel.app/datasets/committee-risk","dateModified":"2026-06-15","creator":{"@type":"Person","name":"Sylvain Belahniche"},"temporalCoverage":"2024-07-09/2025-08-19","description":"Controlled aggregate dataset page for committee-sector and timing proximity heuristics used by Capitol Alpha Machine.","variableMeasured":["committee-sector proximity","public-law event proximity","representative disclosed value","timing score","risk score","reporting gap"],"isBasedOn":["https://www.capitoltrades.com/trades","https://www.congress.gov/public-laws/118th-congress","https://www.congress.gov/public-laws/119th-congress"]}</script>
+<style>:root { color-scheme: dark; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
+* { box-sizing: border-box; }
+html, body { margin:0; background:#000; color:var(--fg); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+a { color:inherit; }
+.topbar { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; gap:24px; padding:18px clamp(18px,5vw,72px); background:#000; border-bottom:1px solid var(--line); }
+.brand { text-decoration:none; font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap; }
+.nav { display:flex; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+main { min-height:100svh; }
+.hero, .band { padding:clamp(42px,8vw,104px) clamp(18px,6vw,96px); border-bottom:1px solid var(--line); }
+.hero { min-height:58svh; display:grid; align-content:end; }
+.eyebrow { margin:0 0 14px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.14em; }
+h1 { margin:0; max-width:1100px; font-size:clamp(36px,7vw,96px); line-height:.92; letter-spacing:0; }
+h2 { margin:0 0 24px; font-size:clamp(22px,3.2vw,44px); line-height:1.05; letter-spacing:0; }
+p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19px); line-height:1.6; }
+.dek { margin:24px 0 0; max-width:920px; font-size:clamp(16px,2vw,24px); color:rgba(255,255,255,.80); }
+.facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px; margin-top:34px; border:1px solid var(--line); background:var(--line); max-width:1100px; }
+.fact { min-height:118px; padding:18px; background:#000; }
+.label { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.12em; }
+.value { margin-top:16px; font-size:clamp(20px,3vw,36px); line-height:1; }
+.table { width:100%; max-width:1100px; border-collapse:collapse; margin-top:26px; font-size:13px; }
+.table th, .table td { padding:12px 0; border-bottom:1px solid rgba(255,255,255,.14); text-align:left; vertical-align:top; }
+.table th { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.12em; font-weight:400; }
+.table td:last-child, .table th:last-child { text-align:right; }
+.note { max-width:980px; color:rgba(255,255,255,.50); font-size:12px; line-height:1.7; }
+.callout { max-width:980px; margin-top:28px; padding:20px; border:1px solid var(--line); color:rgba(255,255,255,.72); font-size:13px; line-height:1.65; }
+.list { max-width:980px; margin:24px 0 0; padding-left:20px; color:rgba(255,255,255,.72); font-size:14px; line-height:1.7; }
+.list li { margin:10px 0; }
+.kicker { margin-top:28px; color:rgba(255,255,255,.45); font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.12em; }
+.links { display:flex; flex-wrap:wrap; gap:12px 22px; margin-top:28px; color:rgba(255,255,255,.66); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.footer { padding:28px clamp(18px,6vw,96px); color:rgba(255,255,255,.36); font-size:11px; }
+@media (max-width:720px) { .topbar { align-items:flex-start; flex-direction:column; } .table { font-size:12px; } }</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">Capitol Alpha Machine</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/methodology/">Methodology</a>
+    <a href="/data/">Data</a>
+    <a href="/datasets/committee-risk/">Committee Risk</a>
+    <a href="/updates/latest/">Latest</a>
+    <a href="/scenes/capital-flow">Capital Flow</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Dataset</p>
+    <h1>Committee-risk proximity dataset.</h1>
+    <p class="dek">A controlled aggregate page for the Timing Lattice dataset: committee context, sector proximity, public-law timing, and representative disclosed values. No individual member, ticker, or committee pages are generated yet.</p>
+  </section>
+  <section class="band">
+    <h2>Current dataset</h2>
+    <div class="facts">
+      <div class="fact"><div class="label">Event window</div><div class="value">2024-07-09 to 2025-08-19</div></div>
+      <div class="fact"><div class="label">Public-law events</div><div class="value">31</div></div>
+      <div class="fact"><div class="label">Linked trade rows</div><div class="value">372</div></div>
+      <div class="fact"><div class="label">Committees</div><div class="value">18</div></div>
+      <div class="fact"><div class="label">Members represented</div><div class="value">35</div></div>
+      <div class="fact"><div class="label">Representative value</div><div class="value">$46.6M</div></div>
+    </div>
+    <p class="note">Generated from the bundled Timing Lattice data on 2026-06-15. Source bundle generated at 2026-06-04T12:12:52.807Z.</p>
+  </section>
+  <section class="band">
+    <h2>Sources and method</h2>
+    <p>This page summarizes the committee-risk dataset used by the Timing Lattice scene. It links public-law events to disclosed trade rows using date proximity and sector proximity. Committee-sector overlap is a heuristic flag, not a claim of causation.</p>
+    <table class="table"><thead><tr><th>Source</th><th>Use</th></tr></thead><tbody>
+      <tr><td>Congress.gov public laws + Capitol Trades committee-risk scrape</td><td>Event spine, disclosed trades, committee labels, sectors, and proximity flags.</td></tr>
+      <tr><td>Capitol Trades</td><td><a href="https://www.capitoltrades.com/trades">https://www.capitoltrades.com/trades</a></td></tr>
+      <tr><td>Congress.gov public laws</td><td><a href="https://www.congress.gov/public-laws/118th-congress">https://www.congress.gov/public-laws/118th-congress</a></td></tr>
+<tr><td>Congress.gov public laws</td><td><a href="https://www.congress.gov/public-laws/119th-congress">https://www.congress.gov/public-laws/119th-congress</a></td></tr>
+    </tbody></table>
+    <div class="callout">This dataset page is not an allegation page. Scores and links are visualization heuristics only. They are not evidence of intent, privileged information, causation, profit, or unlawful conduct.</div>
+  </section>
+  <section class="band">
+    <h2>Top committees in the current aggregate</h2>
+    <table class="table"><thead><tr><th>Committee</th><th>Rows</th><th>Representative value</th><th>Members</th><th>Avg risk</th><th>Avg timing</th><th>Top sectors</th></tr></thead><tbody><tr><td>Intelligence</td><td>34</td><td>$33.2M</td><td>2</td><td>84</td><td>91</td><td>information-technology, industrials, communication-services</td></tr>
+<tr><td>Ways &amp; Means</td><td>4</td><td>$4.1M</td><td>1</td><td>77</td><td>82</td><td>financials</td></tr>
+<tr><td>Commerce, Science &amp; Transportation</td><td>13</td><td>$3.5M</td><td>2</td><td>85</td><td>92</td><td>communication-services, consumer-discretionary</td></tr>
+<tr><td>Homeland Security</td><td>32</td><td>$2.1M</td><td>5</td><td>83</td><td>89</td><td>information-technology, communication-services, industrials</td></tr>
+<tr><td>Armed Services</td><td>74</td><td>$1.3M</td><td>4</td><td>88</td><td>90</td><td>industrials, information-technology, communication-services</td></tr>
+<tr><td>Environment &amp; Public Works</td><td>13</td><td>$378K</td><td>5</td><td>72</td><td>75</td><td>energy, utilities</td></tr>
+<tr><td>Appropriations</td><td>39</td><td>$361K</td><td>8</td><td>87</td><td>86</td><td>energy, health-care, information-technology</td></tr>
+<tr><td>Financial Services</td><td>38</td><td>$304K</td><td>3</td><td>85</td><td>91</td><td>financials</td></tr>
+<tr><td>Natural Resources</td><td>37</td><td>$296K</td><td>1</td><td>79</td><td>77</td><td>health-care, materials, energy</td></tr>
+<tr><td>Budget</td><td>30</td><td>$240K</td><td>1</td><td>88</td><td>95</td><td>financials</td></tr></tbody></table>
+    <p class="note">Rows are aggregate only. This page intentionally does not create individual committee pages yet.</p>
+  </section>
+  <section class="band">
+    <h2>Risk flags</h2>
+    <table class="table"><thead><tr><th>Flag</th><th>Rows</th></tr></thead><tbody><tr><td>committee sector overlap</td><td>351</td></tr>
+<tr><td>repeat committee sector trades 90d</td><td>326</td></tr>
+<tr><td>owner spouse</td><td>198</td></tr>
+<tr><td>reporting gap 180d plus</td><td>103</td></tr>
+<tr><td>owner joint</td><td>79</td></tr>
+<tr><td>top 10pct value</td><td>46</td></tr>
+<tr><td>reporting gap 45d plus</td><td>46</td></tr>
+<tr><td>top 25pct value</td><td>42</td></tr></tbody></table>
+    <p class="note">Flags describe why a row became visually prominent inside the Timing Lattice. They should be read as triage labels for inspection, not conclusions.</p>
+  </section>
+  <section class="band">
+    <h2>Generation policy</h2>
+    <p>Programmatic pages stay controlled. The site currently publishes this aggregate dataset page and the weekly update only. Later, individual pages should be generated only when the row count and source context are strong enough to avoid thin or misleading pages.</p>
+    <table class="table"><thead><tr><th>Future page type</th><th>Current rule</th></tr></thead><tbody>
+      <tr><td>Top ticker pages</td><td>Generate only for the top 10 tickers by representative disclosed volume, with enough rows and source context.</td></tr>
+      <tr><td>Top member pages</td><td>Generate only for the top 10 members by representative disclosed volume, with careful caveats and no allegation framing.</td></tr>
+      <tr><td>Committee pages</td><td>Generate only for committees with at least 10 linked rows and meaningful sector/event context. Current qualifying committees: 10.</td></tr>
+    </tbody></table>
+    <div class="links">
+      <a href="/methodology/">Methodology</a>
+      <a href="/data/">Data summary</a>
+      <a href="/updates/latest/">Latest update</a>
+      <a href="/scenes/timing-lattice">Timing Lattice</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">Public disclosure data is used for visualization and research context only. Not investment advice, not an allegation of unlawful conduct.</footer>
+</body>
+</html>

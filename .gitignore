@@ -6,8 +6,11 @@
 node_modules
 dist
 build
+__pycache__/
 *.zip
 *.log
+*.bak
+*.pre_scene3
 
 # Local/raw scrape exports can be regenerated and are too large for normal Git.
 data/capitoltrades_historical.json

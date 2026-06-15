@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Returns Spectrum | Capitol Alpha Machine</title>
+<meta name="description" content="A returns spectrum visualization comparing disclosed congressional trades with trailing excess-return signals across members and sectors.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://capitol-alpha-machine.vercel.app/scenes/returns-spectrum">
+<link rel="alternate" type="application/rss+xml" title="Capitol Alpha Machine updates" href="https://capitol-alpha-machine.vercel.app/rss.xml">
+<link rel="icon" type="image/png" href="/favicon-ct.png?v=20260604">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Capitol Alpha Machine">
+<meta property="og:title" content="Returns Spectrum | Capitol Alpha Machine">
+<meta property="og:description" content="A returns spectrum visualization comparing disclosed congressional trades with trailing excess-return signals across members and sectors.">
+<meta property="og:url" content="https://capitol-alpha-machine.vercel.app/scenes/returns-spectrum">
+<meta property="og:image" content="https://capitol-alpha-machine.vercel.app/og-image.svg">
+<meta property="og:image:type" content="image/svg+xml">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Returns Spectrum | Capitol Alpha Machine">
+<meta name="twitter:description" content="A returns spectrum visualization comparing disclosed congressional trades with trailing excess-return signals across members and sectors.">
+<meta name="twitter:image" content="https://capitol-alpha-machine.vercel.app/og-image.svg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CreativeWork","name":"Returns Spectrum - Capitol Alpha Machine","url":"https://capitol-alpha-machine.vercel.app/scenes/returns-spectrum","isPartOf":{"@type":"WebSite","name":"Capitol Alpha Machine","url":"https://capitol-alpha-machine.vercel.app/"},"description":"A returns spectrum visualization comparing disclosed congressional trades with trailing excess-return signals across members and sectors.","creator":{"@type":"Person","name":"Sylvain Belahniche"},"about":["congressional trading disclosures","Capitol Trades data","financial data visualization"],"dateModified":"2026-06-15"}</script>
+<style>
+:root { color-scheme: dark; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
+* { box-sizing: border-box; }
+html, body { margin:0; background:#000; color:var(--fg); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+a { color:inherit; }
+.topbar { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; gap:24px; padding:18px clamp(18px,5vw,72px); background:#000; border-bottom:1px solid var(--line); }
+.brand { text-decoration:none; font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap; }
+.nav { display:flex; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+main { min-height:100svh; }
+.hero, .band { padding:clamp(42px,8vw,104px) clamp(18px,6vw,96px); border-bottom:1px solid var(--line); }
+.hero { min-height:58svh; display:grid; align-content:end; }
+.eyebrow { margin:0 0 14px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.14em; }
+h1 { margin:0; max-width:1100px; font-size:clamp(36px,7vw,96px); line-height:.92; letter-spacing:0; }
+h2 { margin:0 0 24px; font-size:clamp(22px,3.2vw,44px); line-height:1.05; letter-spacing:0; }
+p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19px); line-height:1.6; }
+.dek { margin:24px 0 0; max-width:920px; font-size:clamp(16px,2vw,24px); color:rgba(255,255,255,.80); }
+.facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px; margin-top:34px; border:1px solid var(--line); background:var(--line); max-width:1100px; }
+.fact { min-height:118px; padding:18px; background:#000; }
+.label { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.12em; }
+.value { margin-top:16px; font-size:clamp(20px,3vw,36px); line-height:1; }
+.table { width:100%; max-width:1100px; border-collapse:collapse; margin-top:26px; font-size:13px; }
+.table th, .table td { padding:12px 0; border-bottom:1px solid rgba(255,255,255,.14); text-align:left; vertical-align:top; }
+.table th { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.12em; font-weight:400; }
+.table td:last-child, .table th:last-child { text-align:right; }
+.note { max-width:980px; color:rgba(255,255,255,.50); font-size:12px; line-height:1.7; }
+.callout { max-width:980px; margin-top:28px; padding:20px; border:1px solid var(--line); color:rgba(255,255,255,.72); font-size:13px; line-height:1.65; }
+.list { max-width:980px; margin:24px 0 0; padding-left:20px; color:rgba(255,255,255,.72); font-size:14px; line-height:1.7; }
+.list li { margin:10px 0; }
+.kicker { margin-top:28px; color:rgba(255,255,255,.45); font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.12em; }
+.links { display:flex; flex-wrap:wrap; gap:12px 22px; margin-top:28px; color:rgba(255,255,255,.66); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.footer { padding:28px clamp(18px,6vw,96px); color:rgba(255,255,255,.36); font-size:11px; }
+@media (max-width:720px) { .topbar { align-items:flex-start; flex-direction:column; } .table { font-size:12px; } }
+.scene-hero { min-height:100svh; position:relative; background:#000; border-bottom:1px solid var(--line); }
+.scene-hero iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#000; display:block; }
+</style>
+</head>
+<body>
+<main>
+  <section class="scene-hero" aria-label="Interactive Returns Spectrum visualization">
+    <iframe src="/index.html?scene=scene04&embed=1" title="Returns Spectrum interactive visualization" loading="eager"></iframe>
+  </section>
+  <section class="band">
+    <p class="eyebrow">Scene 04 - Capitol Alpha Machine</p>
+    <h1>Returns Spectrum</h1>
+    <p class="dek">Member rows and return traces organize disclosed trades into a spectrum of trailing market performance, scanning for distance from a baseline.</p>
+    <p class="value">Member rows x trailing 90-day excess return</p>
+    <p class="note">Return signals are calculated for visualization and should not be interpreted as investment advice.</p>
+    <nav class="links" aria-label="Scene pages">
+        <a href="/scenes/capital-flow">01 - Capital Flow</a>
+        <a href="/scenes/the-ledger">02 - The Ledger</a>
+        <a href="/scenes/exposure-index">03 - Exposure Index</a>
+        <a href="/scenes/returns-spectrum">04 - Returns Spectrum</a>
+        <a href="/scenes/timing-lattice">05 - Timing Lattice</a>
+    </nav>
+    <div class="links">
+      <a href="/index.html?scene=scene04">Open in the full interactive machine</a>
+      <a href="/methodology/">Methodology</a>
+      <a href="/data/">Data summary</a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

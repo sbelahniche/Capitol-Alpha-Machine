@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Data | Capitol Alpha Machine</title>
+<meta name="description" content="Current data summary for Capitol Alpha Machine, including disclosure windows, disclosed trading volume, scene rows, and public-law event counts.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://capitol-alpha-machine.vercel.app/data">
+<link rel="alternate" type="application/rss+xml" title="Capitol Alpha Machine updates" href="https://capitol-alpha-machine.vercel.app/rss.xml">
+<link rel="icon" type="image/png" href="/favicon-ct.png?v=20260604">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Capitol Alpha Machine">
+<meta property="og:title" content="Data | Capitol Alpha Machine">
+<meta property="og:description" content="Current data summary for Capitol Alpha Machine, including disclosure windows, disclosed trading volume, scene rows, and public-law event counts.">
+<meta property="og:url" content="https://capitol-alpha-machine.vercel.app/data">
+<meta property="og:image" content="https://capitol-alpha-machine.vercel.app/og-image.svg">
+<meta property="og:image:type" content="image/svg+xml">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Data | Capitol Alpha Machine">
+<meta name="twitter:description" content="Current data summary for Capitol Alpha Machine, including disclosure windows, disclosed trading volume, scene rows, and public-law event counts.">
+<meta name="twitter:image" content="https://capitol-alpha-machine.vercel.app/og-image.svg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Capitol Alpha Machine disclosure data summary","url":"https://capitol-alpha-machine.vercel.app/data","dateModified":"2026-06-15","creator":{"@type":"Person","name":"Sylvain Belahniche"},"temporalCoverage":"2023-06-15/2026-06-05","variableMeasured":["disclosed trading volume","buy and sell disclosure count","trailing excess return","timing and sector proximity"],"distribution":{"@type":"DataDownload","encodingFormat":"application/javascript","contentUrl":"https://capitol-alpha-machine.vercel.app/capitoltrades_data.js"}}</script>
+<style>:root { color-scheme: dark; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
+* { box-sizing: border-box; }
+html, body { margin:0; background:#000; color:var(--fg); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+a { color:inherit; }
+.topbar { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; gap:24px; padding:18px clamp(18px,5vw,72px); background:#000; border-bottom:1px solid var(--line); }
+.brand { text-decoration:none; font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap; }
+.nav { display:flex; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+main { min-height:100svh; }
+.hero, .band { padding:clamp(42px,8vw,104px) clamp(18px,6vw,96px); border-bottom:1px solid var(--line); }
+.hero { min-height:58svh; display:grid; align-content:end; }
+.eyebrow { margin:0 0 14px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.14em; }
+h1 { margin:0; max-width:1100px; font-size:clamp(36px,7vw,96px); line-height:.92; letter-spacing:0; }
+h2 { margin:0 0 24px; font-size:clamp(22px,3.2vw,44px); line-height:1.05; letter-spacing:0; }
+p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19px); line-height:1.6; }
+.dek { margin:24px 0 0; max-width:920px; font-size:clamp(16px,2vw,24px); color:rgba(255,255,255,.80); }
+.facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px; margin-top:34px; border:1px solid var(--line); background:var(--line); max-width:1100px; }
+.fact { min-height:118px; padding:18px; background:#000; }
+.label { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.12em; }
+.value { margin-top:16px; font-size:clamp(20px,3vw,36px); line-height:1; }
+.table { width:100%; max-width:1100px; border-collapse:collapse; margin-top:26px; font-size:13px; }
+.table th, .table td { padding:12px 0; border-bottom:1px solid rgba(255,255,255,.14); text-align:left; vertical-align:top; }
+.table th { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.12em; font-weight:400; }
+.table td:last-child, .table th:last-child { text-align:right; }
+.note { max-width:980px; color:rgba(255,255,255,.50); font-size:12px; line-height:1.7; }
+.callout { max-width:980px; margin-top:28px; padding:20px; border:1px solid var(--line); color:rgba(255,255,255,.72); font-size:13px; line-height:1.65; }
+.list { max-width:980px; margin:24px 0 0; padding-left:20px; color:rgba(255,255,255,.72); font-size:14px; line-height:1.7; }
+.list li { margin:10px 0; }
+.kicker { margin-top:28px; color:rgba(255,255,255,.45); font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.12em; }
+.links { display:flex; flex-wrap:wrap; gap:12px 22px; margin-top:28px; color:rgba(255,255,255,.66); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.footer { padding:28px clamp(18px,6vw,96px); color:rgba(255,255,255,.36); font-size:11px; }
+@media (max-width:720px) { .topbar { align-items:flex-start; flex-direction:column; } .table { font-size:12px; } }</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">Capitol Alpha Machine</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/methodology/">Methodology</a>
+    <a href="/data/">Data</a>
+    <a href="/datasets/committee-risk/">Committee Risk</a>
+    <a href="/updates/latest/">Latest</a>
+    <a href="/scenes/capital-flow">Capital Flow</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Data</p>
+    <h1>The current disclosure bundle behind the machine.</h1>
+    <p class="dek">A crawlable summary of the public data currently bundled into the interactive scenes, generated on 2026-06-15.</p>
+  </section>
+  <section class="band">
+    <h2>Current dataset summary</h2>
+    <div class="facts">
+      <div class="fact"><div class="label">Trading disclosure window</div><div class="value">2023-06-15 to 2026-06-05</div></div>
+      <div class="fact"><div class="label">Disclosures</div><div class="value">34,800</div></div>
+      <div class="fact"><div class="label">Buy/sell disclosures</div><div class="value">34,670</div></div>
+      <div class="fact"><div class="label">Total disclosed volume</div><div class="value">$2.27B</div></div>
+      <div class="fact"><div class="label">Returns rows</div><div class="value">5,612</div></div>
+      <div class="fact"><div class="label">Public-law events</div><div class="value">31</div></div>
+    </div>
+    <p class="note">Capitol Trades public 3-year volume total, read 2026-06-14</p>
+  </section>
+  <section class="band">
+    <h2>Dataset windows</h2>
+    <table class="table"><thead><tr><th>Bundle</th><th>Window</th><th>Rows / events</th></tr></thead><tbody>
+      <tr><td>Trading disclosures</td><td>2023-06-15 to 2026-06-05</td><td>34,800 disclosures from 348 source pages</td></tr>
+      <tr><td>Buy/sell flow</td><td>2023-06-15 to 2026-06-05</td><td>34,670 directionally comparable rows</td></tr>
+      <tr><td>Returns Spectrum</td><td>2023-06-22 to 2026-06-04</td><td>5,612 rows from 34,800 source disclosures</td></tr>
+      <tr><td>Timing Lattice</td><td>2024-07-09 to 2025-08-19</td><td>31 public-law events linked to 372 trades</td></tr>
+      <tr><td>Generated page date</td><td>2026-06-15</td><td>Static trust page regenerated from bundled data</td></tr>
+    </tbody></table>
+  </section>
+  <section class="band">
+    <h2>Sources</h2>
+    <table class="table"><thead><tr><th>Source</th><th>Use</th></tr></thead><tbody>
+      <tr><td>CAPITOL TRADES</td><td>Public congressional trading disclosures and disclosed volume.</td></tr>
+      <tr><td>CAPITOL TRADES + EOD PRICES</td><td>Returns Spectrum rows and trailing market movement context.</td></tr>
+      <tr><td>Congress.gov public laws + Capitol Trades committee-risk scrape</td><td>Timing Lattice event spine and sector/date proximity links.</td></tr>
+      <tr><td>Congress.gov public laws</td><td><a href="https://www.congress.gov/public-laws/118th-congress">https://www.congress.gov/public-laws/118th-congress</a></td></tr>
+<tr><td>Congress.gov public laws</td><td><a href="https://www.congress.gov/public-laws/119th-congress">https://www.congress.gov/public-laws/119th-congress</a></td></tr>
+      <tr><td>Timing bundle generated</td><td>2026-06-04T12:12:52.807Z</td></tr>
+    </tbody></table>
+    <div class="callout">The headline number is total disclosed trading volume. It is not profit, loss, market impact, intent, or an allegation of unlawful conduct.</div>
+  </section>
+  <section class="band">
+    <h2>Top tickers in the returns bundle</h2>
+    <table class="table"><thead><tr><th>Ticker</th><th>Rows</th><th>Representative disclosed value</th></tr></thead><tbody><tr><td>MSFT</td><td>146</td><td>$163.9M</td></tr>
+<tr><td>JPM</td><td>79</td><td>$58.9M</td></tr>
+<tr><td>BMO</td><td>20</td><td>$17.8M</td></tr>
+<tr><td>NVDA</td><td>105</td><td>$16.2M</td></tr>
+<tr><td>PRU</td><td>5</td><td>$15.1M</td></tr>
+<tr><td>PUK</td><td>1</td><td>$15.0M</td></tr>
+<tr><td>GS</td><td>43</td><td>$9.2M</td></tr>
+<tr><td>AAPL</td><td>87</td><td>$7.7M</td></tr></tbody></table>
+  </section>
+  <section class="band">
+    <h2>Top members in the returns bundle</h2>
+    <table class="table"><thead><tr><th>Member</th><th>Rows</th><th>Representative disclosed value</th></tr></thead><tbody><tr><td>Michael Mccaul</td><td>1,606</td><td>$191.4M</td></tr>
+<tr><td>Joshua Gottheimer</td><td>196</td><td>$156.5M</td></tr>
+<tr><td>Jefferson Shreve</td><td>324</td><td>$81.9M</td></tr>
+<tr><td>Rohit Khanna</td><td>1,448</td><td>$53.9M</td></tr>
+<tr><td>Cleo Fields</td><td>169</td><td>$21.9M</td></tr>
+<tr><td>Kevin Hern</td><td>55</td><td>$17.5M</td></tr>
+<tr><td>David Mccormick</td><td>39</td><td>$15.4M</td></tr>
+<tr><td>Markwayne Mullin</td><td>228</td><td>$12.3M</td></tr></tbody></table>
+    <p class="note">These rankings use representative disclosed values inside the returns scene bundle. They are not a complete accounting of holdings, profit, or intent.</p>
+    <div class="links">
+      <a href="/methodology/">Methodology and caveats</a>
+      <a href="/datasets/committee-risk/">Committee-risk dataset</a>
+      <a href="/updates/latest/">Latest weekly report</a>
+      <a href="/scenes/capital-flow">Capital Flow scene</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">Public disclosure data is used for visualization and research context only. Not investment advice, not an allegation of unlawful conduct.</footer>
+</body>
+</html>

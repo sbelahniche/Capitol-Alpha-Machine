@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Methodology | Capitol Alpha Machine</title>
+<meta name="description" content="Methodology for Capitol Alpha Machine, a data-art intelligence project visualizing congressional trading disclosures, committee exposure, timing patterns, and market movement.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://capitol-alpha-machine.vercel.app/methodology">
+<link rel="alternate" type="application/rss+xml" title="Capitol Alpha Machine updates" href="https://capitol-alpha-machine.vercel.app/rss.xml">
+<link rel="icon" type="image/png" href="/favicon-ct.png?v=20260604">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Capitol Alpha Machine">
+<meta property="og:title" content="Methodology | Capitol Alpha Machine">
+<meta property="og:description" content="Methodology for Capitol Alpha Machine, a data-art intelligence project visualizing congressional trading disclosures, committee exposure, timing patterns, and market movement.">
+<meta property="og:url" content="https://capitol-alpha-machine.vercel.app/methodology">
+<meta property="og:image" content="https://capitol-alpha-machine.vercel.app/og-image.svg">
+<meta property="og:image:type" content="image/svg+xml">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Methodology | Capitol Alpha Machine">
+<meta name="twitter:description" content="Methodology for Capitol Alpha Machine, a data-art intelligence project visualizing congressional trading disclosures, committee exposure, timing patterns, and market movement.">
+<meta name="twitter:image" content="https://capitol-alpha-machine.vercel.app/og-image.svg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Capitol Alpha Machine methodology","url":"https://capitol-alpha-machine.vercel.app/methodology","dateModified":"2026-06-15","author":{"@type":"Person","name":"Sylvain Belahniche"},"about":["congressional trading disclosures","data visualization","Capitol Trades"]}</script>
+<style>:root { color-scheme: dark; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
+* { box-sizing: border-box; }
+html, body { margin:0; background:#000; color:var(--fg); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+a { color:inherit; }
+.topbar { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; gap:24px; padding:18px clamp(18px,5vw,72px); background:#000; border-bottom:1px solid var(--line); }
+.brand { text-decoration:none; font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap; }
+.nav { display:flex; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+main { min-height:100svh; }
+.hero, .band { padding:clamp(42px,8vw,104px) clamp(18px,6vw,96px); border-bottom:1px solid var(--line); }
+.hero { min-height:58svh; display:grid; align-content:end; }
+.eyebrow { margin:0 0 14px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.14em; }
+h1 { margin:0; max-width:1100px; font-size:clamp(36px,7vw,96px); line-height:.92; letter-spacing:0; }
+h2 { margin:0 0 24px; font-size:clamp(22px,3.2vw,44px); line-height:1.05; letter-spacing:0; }
+p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19px); line-height:1.6; }
+.dek { margin:24px 0 0; max-width:920px; font-size:clamp(16px,2vw,24px); color:rgba(255,255,255,.80); }
+.facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px; margin-top:34px; border:1px solid var(--line); background:var(--line); max-width:1100px; }
+.fact { min-height:118px; padding:18px; background:#000; }
+.label { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.12em; }
+.value { margin-top:16px; font-size:clamp(20px,3vw,36px); line-height:1; }
+.table { width:100%; max-width:1100px; border-collapse:collapse; margin-top:26px; font-size:13px; }
+.table th, .table td { padding:12px 0; border-bottom:1px solid rgba(255,255,255,.14); text-align:left; vertical-align:top; }
+.table th { color:var(--dim); font-size:10px; text-transform:uppercase; letter-spacing:.12em; font-weight:400; }
+.table td:last-child, .table th:last-child { text-align:right; }
+.note { max-width:980px; color:rgba(255,255,255,.50); font-size:12px; line-height:1.7; }
+.callout { max-width:980px; margin-top:28px; padding:20px; border:1px solid var(--line); color:rgba(255,255,255,.72); font-size:13px; line-height:1.65; }
+.list { max-width:980px; margin:24px 0 0; padding-left:20px; color:rgba(255,255,255,.72); font-size:14px; line-height:1.7; }
+.list li { margin:10px 0; }
+.kicker { margin-top:28px; color:rgba(255,255,255,.45); font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.12em; }
+.links { display:flex; flex-wrap:wrap; gap:12px 22px; margin-top:28px; color:rgba(255,255,255,.66); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.footer { padding:28px clamp(18px,6vw,96px); color:rgba(255,255,255,.36); font-size:11px; }
+@media (max-width:720px) { .topbar { align-items:flex-start; flex-direction:column; } .table { font-size:12px; } }</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">Capitol Alpha Machine</a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/methodology/">Methodology</a>
+    <a href="/data/">Data</a>
+    <a href="/datasets/committee-risk/">Committee Risk</a>
+    <a href="/updates/latest/">Latest</a>
+    <a href="/scenes/capital-flow">Capital Flow</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Methodology</p>
+    <h1>How the machine reads disclosed congressional trading data.</h1>
+    <p class="dek">Capitol Alpha Machine turns public disclosure records into cinematic data scenes: disclosed trading volume, member exposure, market movement, and timing proximity to public-law events.</p>
+  </section>
+  <section class="band">
+    <h2>Sources</h2>
+    <p>The primary trading source is Capitol Trades public disclosure data. Returns Spectrum combines the disclosure bundle with end-of-day market price signals. Timing Lattice also uses Congress.gov public-law listings for the 118th and 119th Congresses.</p>
+    <div class="facts">
+      <div class="fact"><div class="label">Disclosure window</div><div class="value">2023-06-15 to 2026-06-05</div></div>
+      <div class="fact"><div class="label">Disclosures read</div><div class="value">34,800</div></div>
+      <div class="fact"><div class="label">Buy/sell rows</div><div class="value">34,670</div></div>
+      <div class="fact"><div class="label">Disclosed volume</div><div class="value">$2.27B</div></div>
+    </div>
+    <div class="links">
+      <a href="https://www.capitoltrades.com/trades">Capitol Trades source</a>
+      <a href="https://www.congress.gov/public-laws/118th-congress">Congress.gov public laws</a>
+      <a href="https://www.congress.gov/public-laws/119th-congress">Congress.gov public laws</a>
+      <a href="/data/">Current dataset summary</a>
+    </div>
+  </section>
+  <section class="band">
+    <h2>Value ranges and volume</h2>
+    <p>Congressional financial disclosures use reported value ranges, not exact order sizes. The project uses representative disclosed values for visual weight and ranking. Capital Flow separates scale from direction: gross disclosed volume sums buys and sells, while net flow treats buys as positive and sells as negative.</p>
+    <table class="table"><thead><tr><th>Input</th><th>How it is used</th><th>Caveat</th></tr></thead><tbody>
+      <tr><td>Disclosed value ranges</td><td>Representative values drive visual weight and summary tables.</td><td>Not exact transaction accounting.</td></tr>
+      <tr><td>Gross disclosed volume</td><td>Shows total public trading scale across buys and sells.</td><td>Not profit, performance, or intent.</td></tr>
+      <tr><td>Net cumulative flow</td><td>Buys are positive and sells are negative.</td><td>Directional visualization only.</td></tr>
+    </tbody></table>
+    <p class="note">disclosed value; gross volume sums buys and sells; net flow uses buys positive and sells negative</p>
+  </section>
+  <section class="band">
+    <h2>Timing and sector heuristics</h2>
+    <p>Committee exposure and Timing Lattice are triage heuristics. They are designed to help readers inspect patterns, not to make claims about motive or inside information.</p>
+    <ul class="list">
+      <li>Committee-sector exposure compares a member's committee context with sectors represented in disclosed trades.</li>
+      <li>Timing Lattice links public-law events to trades by date proximity and sector proximity.</li>
+      <li>Returns Spectrum compares disclosed trades with trailing market movement for visualization context only.</li>
+      <li>Reporting dates can lag transaction dates, and some disclosures include spouse, dependent, or joint transactions.</li>
+    </ul>
+    <div class="callout">These links are not allegations. They are not evidence of causation, intent, privileged information, or unlawful conduct. The project is data art and research context, not investment advice or a legal conclusion.</div>
+  </section>
+  <section class="band">
+    <h2>Caveats</h2>
+    <p>Congressional financial disclosures are incomplete as a market dataset. Some transaction types are excluded from buy/sell flow, reported values are ranges, and disclosure timing can vary. The current bundle skipped exchange and received transaction types for flow math because they are not clean buy/sell signals.</p>
+    <table class="table"><thead><tr><th>Known limitation</th><th>Current handling</th></tr></thead><tbody>
+      <tr><td>Value ranges</td><td>Use representative values for visualization.</td></tr>
+      <tr><td>Exchange / received rows</td><td>Excluded from buy/sell flow when not directionally comparable.</td></tr>
+      <tr><td>Anomalous dates</td><td>2 rows skipped in the current flow bundle.</td></tr>
+      <tr><td>Timing links</td><td>Presented as proximity heuristics only.</td></tr>
+    </tbody></table>
+    <div class="links">
+      <a href="/data/">Read the data summary</a>
+      <a href="/updates/latest/">Latest update</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">Public disclosure data is used for visualization and research context only. Not investment advice, not an allegation of unlawful conduct.</footer>
+</body>
+</html>

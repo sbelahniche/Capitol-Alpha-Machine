@@ -1,4 +1,56 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/exposure-index",
+      "destination": "/scenes/exposure-index",
+      "permanent": true
+    },
+    {
+      "source": "/exposure-index.html",
+      "destination": "/scenes/exposure-index",
+      "permanent": true
+    },
+    {
+      "source": "/the-ledger",
+      "destination": "/scenes/the-ledger",
+      "permanent": true
+    },
+    {
+      "source": "/the-ledger.html",
+      "destination": "/scenes/the-ledger",
+      "permanent": true
+    },
+    {
+      "source": "/capital-flow",
+      "destination": "/scenes/capital-flow",
+      "permanent": true
+    },
+    {
+      "source": "/capital-flow.html",
+      "destination": "/scenes/capital-flow",
+      "permanent": true
+    },
+    {
+      "source": "/returns-spectrum",
+      "destination": "/scenes/returns-spectrum",
+      "permanent": true
+    },
+    {
+      "source": "/returns-spectrum.html",
+      "destination": "/scenes/returns-spectrum",
+      "permanent": true
+    },
+    {
+      "source": "/timing-lattice",
+      "destination": "/scenes/timing-lattice",
+      "permanent": true
+    },
+    {
+      "source": "/timing-lattice.html",
+      "destination": "/scenes/timing-lattice",
+      "permanent": true
+    }
+  ]
 }

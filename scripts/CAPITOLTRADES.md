@@ -50,6 +50,17 @@ Scene 02 reads current trade records from this sidecar. Scene 04 reads current C
 trailing-90-day EOD performance and a real SPY trailing-90-day baseline. Its
 brightness score is derived from those real values.
 
+Refresh the production sidecar and generated SEO pages in one pass:
+
+```sh
+./scripts/refresh_data_and_seo.py
+```
+
+This fetches the historical public trade pages with a polite delay, rebuilds Scene 01, a controlled
+recent Scene 02 window, Scene 04's priced returns payload, preserves the current
+Scene 05 event/trade payload, writes `capitoltrades_data.js`, and runs
+`scripts/generate_seo.py`.
+
 Apply site filters:
 
 ```sh
