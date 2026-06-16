@@ -825,11 +825,12 @@ def robots_txt() -> str:
     return f"""User-agent: *
 Allow: /
 Sitemap: {SITE_URL}/sitemap.xml
+Sitemap: {SITE_URL}/sitemap.txt
 """
 
 
-def sitemap_xml() -> str:
-    urls = [
+def sitemap_urls() -> list[tuple[str, str, str]]:
+    return [
         ("/", "1.0", "weekly"),
         ("/methodology", "0.9", "monthly"),
         ("/data", "0.9", "weekly"),
@@ -837,6 +838,10 @@ def sitemap_xml() -> str:
         ("/datasets/committee-risk", "0.85", "weekly"),
         *[(scene_path(scene), "0.8", "monthly") for scene in SCENES],
     ]
+
+
+def sitemap_xml() -> str:
+    urls = sitemap_urls()
     entries = "\n".join(
         f"""  <url>
     <loc>{url_for(path)}</loc>
@@ -851,6 +856,10 @@ def sitemap_xml() -> str:
 {entries}
 </urlset>
 """
+
+
+def sitemap_txt() -> str:
+    return "\n".join(url_for(path) for path, _priority, _freq in sitemap_urls()) + "\n"
 
 
 def rss_xml(metrics: dict[str, Any]) -> str:
@@ -1071,6 +1080,7 @@ def main() -> None:
     write("updates/latest/index.html", latest_update_page(metrics))
     write("robots.txt", robots_txt())
     write("sitemap.xml", sitemap_xml())
+    write("sitemap.txt", sitemap_txt())
     write("rss.xml", rss_xml(metrics))
     write("og-image.svg", og_image_svg(metrics))
     inject_index_metadata(metrics)
@@ -1079,6 +1089,7 @@ def main() -> None:
     for item in [
         "robots.txt",
         "sitemap.xml",
+        "sitemap.txt",
         "rss.xml",
         "og-image.svg",
         "methodology/index.html",

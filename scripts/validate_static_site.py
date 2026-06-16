@@ -25,6 +25,7 @@ REQUIRED_PAGES = [
     "scenes/timing-lattice/index.html",
 ]
 REQUIRED_XML = ["sitemap.xml", "rss.xml", "og-image.svg"]
+REQUIRED_TEXT = ["sitemap.txt"]
 REQUIRED_SCENES = [
     "CAPITOL_TRADES_SCENE01",
     "CAPITOL_TRADES_SCENE02",
@@ -129,11 +130,29 @@ def validate_xml(errors: list[str]) -> None:
         errors.append("robots.txt does not advertise the sitemap")
 
 
+def validate_text_assets(errors: list[str]) -> None:
+    for rel_path in REQUIRED_TEXT:
+        path = ROOT / rel_path
+        if not path.exists():
+            errors.append(f"Missing text asset: {rel_path}")
+            continue
+        lines = [
+            line.strip()
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        if not lines:
+            errors.append(f"Text sitemap is empty: {rel_path}")
+        if any(not line.startswith("https://capitol-alpha-machine.vercel.app/") for line in lines):
+            errors.append(f"Text sitemap contains non-canonical URLs: {rel_path}")
+
+
 def main() -> None:
     errors: list[str] = []
     validate_bundle(errors)
     validate_pages(errors)
     validate_xml(errors)
+    validate_text_assets(errors)
     if errors:
         print("Static site validation failed:", file=sys.stderr)
         for error in errors:

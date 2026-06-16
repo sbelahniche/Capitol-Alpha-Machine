@@ -1,0 +1,10 @@
+https://capitol-alpha-machine.vercel.app/
+https://capitol-alpha-machine.vercel.app/methodology
+https://capitol-alpha-machine.vercel.app/data
+https://capitol-alpha-machine.vercel.app/updates/latest
+https://capitol-alpha-machine.vercel.app/datasets/committee-risk
+https://capitol-alpha-machine.vercel.app/scenes/capital-flow
+https://capitol-alpha-machine.vercel.app/scenes/the-ledger
+https://capitol-alpha-machine.vercel.app/scenes/exposure-index
+https://capitol-alpha-machine.vercel.app/scenes/returns-spectrum
+https://capitol-alpha-machine.vercel.app/scenes/timing-lattice
