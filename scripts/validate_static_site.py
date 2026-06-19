@@ -52,6 +52,20 @@ def json_ld_blocks(html_text: str) -> list[Any]:
     return blocks
 
 
+def collect_dataset_nodes(value: Any) -> list[dict[str, Any]]:
+    datasets: list[dict[str, Any]] = []
+    if isinstance(value, dict):
+        types = value.get("@type")
+        if types == "Dataset" or (isinstance(types, list) and "Dataset" in types):
+            datasets.append(value)
+        for child in value.values():
+            datasets.extend(collect_dataset_nodes(child))
+    elif isinstance(value, list):
+        for child in value:
+            datasets.extend(collect_dataset_nodes(child))
+    return datasets
+
+
 def validate_bundle(errors: list[str]) -> None:
     path = ROOT / "capitoltrades_data.js"
     if not path.exists():
@@ -110,6 +124,16 @@ def validate_pages(errors: list[str]) -> None:
             continue
         if not blocks:
             errors.append(f"Page has no JSON-LD: {rel_path}")
+        for dataset in collect_dataset_nodes(blocks):
+            name = dataset.get("name")
+            description = dataset.get("description")
+            license_info = dataset.get("license")
+            if not isinstance(name, str) or not name.strip():
+                errors.append(f"Dataset JSON-LD is missing name: {rel_path}")
+            if not isinstance(description, str) or not description.strip():
+                errors.append(f"Dataset JSON-LD is missing description: {rel_path}")
+            if not license_info:
+                errors.append(f"Dataset JSON-LD is missing license: {rel_path}")
 
 
 def validate_xml(errors: list[str]) -> None:

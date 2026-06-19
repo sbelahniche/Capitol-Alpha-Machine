@@ -25,6 +25,12 @@ TODAY = dt.date.today()
 TODAY_ISO = TODAY.isoformat()
 NOW_UTC = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
 RSS_DATE = email.utils.format_datetime(NOW_UTC)
+DATA_LICENSE_URL = f"{SITE_URL}/data#data-use-notes"
+DATA_LICENSE = {
+    "@type": "CreativeWork",
+    "name": "Capitol Alpha Machine data use notes",
+    "url": DATA_LICENSE_URL,
+}
 
 SCENES = [
     {
@@ -468,10 +474,14 @@ def data_page(metrics: dict[str, Any]) -> str:
         "@context": "https://schema.org",
         "@type": "Dataset",
         "name": "Capitol Alpha Machine disclosure data summary",
+        "description": "Crawlable summary of the public congressional trading disclosure bundle behind Capitol Alpha Machine, including disclosure windows, disclosed volume, returns rows, and timing-lattice public-law event links.",
         "url": url_for("/data"),
         "dateModified": TODAY_ISO,
         "creator": {"@type": "Person", "name": AUTHOR},
         "temporalCoverage": f"{metrics['source_from']}/{metrics['source_to']}",
+        "isAccessibleForFree": True,
+        "license": DATA_LICENSE,
+        "usageInfo": DATA_LICENSE_URL,
         "variableMeasured": [
             "disclosed trading volume",
             "buy and sell disclosure count",
@@ -523,6 +533,10 @@ def data_page(metrics: dict[str, Any]) -> str:
       <tr><td>Timing bundle generated</td><td>{esc(metrics.get("timing_generated_at") or "not available")}</td></tr>
     </tbody></table>
     <div class="callout">The headline number is total disclosed trading volume. It is not profit, loss, market impact, intent, or an allegation of unlawful conduct.</div>
+  </section>
+  <section class="band" id="data-use-notes">
+    <h2>Data use notes</h2>
+    <p>This generated dataset page describes an editorial visualization bundle derived from public disclosure sources. Original source records remain subject to their publishers' terms. Reuse should cite Capitol Alpha Machine and the underlying public sources, preserve the caveats about disclosure ranges and timing heuristics, and avoid presenting representative values as exact holdings, profit, intent, or evidence of wrongdoing.</p>
   </section>
   <section class="band">
     <h2>Top tickers in the returns bundle</h2>
@@ -580,6 +594,9 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
         "creator": {"@type": "Person", "name": AUTHOR},
         "temporalCoverage": f"{metrics['event_from']}/{metrics['event_to']}",
         "description": "Controlled aggregate dataset page for committee-sector and timing proximity heuristics used by Capitol Alpha Machine.",
+        "isAccessibleForFree": True,
+        "license": DATA_LICENSE,
+        "usageInfo": DATA_LICENSE_URL,
         "variableMeasured": [
             "committee-sector proximity",
             "public-law event proximity",
@@ -961,6 +978,9 @@ def index_schema(metrics: dict[str, Any]) -> dict[str, Any]:
                 "temporalCoverage": f"{metrics['source_from']}/{metrics['source_to']}",
                 "creator": {"@type": "Person", "name": AUTHOR},
                 "description": f"Bundled public disclosure data used to visualize {number(metrics['disclosure_count'])} congressional trading disclosures and {money(metrics['total_volume'])} in disclosed trading volume.",
+                "isAccessibleForFree": True,
+                "license": DATA_LICENSE,
+                "usageInfo": DATA_LICENSE_URL,
                 "variableMeasured": [
                     "disclosed trading volume",
                     "buy and sell disclosure count",
