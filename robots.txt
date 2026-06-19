@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://capitol-alpha-machine.vercel.app/sitemap.xml
-Sitemap: https://capitol-alpha-machine.vercel.app/sitemap.txt
+Sitemap: https://capitolalpha.app/sitemap.xml
+Sitemap: https://capitolalpha.app/sitemap.txt

@@ -3,6 +3,17 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "capitol-alpha-machine.vercel.app"
+        }
+      ],
+      "destination": "https://capitolalpha.app/:path*",
+      "permanent": true
+    },
+    {
       "source": "/exposure-index",
       "destination": "/scenes/exposure-index",
       "permanent": true

@@ -4,7 +4,8 @@ An ominous visualization of political trading signals, sourced from CapitolTrade
 
 ## Live Project
 
-- Production URL: https://capitol-alpha-machine.vercel.app/
+- Production URL: https://capitolalpha.app/
+- Vercel preview URL: https://capitol-alpha-machine.vercel.app/ (redirects to the custom domain)
 - Vercel project: `capitol-trades-data-visualization`
 - GitHub repo: `sbelahniche/Capitol-Alpha-Machine`
 

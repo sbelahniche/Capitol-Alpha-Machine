@@ -18,6 +18,7 @@ REQUIRED_PAGES = [
     "data/index.html",
     "updates/latest/index.html",
     "datasets/committee-risk/index.html",
+    "faq/index.html",
     "scenes/capital-flow/index.html",
     "scenes/the-ledger/index.html",
     "scenes/exposure-index/index.html",
@@ -167,7 +168,7 @@ def validate_text_assets(errors: list[str]) -> None:
         ]
         if not lines:
             errors.append(f"Text sitemap is empty: {rel_path}")
-        if any(not line.startswith("https://capitol-alpha-machine.vercel.app/") for line in lines):
+        if any(not line.startswith("https://capitolalpha.app/") for line in lines):
             errors.append(f"Text sitemap contains non-canonical URLs: {rel_path}")
 
 

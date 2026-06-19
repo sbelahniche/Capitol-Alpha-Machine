@@ -19,7 +19,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SITE_URL = "https://capitol-alpha-machine.vercel.app"
+SITE_URL = "https://capitolalpha.app"
 AUTHOR = "Sylvain Belahniche"
 TODAY = dt.date.today()
 TODAY_ISO = TODAY.isoformat()
@@ -31,6 +31,56 @@ DATA_LICENSE = {
     "name": "Capitol Alpha Machine data use notes",
     "url": DATA_LICENSE_URL,
 }
+
+# Entity / E-E-A-T configuration.
+# sameAs links strengthen the brand entity graph for AI and search engines.
+# Add verified social/profile URLs here (X, LinkedIn, etc.) as they exist.
+AUTHOR_URL = "https://github.com/sbelahniche"
+SOCIAL_PROFILES = [
+    "https://github.com/sbelahniche/Capitol-Alpha-Machine",
+    AUTHOR_URL,
+]
+OG_IMAGE_URL = f"{SITE_URL}/og-image.png"
+LOGO_URL = f"{SITE_URL}/favicon-ct.png"
+
+PERSON = {
+    "@type": "Person",
+    "@id": f"{SITE_URL}/#author",
+    "name": AUTHOR,
+    "url": AUTHOR_URL,
+    "sameAs": SOCIAL_PROFILES,
+}
+
+ORGANIZATION = {
+    "@type": "Organization",
+    "@id": f"{SITE_URL}/#org",
+    "name": "Capitol Alpha Machine",
+    "url": f"{SITE_URL}/",
+    "logo": {"@type": "ImageObject", "url": LOGO_URL},
+    "image": OG_IMAGE_URL,
+    "sameAs": SOCIAL_PROFILES,
+    "founder": {"@id": f"{SITE_URL}/#author"},
+}
+
+ORG_REF = {"@id": f"{SITE_URL}/#org"}
+PERSON_REF = {"@id": f"{SITE_URL}/#author"}
+
+
+def breadcrumb_schema(trail: list[tuple[str, str]]) -> dict[str, Any]:
+    """Build BreadcrumbList JSON-LD from (name, path) pairs."""
+    return {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": i + 1,
+                "name": name,
+                "item": url_for(path),
+            }
+            for i, (name, path) in enumerate(trail)
+        ],
+    }
 
 SCENES = [
     {
@@ -328,7 +378,16 @@ p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19
 """.strip()
 
 
-def base_page(title: str, description: str, path: str, body: str, schema: dict[str, Any]) -> str:
+def render_schemas(schema: dict[str, Any] | list[dict[str, Any]]) -> str:
+    blocks = schema if isinstance(schema, list) else [schema]
+    return "\n".join(
+        f'<script type="application/ld+json">{json_script(block)}</script>'
+        for block in blocks
+    )
+
+
+def base_page(title: str, description: str, path: str, body: str,
+              schema: dict[str, Any] | list[dict[str, Any]]) -> str:
     canonical = url_for(path)
     return f"""<!doctype html>
 <html lang="en">
@@ -337,6 +396,7 @@ def base_page(title: str, description: str, path: str, body: str, schema: dict[s
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(description)}">
+<meta name="author" content="{esc(AUTHOR)}">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="{canonical}">
 <link rel="alternate" type="application/rss+xml" title="Capitol Alpha Machine updates" href="{SITE_URL}/rss.xml">
@@ -347,30 +407,31 @@ def base_page(title: str, description: str, path: str, body: str, schema: dict[s
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(description)}">
 <meta property="og:url" content="{canonical}">
-<meta property="og:image" content="{SITE_URL}/og-image.svg">
-<meta property="og:image:type" content="image/svg+xml">
+<meta property="og:image" content="{OG_IMAGE_URL}">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(title)}">
 <meta name="twitter:description" content="{esc(description)}">
-<meta name="twitter:image" content="{SITE_URL}/og-image.svg">
-<script type="application/ld+json">{json_script(schema)}</script>
+<meta name="twitter:image" content="{OG_IMAGE_URL}">
+{render_schemas(schema)}
 <style>{COMMON_CSS}</style>
 </head>
 <body>
 <header class="topbar">
   <a class="brand" href="/">Capitol Alpha Machine</a>
   <nav class="nav" aria-label="Primary">
-    <a href="/methodology/">Methodology</a>
-    <a href="/data/">Data</a>
-    <a href="/datasets/committee-risk/">Committee Risk</a>
-    <a href="/updates/latest/">Latest</a>
+    <a href="/methodology">Methodology</a>
+    <a href="/data">Data</a>
+    <a href="/datasets/committee-risk">Committee Risk</a>
+    <a href="/updates/latest">Latest</a>
+    <a href="/faq">FAQ</a>
     <a href="/scenes/capital-flow">Capital Flow</a>
   </nav>
 </header>
 {body}
-<footer class="footer">Public disclosure data is used for visualization and research context only. Not investment advice, not an allegation of unlawful conduct.</footer>
+<footer class="footer">By <a href="{AUTHOR_URL}" rel="author">{esc(AUTHOR)}</a> &middot; Capitol Alpha Machine. Public disclosure data is used for visualization and research context only. Not investment advice, not an allegation of unlawful conduct.</footer>
 </body>
 </html>
 """
@@ -386,9 +447,14 @@ def methodology_page(metrics: dict[str, Any]) -> str:
         "headline": "Capitol Alpha Machine methodology",
         "url": url_for("/methodology"),
         "dateModified": TODAY_ISO,
-        "author": {"@type": "Person", "name": AUTHOR},
+        "author": PERSON,
+        "publisher": ORGANIZATION,
         "about": ["congressional trading disclosures", "data visualization", "Capitol Trades"],
     }
+    crumbs = breadcrumb_schema([
+        ("Capitol Alpha Machine", "/"),
+        ("Methodology", "/methodology"),
+    ])
     body = f"""
 <main>
   <section class="hero">
@@ -453,7 +519,7 @@ def methodology_page(metrics: dict[str, Any]) -> str:
         "Methodology for Capitol Alpha Machine, a data-art intelligence project visualizing congressional trading disclosures, committee exposure, timing patterns, and market movement.",
         "/methodology",
         body,
-        schema,
+        [schema, crumbs],
     )
 
 
@@ -477,7 +543,8 @@ def data_page(metrics: dict[str, Any]) -> str:
         "description": "Crawlable summary of the public congressional trading disclosure bundle behind Capitol Alpha Machine, including disclosure windows, disclosed volume, returns rows, and timing-lattice public-law event links.",
         "url": url_for("/data"),
         "dateModified": TODAY_ISO,
-        "creator": {"@type": "Person", "name": AUTHOR},
+        "creator": PERSON,
+        "publisher": ORGANIZATION,
         "temporalCoverage": f"{metrics['source_from']}/{metrics['source_to']}",
         "isAccessibleForFree": True,
         "license": DATA_LICENSE,
@@ -494,6 +561,10 @@ def data_page(metrics: dict[str, Any]) -> str:
             "contentUrl": f"{SITE_URL}/capitoltrades_data.js",
         },
     }
+    crumbs = breadcrumb_schema([
+        ("Capitol Alpha Machine", "/"),
+        ("Data", "/data"),
+    ])
     body = f"""
 <main>
   <section class="hero">
@@ -560,7 +631,7 @@ def data_page(metrics: dict[str, Any]) -> str:
         "Current data summary for Capitol Alpha Machine, including disclosure windows, disclosed trading volume, scene rows, and public-law event counts.",
         "/data",
         body,
-        schema,
+        [schema, crumbs],
     )
 
 
@@ -591,7 +662,8 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
         "name": "Capitol Alpha Machine committee-risk dataset",
         "url": url_for("/datasets/committee-risk"),
         "dateModified": TODAY_ISO,
-        "creator": {"@type": "Person", "name": AUTHOR},
+        "creator": PERSON,
+        "publisher": ORGANIZATION,
         "temporalCoverage": f"{metrics['event_from']}/{metrics['event_to']}",
         "description": "Controlled aggregate dataset page for committee-sector and timing proximity heuristics used by Capitol Alpha Machine.",
         "isAccessibleForFree": True,
@@ -610,6 +682,10 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
             *metrics.get("event_source_urls", []),
         ],
     }
+    crumbs = breadcrumb_schema([
+        ("Capitol Alpha Machine", "/"),
+        ("Committee-Risk Dataset", "/datasets/committee-risk"),
+    ])
     body = f"""
 <main>
   <section class="hero">
@@ -671,7 +747,7 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
         "Controlled aggregate dataset page for Capitol Alpha Machine committee-sector and timing proximity heuristics, with sources, caveats, and generation policy.",
         "/datasets/committee-risk",
         body,
-        schema,
+        [schema, crumbs],
     )
 
 
@@ -691,9 +767,15 @@ def latest_update_page(metrics: dict[str, Any]) -> str:
         "url": url_for("/updates/latest"),
         "datePublished": TODAY_ISO,
         "dateModified": TODAY_ISO,
-        "author": {"@type": "Person", "name": AUTHOR},
+        "author": PERSON,
+        "publisher": ORGANIZATION,
+        "image": OG_IMAGE_URL,
         "description": "Latest crawlable update for Capitol Alpha Machine congressional trading disclosure visualizations.",
     }
+    crumbs = breadcrumb_schema([
+        ("Capitol Alpha Machine", "/"),
+        ("Latest Update", "/updates/latest"),
+    ])
     body = f"""
 <main>
   <section class="hero">
@@ -751,7 +833,131 @@ def latest_update_page(metrics: dict[str, Any]) -> str:
         "Latest data update for Capitol Alpha Machine, including disclosed trading volume, disclosure counts, returns rows, and timing-lattice event counts.",
         "/updates/latest",
         body,
-        schema,
+        [schema, crumbs],
+    )
+
+
+def faq_items(metrics: dict[str, Any]) -> list[tuple[str, str]]:
+    """Question/answer pairs. Answers are kept to ~40-60 words and lead with a
+    direct response so they are eligible for featured snippets, People Also Ask,
+    and voice answers. Live metrics keep them in sync with the data bundle."""
+    volume = money(metrics["total_volume"])
+    disclosures = number(metrics["disclosure_count"])
+    return [
+        (
+            "What is Capitol Alpha Machine?",
+            "Capitol Alpha Machine is an interactive data-art project that visualizes disclosed "
+            "U.S. congressional stock trading. It turns public disclosure records from Capitol "
+            "Trades into five cinematic scenes covering trading volume, member exposure, market "
+            "returns, and timing relative to public-law events. It is research context and data "
+            "art, not investment advice.",
+        ),
+        (
+            "Where does the congressional trading data come from?",
+            f"The primary source is Capitol Trades public disclosure data. Returns Spectrum adds "
+            f"end-of-day market prices, and Timing Lattice uses Congress.gov public-law listings "
+            f"for the 118th and 119th Congresses. The current bundle reads {disclosures} "
+            f"disclosures from {esc(metrics['source_from'])} to {esc(metrics['source_to'])}.",
+        ),
+        (
+            "What does disclosed trading volume mean?",
+            f"Disclosed trading volume is the sum of buy and sell transaction values reported in "
+            f"congressional financial disclosures, currently {volume} in total. It measures "
+            f"reported trading scale only. It is not profit, loss, market impact, intent, or an "
+            f"allegation of unlawful conduct.",
+        ),
+        (
+            "Is Capitol Alpha Machine investment advice?",
+            "No. The project is editorial data visualization and research context only. It does "
+            "not recommend securities, predict returns, or provide financial advice. Disclosed "
+            "values are reported ranges used for visualization, not exact holdings, and should "
+            "not be the basis for any trading decision.",
+        ),
+        (
+            "Does the data prove insider trading or wrongdoing?",
+            "No. Committee-sector overlap and timing links are proximity heuristics designed to "
+            "help readers inspect patterns. They are not evidence of causation, intent, "
+            "privileged information, or unlawful conduct, and the project makes no allegations "
+            "against any member of Congress.",
+        ),
+        (
+            "What are representative disclosed values?",
+            "Congressional disclosures report value ranges, not exact amounts. Capitol Alpha "
+            "Machine assigns a single representative value within each reported range to drive "
+            "visual weight and ranking. These figures support visualization and comparison only "
+            "and are not exact transaction accounting.",
+        ),
+        (
+            "How is the Timing Lattice built?",
+            f"Timing Lattice links public-law events to disclosed trades using date proximity and "
+            f"sector proximity. The current bundle connects {number(metrics['event_count'])} "
+            f"public-law events to {number(metrics['timing_trade_count'])} trades. Links are "
+            f"visualization heuristics for inspection, not claims that any law caused any trade.",
+        ),
+        (
+            "How often is the data updated?",
+            f"A crawlable weekly report records each data snapshot, and the latest bundle runs "
+            f"through {esc(metrics['source_to'])}. The most recent figures, including {volume} in "
+            f"disclosed volume across {disclosures} disclosures, are always shown on the Latest "
+            f"update page.",
+        ),
+    ]
+
+
+def faq_page(metrics: dict[str, Any]) -> str:
+    items = faq_items(metrics)
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "url": url_for("/faq"),
+        "name": "Capitol Alpha Machine FAQ",
+        "dateModified": TODAY_ISO,
+        "author": PERSON,
+        "publisher": ORGANIZATION,
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": question,
+                "acceptedAnswer": {"@type": "Answer", "text": answer},
+            }
+            for question, answer in items
+        ],
+    }
+    crumbs = breadcrumb_schema([
+        ("Capitol Alpha Machine", "/"),
+        ("FAQ", "/faq"),
+    ])
+    qa_blocks = "\n".join(
+        f"""  <section class="band">
+    <h2>{esc(question)}</h2>
+    <p>{esc(answer)}</p>
+  </section>"""
+        for question, answer in items
+    )
+    body = f"""
+<main>
+  <section class="hero">
+    <p class="eyebrow">FAQ</p>
+    <h1>Questions about congressional trading data and this project.</h1>
+    <p class="dek">Plain answers about what Capitol Alpha Machine shows, where its data comes from, and the careful limits on how disclosed congressional trading should be read.</p>
+  </section>
+{qa_blocks}
+  <section class="band">
+    <div class="links">
+      <a href="/methodology">Methodology and caveats</a>
+      <a href="/data">Data summary</a>
+      <a href="/datasets/committee-risk">Committee-risk dataset</a>
+      <a href="/updates/latest">Latest update</a>
+    </div>
+  </section>
+</main>
+"""
+    return base_page(
+        "FAQ | Capitol Alpha Machine",
+        "Frequently asked questions about Capitol Alpha Machine: what disclosed congressional trading volume means, where the data comes from, and why the project is research context, not investment advice or an allegation of wrongdoing.",
+        "/faq",
+        body,
+        [schema, crumbs],
     )
 
 
@@ -773,10 +979,16 @@ def scene_page(scene: dict[str, str], metrics: dict[str, Any]) -> str:
         "url": canonical,
         "isPartOf": {"@type": "WebSite", "name": "Capitol Alpha Machine", "url": SITE_URL + "/"},
         "description": description,
-        "creator": {"@type": "Person", "name": AUTHOR},
+        "creator": PERSON,
+        "publisher": ORGANIZATION,
+        "image": OG_IMAGE_URL,
         "about": ["congressional trading disclosures", "Capitol Trades data", "financial data visualization"],
         "dateModified": TODAY_ISO,
     }
+    crumbs = breadcrumb_schema([
+        ("Capitol Alpha Machine", "/"),
+        (scene["title"], scene_path(scene)),
+    ])
     links = "\n        ".join(
         f'<a href="{scene_path(s)}">{esc(s["order"])} - {esc(s["title"])}</a>' for s in SCENES
     )
@@ -787,6 +999,7 @@ def scene_page(scene: dict[str, str], metrics: dict[str, Any]) -> str:
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{esc(scene["title"])} | Capitol Alpha Machine</title>
 <meta name="description" content="{esc(description)}">
+<meta name="author" content="{esc(AUTHOR)}">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="{canonical}">
 <link rel="alternate" type="application/rss+xml" title="Capitol Alpha Machine updates" href="{SITE_URL}/rss.xml">
@@ -797,15 +1010,15 @@ def scene_page(scene: dict[str, str], metrics: dict[str, Any]) -> str:
 <meta property="og:title" content="{esc(scene["title"])} | Capitol Alpha Machine">
 <meta property="og:description" content="{esc(description)}">
 <meta property="og:url" content="{canonical}">
-<meta property="og:image" content="{SITE_URL}/og-image.svg">
-<meta property="og:image:type" content="image/svg+xml">
+<meta property="og:image" content="{OG_IMAGE_URL}">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(scene["title"])} | Capitol Alpha Machine">
 <meta name="twitter:description" content="{esc(description)}">
-<meta name="twitter:image" content="{SITE_URL}/og-image.svg">
-<script type="application/ld+json">{json_script(schema)}</script>
+<meta name="twitter:image" content="{OG_IMAGE_URL}">
+{render_schemas([schema, crumbs])}
 <style>
 {COMMON_CSS}
 .scene-hero {{ min-height:100svh; position:relative; background:#000; border-bottom:1px solid var(--line); }}
@@ -853,6 +1066,7 @@ def sitemap_urls() -> list[tuple[str, str, str]]:
         ("/data", "0.9", "weekly"),
         ("/updates/latest", "0.9", "weekly"),
         ("/datasets/committee-risk", "0.85", "weekly"),
+        ("/faq", "0.7", "monthly"),
         *[(scene_path(scene), "0.8", "monthly") for scene in SCENES],
     ]
 
@@ -950,6 +1164,8 @@ def index_schema(metrics: dict[str, Any]) -> dict[str, Any]:
     return {
         "@context": "https://schema.org",
         "@graph": [
+            PERSON,
+            ORGANIZATION,
             {
                 "@type": "WebSite",
                 "@id": f"{SITE_URL}/#website",
@@ -957,7 +1173,8 @@ def index_schema(metrics: dict[str, Any]) -> dict[str, Any]:
                 "url": f"{SITE_URL}/",
                 "description": "A cinematic visualization of U.S. congressional trading disclosures, committee exposure, timing patterns, and market movement.",
                 "inLanguage": "en-US",
-                "creator": {"@type": "Person", "name": AUTHOR},
+                "creator": PERSON_REF,
+                "publisher": ORG_REF,
             },
             {
                 "@type": "WebApplication",
@@ -968,15 +1185,18 @@ def index_schema(metrics: dict[str, Any]) -> dict[str, Any]:
                 "operatingSystem": "Any",
                 "browserRequirements": "Requires a modern browser with canvas and iframe support.",
                 "description": "Interactive data-art intelligence project visualizing congressional trading disclosures.",
+                "creator": PERSON_REF,
+                "publisher": ORG_REF,
             },
             {
                 "@type": "Dataset",
                 "@id": f"{SITE_URL}/#dataset",
                 "name": "Capitol Alpha Machine disclosure visualization bundle",
-                "url": f"{SITE_URL}/data/",
+                "url": f"{SITE_URL}/data",
                 "dateModified": TODAY_ISO,
                 "temporalCoverage": f"{metrics['source_from']}/{metrics['source_to']}",
-                "creator": {"@type": "Person", "name": AUTHOR},
+                "creator": PERSON_REF,
+                "publisher": ORG_REF,
                 "description": f"Bundled public disclosure data used to visualize {number(metrics['disclosure_count'])} congressional trading disclosures and {money(metrics['total_volume'])} in disclosed trading volume.",
                 "isAccessibleForFree": True,
                 "license": DATA_LICENSE,
@@ -1030,11 +1250,12 @@ def inject_index_metadata(metrics: dict[str, Any]) -> None:
     text = path.read_text(encoding="utf-8")
     head_block = f"""<!-- SEO GENERATED HEAD START -->
 <link rel="alternate" type="application/rss+xml" title="Capitol Alpha Machine updates" href="{SITE_URL}/rss.xml">
-<meta property="og:image" content="{SITE_URL}/og-image.svg">
-<meta property="og:image:type" content="image/svg+xml">
+<meta name="author" content="{esc(AUTHOR)}">
+<meta property="og:image" content="{OG_IMAGE_URL}">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta name="twitter:image" content="{SITE_URL}/og-image.svg">
+<meta name="twitter:image" content="{OG_IMAGE_URL}">
 <!-- SEO GENERATED HEAD END -->"""
     schema_block = f"""<!-- SEO JSON-LD START -->
 <script type="application/ld+json">{json_script(index_schema(metrics))}</script>
@@ -1081,10 +1302,72 @@ def replace_or_insert(text: str, start_marker: str, end_marker: str, block: str,
     return text[:index] + block + "\n" + text[index:]
 
 
+def normalize_internal_slashes(text: str) -> str:
+    """Drop trailing slashes from root-relative hrefs to match vercel.json
+    (trailingSlash:false, cleanUrls:true) and the canonical URLs, removing
+    needless 301 redirect hops. External (https://) hrefs are untouched."""
+    return re.sub(r'href="(/[^"#?]+?)/"', r'href="\1"', text)
+
+
 def write(path: str, content: str) -> None:
     target = ROOT / path
     target.parent.mkdir(parents=True, exist_ok=True)
+    if path.endswith(".html"):
+        content = normalize_internal_slashes(content)
     target.write_text(content, encoding="utf-8")
+
+
+def write_og_png(metrics: dict[str, Any]) -> bool:
+    """Render a 1200x630 PNG Open Graph card. SVG og:images are not rendered
+    by Facebook, LinkedIn, X/Twitter, Slack, etc., so a raster card is required
+    for working link previews. Falls back gracefully if Pillow is unavailable."""
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except Exception:
+        print("  ! Pillow not installed - kept existing og-image.png (run: pip install pillow)")
+        return False
+
+    W, H = 1200, 630
+    img = Image.new("RGB", (W, H), "#000000")
+    draw = ImageDraw.Draw(img)
+
+    font_candidates = [
+        "/usr/share/fonts/truetype/liberation/LiberationMono-{w}.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono{w2}.ttf",
+        "/System/Library/Fonts/Menlo.ttc",
+        "/Library/Fonts/Arial.ttf",
+    ]
+
+    def load_font(size: int, bold: bool = False):
+        for tmpl in font_candidates:
+            path = tmpl.format(w=("Bold" if bold else "Regular"),
+                               w2=("-Bold" if bold else ""))
+            try:
+                return ImageFont.truetype(path, size)
+            except Exception:
+                continue
+        return ImageFont.load_default()
+
+    # Decorative bar clusters (echoing the on-site data sculpture).
+    bars_left = [(78, 514, 26), (103, 492, 48), (128, 506, 34), (153, 468, 72),
+                 (178, 500, 40), (203, 442, 98), (228, 486, 54), (253, 462, 78)]
+    bars_right = [(920, 500, 40), (945, 430, 110), (970, 472, 68), (995, 448, 92),
+                  (1020, 515, 25), (1045, 394, 146), (1070, 486, 54), (1095, 456, 84)]
+    for x, y, h in bars_left + bars_right:
+        draw.rectangle([x, y, x + 9, y + h], fill=(255, 255, 255), outline=None)
+
+    eyebrow = load_font(22, bold=False)
+    title = load_font(74, bold=True)
+    sub = load_font(24, bold=False)
+
+    draw.text((72, 96), "CAPITOL ALPHA MACHINE", font=eyebrow, fill=(150, 150, 150))
+    draw.text((72, 180), "Congressional", font=title, fill=(255, 255, 255))
+    draw.text((72, 264), "Trading Signals", font=title, fill=(255, 255, 255))
+    subtitle = f"{money(metrics['total_volume'])} disclosed volume  -  {number(metrics['disclosure_count'])} disclosures"
+    draw.text((76, 372), subtitle, font=sub, fill=(176, 176, 176))
+
+    img.save(ROOT / "og-image.png", "PNG", optimize=True)
+    return True
 
 
 def main() -> None:
@@ -1098,11 +1381,13 @@ def main() -> None:
     write("data/index.html", data_page(metrics))
     write("datasets/committee-risk/index.html", committee_risk_page(metrics))
     write("updates/latest/index.html", latest_update_page(metrics))
+    write("faq/index.html", faq_page(metrics))
     write("robots.txt", robots_txt())
     write("sitemap.xml", sitemap_xml())
     write("sitemap.txt", sitemap_txt())
     write("rss.xml", rss_xml(metrics))
     write("og-image.svg", og_image_svg(metrics))
+    write_og_png(metrics)
     inject_index_metadata(metrics)
 
     print("Generated SEO assets:")
@@ -1112,10 +1397,12 @@ def main() -> None:
         "sitemap.txt",
         "rss.xml",
         "og-image.svg",
+        "og-image.png",
         "methodology/index.html",
         "data/index.html",
         "datasets/committee-risk/index.html",
         "updates/latest/index.html",
+        "faq/index.html",
         "scenes/capital-flow/index.html",
     ]:
         print(f"  - {item}")
