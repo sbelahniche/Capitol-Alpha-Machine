@@ -42,12 +42,15 @@ jobs:
             index.html \
             robots.txt \
             sitemap.xml \
+            sitemap.txt \
             rss.xml \
             og-image.svg \
+            og-image.png \
             methodology/index.html \
             data/index.html \
             datasets/committee-risk/index.html \
             updates/latest/index.html \
+            faq/index.html \
             scenes/*/index.html
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
