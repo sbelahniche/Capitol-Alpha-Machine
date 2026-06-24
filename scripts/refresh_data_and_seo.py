@@ -144,13 +144,61 @@ def run_seo_generator() -> None:
     )
 
 
+def run_scene03_refresh(args: argparse.Namespace, historical_path: Path) -> None:
+    risk_output = root_path(args.scene03_risk_output)
+    csv_output = root_path(args.scene03_csv_output)
+    command = [
+        sys.executable,
+        str(ROOT / "scripts" / "capitoltrades_committee_risk.py"),
+        "--input",
+        str(historical_path),
+        "--output",
+        str(risk_output),
+        "--csv-output",
+        str(csv_output),
+        "--timeout",
+        str(args.timeout),
+        "--member-delay",
+        str(args.scene03_member_delay),
+        "--progress",
+    ]
+    if args.scene03_end:
+        command.extend(["--end-date", args.scene03_end])
+    subprocess.run(command, cwd=ROOT, check=True)
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "generate_scene03.py"),
+            "--input",
+            str(risk_output),
+            "--member-limit",
+            str(args.scene03_member_limit),
+        ],
+        cwd=ROOT,
+        check=True,
+    )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Refresh Capitol Trades data, rebuild capitoltrades_data.js, and run SEO generation."
+        description=(
+            "Refresh Capitol Trades data, rebuild scene payloads, and run SEO generation."
+        )
     )
     parser.add_argument("--skip-scrape", action="store_true", help="Reuse the historical JSON file.")
-    parser.add_argument("--skip-seo", action="store_true", help="Only rebuild capitoltrades_data.js.")
+    parser.add_argument("--skip-scene03", action="store_true", help="Skip committee-risk and Scene 03 generation.")
+    parser.add_argument("--skip-seo", action="store_true", help="Skip crawlable SEO generation.")
     parser.add_argument("--historical-output", type=Path, default=Path("data/capitoltrades_historical.json"))
+    parser.add_argument(
+        "--scene03-risk-output",
+        type=Path,
+        default=Path("data/capitoltrades_committee_risk_2y.json"),
+    )
+    parser.add_argument(
+        "--scene03-csv-output",
+        type=Path,
+        default=Path("data/capitoltrades_committee_risk_2y.csv"),
+    )
     parser.add_argument("--scene05-input", type=Path, default=Path("data/scene05_real_payload.json"))
     parser.add_argument("--bundle-output", type=Path, default=Path("capitoltrades_data.js"))
     parser.add_argument("--pages", type=positive_int, default=348)
@@ -161,6 +209,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timeout", type=float, default=20.0)
     parser.add_argument("--scene01-tape-limit", type=positive_int, default=900)
     parser.add_argument("--scene02-record-limit", type=int, default=1800)
+    parser.add_argument("--scene03-end", help="YYYY-MM-DD upper bound; defaults to today.")
+    parser.add_argument("--scene03-member-limit", type=positive_int, default=40)
+    parser.add_argument("--scene03-member-delay", type=float, default=0.2)
     parser.add_argument("--scene04-start", default="2023-06-01")
     parser.add_argument("--scene04-end")
     parser.add_argument("--scene04-member-limit", type=int, default=60)
@@ -180,6 +231,8 @@ def main() -> None:
     bundle_path = root_path(args.bundle_output)
     bundle_path.write_text(bundle, encoding="utf-8")
     print(f"Wrote {bundle_path.relative_to(ROOT)}")
+    if not args.skip_scene03:
+        run_scene03_refresh(args, root_path(args.historical_output))
     if not args.skip_seo:
         run_seo_generator()
 

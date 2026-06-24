@@ -56,10 +56,11 @@ Refresh the production sidecar and generated SEO pages in one pass:
 ./scripts/refresh_data_and_seo.py
 ```
 
-This fetches the historical public trade pages with a polite delay, rebuilds Scene 01, a controlled
-recent Scene 02 window, Scene 04's priced returns payload, preserves the current
-Scene 05 event/trade payload, writes `capitoltrades_data.js`, and runs
-`scripts/generate_seo.py`.
+This fetches the historical public trade pages with a polite delay, rebuilds
+Scene 01, a controlled recent Scene 02 window, the Scene 03 committee-risk
+exposure payload, and Scene 04's priced returns payload. It preserves the
+current Scene 05 event/trade payload, writes `capitoltrades_data.js`, updates
+the embedded Scene 03 prototype, and runs `scripts/generate_seo.py`.
 
 Apply site filters:
 
@@ -88,6 +89,13 @@ not an allegation of unlawful conduct.
   --csv-output data/capitoltrades_committee_risk_2y.csv \
   --all-csv-output data/capitoltrades_committee_relationships_2y.csv \
   --end-date 2026-06-04 --progress
+```
+
+Convert that dataset into the compact Scene 03 payload and embed it in the
+homepage:
+
+```sh
+./scripts/generate_scene03.py
 ```
 
 Add `--refresh-trades` to scrape the trade pages again before building the

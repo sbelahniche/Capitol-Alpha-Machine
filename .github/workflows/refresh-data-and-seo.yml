@@ -46,6 +46,7 @@ jobs:
             rss.xml \
             og-image.svg \
             og-image.png \
+            prototypes/scene03_exposure_index.html \
             methodology/index.html \
             data/index.html \
             datasets/committee-risk/index.html \

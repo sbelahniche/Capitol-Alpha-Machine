@@ -107,6 +107,58 @@ def validate_bundle(errors: list[str]) -> None:
         errors.append("Scene 05 needs events and proximity-linked trades")
 
 
+def validate_scene03(errors: list[str]) -> None:
+    prototype_path = ROOT / "prototypes" / "scene03_exposure_index.html"
+    index_path = ROOT / "index.html"
+    if not prototype_path.exists():
+        errors.append("Missing Scene 03 prototype")
+        return
+    try:
+        prototype = prototype_path.read_text(encoding="utf-8")
+        marker = "const DATA = "
+        start = prototype.index(marker) + len(marker)
+        payload, _ = json.JSONDecoder().raw_decode(prototype[start:])
+    except Exception as exc:
+        errors.append(f"Could not parse Scene 03 payload: {exc}")
+        return
+
+    if "(function(){\n'use strict';" not in prototype or "\n})();" not in prototype:
+        errors.append("Scene 03 animation wrapper is incomplete")
+    if (
+        "crypto.getRandomValues" not in prototype
+        or "function shuffledOrder(previousOrder)" not in prototype
+        or "function orderForBatch(batch)" not in prototype
+    ):
+        errors.append("Scene 03 politician order is not randomized")
+
+    members = payload.get("members", [])
+    meta = payload.get("meta", {})
+    if len(members) < 20:
+        errors.append("Scene 03 has too few ranked members")
+    if int(meta.get("nTrades") or 0) < 1_000:
+        errors.append("Scene 03 has too few trades")
+    if int(meta.get("nPol") or 0) < len(members):
+        errors.append("Scene 03 politician count is inconsistent")
+    if not meta.get("window"):
+        errors.append("Scene 03 is missing its data window")
+    for member in members:
+        if len(member.get("cnt", [])) != 11 or len(member.get("val", [])) != 11:
+            errors.append(f"Scene 03 sector vectors are incomplete for {member.get('name')}")
+        if not member.get("worst"):
+            errors.append(f"Scene 03 is missing a flagged trade for {member.get('name')}")
+
+    try:
+        index = index_path.read_text(encoding="utf-8")
+        opening = '<script id="scene03-html" type="application/json">'
+        start = index.index(opening) + len(opening)
+        end = index.index("</script>", start)
+        embedded = json.loads(index[start:end])
+        if embedded != prototype:
+            errors.append("Scene 03 prototype and homepage embed are out of sync")
+    except Exception as exc:
+        errors.append(f"Could not parse embedded Scene 03 HTML: {exc}")
+
+
 def validate_pages(errors: list[str]) -> None:
     for rel_path in REQUIRED_PAGES:
         path = ROOT / rel_path
@@ -175,6 +227,7 @@ def validate_text_assets(errors: list[str]) -> None:
 def main() -> None:
     errors: list[str] = []
     validate_bundle(errors)
+    validate_scene03(errors)
     validate_pages(errors)
     validate_xml(errors)
     validate_text_assets(errors)

@@ -45,8 +45,9 @@ Do not commit `.vercel/` or `.env.local`; those are local machine/project-link f
 ## Data and SEO Refresh
 
 GitHub Actions runs a weekly refresh with `.github/workflows/refresh-data-and-seo.yml`.
-It rebuilds `capitoltrades_data.js`, regenerates the crawlable SEO pages, validates the
-static output, and commits generated changes. Vercel will auto-deploy that commit when
+It rebuilds `capitoltrades_data.js`, refreshes the Scene 03 committee-risk
+exposure payload, regenerates the crawlable SEO pages, validates the static
+output, and commits generated changes. Vercel will auto-deploy that commit when
 the GitHub repo is connected to the Vercel project.
 
 Run the same pipeline locally with:
