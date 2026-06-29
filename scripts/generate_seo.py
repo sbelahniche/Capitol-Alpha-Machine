@@ -1237,7 +1237,8 @@ def index_noscript(metrics: dict[str, Any]) -> str:
     return f"""<noscript>
   <section>
     <h2>Capitol Alpha Machine scenes</h2>
-    <p>Interactive visualizations of disclosed congressional trading data from Capitol Trades, including {money(metrics["total_volume"])} in total disclosed trading volume.</p>
+    <p>Capitol Alpha Machine is a congressional stock trading tracker built on public Capitol Trades disclosures filed under the STOCK Act. It visualizes how members of Congress, including Nancy Pelosi, trade stocks, covering {money(metrics["total_volume"])} in disclosed trading volume across {number(metrics["disclosure_count"])} disclosures.</p>
+    <p>Explore congressional trading by volume, net flow, committee exposure, trade timing, and trailing returns. Each scene is an interactive data visualization of how Congress trades the market.</p>
     <ul>
       {items}
     </ul>

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import json
 import re
 import sys
@@ -224,6 +225,32 @@ def validate_text_assets(errors: list[str]) -> None:
             errors.append(f"Text sitemap contains non-canonical URLs: {rel_path}")
 
 
+def validate_latest_report_date(errors: list[str]) -> None:
+    path = ROOT / "updates" / "latest" / "index.html"
+    if not path.exists():
+        return
+    text = path.read_text(encoding="utf-8")
+    match = re.search(r"Weekly report - (\d{4}-\d{2}-\d{2})", text)
+    if not match:
+        errors.append("Latest update page is missing the weekly report date")
+        return
+    try:
+        report_date = dt.date.fromisoformat(match.group(1))
+    except ValueError:
+        errors.append(f"Latest weekly report date is invalid: {match.group(1)}")
+        return
+
+    today = dt.date.today()
+    if report_date > today:
+        errors.append(f"Latest weekly report date is in the future: {report_date}")
+    if today.weekday() == 0 and report_date != today:
+        errors.append(
+            f"Latest weekly report date is stale for Monday: expected {today}, found {report_date}"
+        )
+    elif (today - report_date).days > 8:
+        errors.append(f"Latest weekly report date is older than 8 days: {report_date}")
+
+
 def main() -> None:
     errors: list[str] = []
     validate_bundle(errors)
@@ -231,6 +258,7 @@ def main() -> None:
     validate_pages(errors)
     validate_xml(errors)
     validate_text_assets(errors)
+    validate_latest_report_date(errors)
     if errors:
         print("Static site validation failed:", file=sys.stderr)
         for error in errors:
