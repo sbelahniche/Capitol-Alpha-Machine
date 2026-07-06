@@ -28,7 +28,12 @@ jobs:
           python-version: "3.12"
 
       - name: Refresh Capitol Trades data and SEO pages
-        run: python3 scripts/refresh_data_and_seo.py
+        run: >
+          python3 scripts/refresh_data_and_seo.py
+          --timeout 30
+          --delay 1.25
+          --scene03-member-delay 0.75
+          --price-delay 0.15
 
       - name: Validate generated static site
         run: python3 scripts/validate_static_site.py

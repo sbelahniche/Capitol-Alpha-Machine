@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import email.utils
 import json
+import random
 import re
 import sys
 import time
@@ -28,10 +30,55 @@ DEFAULT_HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
     ),
 }
+DEFAULT_RETRY_ATTEMPTS = 8
+RATE_LIMIT_BASE_DELAY = 60.0
+RATE_LIMIT_MAX_DELAY = 300.0
+TRANSIENT_BASE_DELAY = 2.0
+TRANSIENT_MAX_DELAY = 30.0
+
+
+def retry_after_seconds(value: str | None) -> float | None:
+    if not value:
+        return None
+    value = value.strip()
+    try:
+        return max(0.0, float(value))
+    except ValueError:
+        pass
+    try:
+        parsed = email.utils.parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=dt.timezone.utc)
+    return max(0.0, (parsed - dt.datetime.now(dt.timezone.utc)).total_seconds())
+
+
+def retry_sleep(
+    url: str,
+    attempt: int,
+    attempts: int,
+    reason: str,
+    base_delay: float,
+    max_delay: float,
+    retry_after: str | None = None,
+) -> None:
+    parsed_retry_after = retry_after_seconds(retry_after)
+    if parsed_retry_after is None:
+        delay = min(base_delay * (2**attempt), max_delay)
+    else:
+        delay = min(parsed_retry_after, max_delay)
+    delay = max(0.0, delay * random.uniform(0.9, 1.1))
+    print(
+        f"{reason} for {url}; retrying in {delay:.1f}s "
+        f"(attempt {attempt + 1}/{attempts})",
+        file=sys.stderr,
+    )
+    time.sleep(delay)
 
 
 def urlopen_with_retries(
-    url: str, timeout: float, accept: str, attempts: int = 5
+    url: str, timeout: float, accept: str, attempts: int = DEFAULT_RETRY_ATTEMPTS
 ) -> Any:
     for attempt in range(attempts):
         request = urllib.request.Request(
@@ -44,15 +91,43 @@ def urlopen_with_retries(
         try:
             return urllib.request.urlopen(request, timeout=timeout)
         except urllib.error.HTTPError as error:
-            if error.code != 429 or attempt + 1 >= attempts:
+            if attempt + 1 >= attempts:
                 raise
-            retry_after = error.headers.get("Retry-After")
-            delay = float(retry_after) if retry_after and retry_after.isdigit() else 5 * (attempt + 1)
-            time.sleep(min(delay, 60))
+            if error.code == 429:
+                retry_sleep(
+                    url,
+                    attempt,
+                    attempts,
+                    "HTTP 429 rate limit",
+                    RATE_LIMIT_BASE_DELAY,
+                    RATE_LIMIT_MAX_DELAY,
+                    error.headers.get("Retry-After"),
+                )
+                continue
+            if error.code in {500, 502, 503, 504}:
+                retry_sleep(
+                    url,
+                    attempt,
+                    attempts,
+                    f"HTTP {error.code}",
+                    TRANSIENT_BASE_DELAY,
+                    TRANSIENT_MAX_DELAY,
+                    error.headers.get("Retry-After"),
+                )
+                continue
+            raise
         except urllib.error.URLError:
             if attempt + 1 >= attempts:
                 raise
-            time.sleep(min(2 * (attempt + 1), 20))
+            retry_sleep(
+                url,
+                attempt,
+                attempts,
+                "Network error",
+                TRANSIENT_BASE_DELAY,
+                TRANSIENT_MAX_DELAY,
+            )
+    raise RuntimeError(f"Could not fetch {url}")
 
 
 def get_json(url: str, timeout: float) -> Any:
