@@ -2,6 +2,12 @@ name: Refresh data and SEO
 
 on:
   workflow_dispatch:
+    inputs:
+      refresh_scene03:
+        description: "Also refresh the heavy Scene 3 committee-risk dataset"
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: "17 8 * * 1"
 
@@ -36,13 +42,20 @@ jobs:
             capitol-trades-history-
 
       - name: Refresh Capitol Trades data and SEO pages
-        run: >
-          python3 scripts/refresh_data_and_seo.py
-          --incremental-pages 40
-          --timeout 30
-          --delay 2
-          --scene03-member-delay 1
-          --price-delay 0.15
+        env:
+          REFRESH_SCENE03: ${{ github.event.inputs.refresh_scene03 || 'false' }}
+        run: |
+          scene03_args=(--skip-scene03)
+          if [ "$REFRESH_SCENE03" = "true" ]; then
+            scene03_args=()
+          fi
+          python3 scripts/refresh_data_and_seo.py \
+            --incremental-pages 10 \
+            --timeout 30 \
+            --delay 4 \
+            --scene03-member-delay 2 \
+            --price-delay 0.5 \
+            "${scene03_args[@]}"
 
       - name: Validate generated static site
         run: python3 scripts/validate_static_site.py
