@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import subprocess
 import sys
@@ -26,8 +27,22 @@ def positive_int(value: str) -> int:
     return parsed
 
 
+def non_negative_int(value: str) -> int:
+    parsed = int(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("Expected a non-negative integer")
+    return parsed
+
+
 def root_path(path: Path) -> Path:
     return path if path.is_absolute() else ROOT / path
+
+
+def read_json(path: Path) -> Any:
+    if path.suffix == ".gz":
+        with gzip.open(path, "rt", encoding="utf-8") as handle:
+            return json.load(handle)
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def write_json(path: Path, payload: Any) -> None:
@@ -42,7 +57,7 @@ def js_assignment(name: str, payload: Any) -> str:
 def load_scene05(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Scene 05 input does not exist: {path}")
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload = read_json(path)
     missing = {"meta", "events", "trades"} - set(payload)
     if missing:
         raise ValueError(f"Scene 05 input is missing required keys: {', '.join(sorted(missing))}")
@@ -68,6 +83,85 @@ def fetch_historical(args: argparse.Namespace) -> dict[str, Any]:
     return capitoltrades_scrape.fetch_trades(fetch_args)
 
 
+def tx_id_key(value: Any) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def trade_sort_key(trade: dict[str, Any]) -> tuple[str, str, int]:
+    return (
+        str(trade.get("pubDate") or ""),
+        str(trade.get("txDate") or ""),
+        tx_id_key(trade.get("_txId")),
+    )
+
+
+def merge_historical_payloads(
+    args: argparse.Namespace,
+    seed_payload: dict[str, Any],
+    recent_payload: dict[str, Any],
+    seed_path: Path,
+) -> dict[str, Any]:
+    rows_by_id: dict[Any, dict[str, Any]] = {}
+    for trade in seed_payload.get("data", []):
+        tx_id = trade.get("_txId")
+        if tx_id is not None:
+            rows_by_id[tx_id] = trade
+    for trade in recent_payload.get("data", []):
+        tx_id = trade.get("_txId")
+        if tx_id is not None:
+            rows_by_id[tx_id] = trade
+
+    rows = sorted(rows_by_id.values(), key=trade_sort_key, reverse=True)
+    max_records = args.pages * args.page_size
+    if max_records > 0:
+        rows = rows[:max_records]
+
+    try:
+        seed_label = str(seed_path.relative_to(ROOT))
+    except ValueError:
+        seed_label = str(seed_path)
+
+    return {
+        "source": seed_payload.get("source") or recent_payload.get("source") or "https://www.capitoltrades.com/trades",
+        "pages": args.pages,
+        "startPage": args.start_page,
+        "sort": args.sort,
+        "params": [["pageSize", str(args.page_size)]],
+        "count": len(rows),
+        "data": rows,
+        "refresh": {
+            "mode": "incremental",
+            "seed": seed_label,
+            "seedCount": len(seed_payload.get("data", [])),
+            "recentPages": recent_payload.get("pages", 0),
+            "recentCount": len(recent_payload.get("data", [])),
+        },
+    }
+
+
+def load_incremental_historical(args: argparse.Namespace, historical_path: Path) -> dict[str, Any]:
+    historical_seed = getattr(args, "historical_seed", Path("data/capitoltrades_historical_seed.json.gz"))
+    seed_path = historical_path if historical_path.exists() else root_path(historical_seed)
+    if not seed_path.exists():
+        raise FileNotFoundError(
+            f"Incremental refresh needs a cached historical payload at {historical_path} "
+            f"or a seed payload at {root_path(historical_seed)}"
+        )
+    seed_payload = read_json(seed_path)
+    if not isinstance(seed_payload.get("data"), list) or not seed_payload["data"]:
+        raise ValueError(f"Historical seed does not contain trade rows: {seed_path}")
+    if args.incremental_pages > 0:
+        recent_args = argparse.Namespace(**vars(args))
+        recent_args.pages = args.incremental_pages
+        recent_payload = fetch_historical(recent_args)
+    else:
+        recent_payload = {"source": seed_payload.get("source"), "pages": 0, "data": []}
+    return merge_historical_payloads(args, seed_payload, recent_payload, seed_path)
+
+
 def load_historical(args: argparse.Namespace) -> dict[str, Any]:
     historical_path = root_path(args.historical_output)
     if args.skip_scrape:
@@ -75,9 +169,16 @@ def load_historical(args: argparse.Namespace) -> dict[str, Any]:
             raise FileNotFoundError(
                 f"--skip-scrape needs an existing historical payload at {historical_path}"
             )
-        payload = json.loads(historical_path.read_text(encoding="utf-8"))
+        payload = read_json(historical_path)
+    elif getattr(args, "incremental_pages", None) is not None:
+        payload = load_incremental_historical(args, historical_path)
     else:
         payload = fetch_historical(args)
+        write_json(historical_path, payload)
+        if not isinstance(payload.get("data"), list) or not payload["data"]:
+            raise ValueError("Historical payload does not contain trade rows")
+        return payload
+    if not args.skip_scrape:
         write_json(historical_path, payload)
     if not isinstance(payload.get("data"), list) or not payload["data"]:
         raise ValueError("Historical payload does not contain trade rows")
@@ -189,6 +290,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-scene03", action="store_true", help="Skip committee-risk and Scene 03 generation.")
     parser.add_argument("--skip-seo", action="store_true", help="Skip crawlable SEO generation.")
     parser.add_argument("--historical-output", type=Path, default=Path("data/capitoltrades_historical.json"))
+    parser.add_argument(
+        "--historical-seed",
+        type=Path,
+        default=Path("data/capitoltrades_historical_seed.json.gz"),
+        help="Compressed historical payload used when incremental refresh has no cache.",
+    )
+    parser.add_argument(
+        "--incremental-pages",
+        type=non_negative_int,
+        help="Fetch only the newest N pages and merge them into cached or seeded history.",
+    )
     parser.add_argument(
         "--scene03-risk-output",
         type=Path,

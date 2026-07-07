@@ -15,6 +15,7 @@ __pycache__
 *.pre_scene3
 
 data/capitoltrades_historical.json
+data/capitoltrades_historical_seed.json.gz
 data/capitoltrades_committee_risk_2y.json
 data/capitoltrades_committee_risk_2y.csv
 data/capitoltrades_committee_relationships_2y.csv

@@ -15,7 +15,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 75
     env:
       PYTHONUNBUFFERED: "1"
     steps:
@@ -27,16 +27,31 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Restore historical data cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/capitoltrades_historical.json
+          key: capitol-trades-history-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            capitol-trades-history-
+
       - name: Refresh Capitol Trades data and SEO pages
         run: >
           python3 scripts/refresh_data_and_seo.py
+          --incremental-pages 40
           --timeout 30
-          --delay 1.25
-          --scene03-member-delay 0.75
+          --delay 2
+          --scene03-member-delay 1
           --price-delay 0.15
 
       - name: Validate generated static site
         run: python3 scripts/validate_static_site.py
+
+      - name: Save historical data cache
+        uses: actions/cache/save@v4
+        with:
+          path: data/capitoltrades_historical.json
+          key: capitol-trades-history-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Commit generated outputs
         run: |
