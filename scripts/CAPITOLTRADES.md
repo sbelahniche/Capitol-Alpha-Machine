@@ -62,6 +62,24 @@ exposure payload, and Scene 04's priced returns payload. It preserves the
 current Scene 05 event/trade payload, writes `capitoltrades_data.js`, updates
 the embedded Scene 03 prototype, and runs `scripts/generate_seo.py`.
 
+When GitHub-hosted runners are rate-limited by Capitol Trades, run the local
+publisher from this Mac instead. It fetches the newest rendered trade pages,
+merges them into the local historical cache, rebuilds the public bundle and SEO
+pages, validates the site, refreshes the compressed historical seed, and can
+commit/push the generated outputs:
+
+```sh
+./scripts/publish_latest_data.py --publish
+```
+
+For a normal weekly update, leave Scene 03 off; the command above preserves the
+existing committee-risk payload. Use the heavier option only when the Scene 3
+committee-risk dataset itself needs to be rebuilt:
+
+```sh
+./scripts/publish_latest_data.py --refresh-scene03 --publish
+```
+
 Apply site filters:
 
 ```sh
