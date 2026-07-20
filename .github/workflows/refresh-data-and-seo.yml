@@ -1,94 +1,27 @@
-name: Refresh data and SEO
+name: Verify weekly data and SEO publication
 
 on:
   workflow_dispatch:
-    inputs:
-      refresh_scene03:
-        description: "Also refresh the heavy Scene 3 committee-risk dataset"
-        required: false
-        type: boolean
-        default: false
   schedule:
     - cron: "17 8 * * 1"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: refresh-data-and-seo
-  cancel-in-progress: false
+  group: verify-weekly-data-and-seo
+  cancel-in-progress: true
 
 jobs:
-  refresh:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
-    env:
-      PYTHONUNBUFFERED: "1"
+    timeout-minutes: 55
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Restore historical data cache
-        uses: actions/cache/restore@v4
-        with:
-          path: data/capitoltrades_historical.json
-          key: capitol-trades-history-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: |
-            capitol-trades-history-
-
-      - name: Refresh Capitol Trades data and SEO pages
-        env:
-          REFRESH_SCENE03: ${{ github.event.inputs.refresh_scene03 || 'false' }}
-        run: |
-          scene03_args=(--skip-scene03)
-          if [ "$REFRESH_SCENE03" = "true" ]; then
-            scene03_args=()
-          fi
-          python3 scripts/refresh_data_and_seo.py \
-            --incremental-pages 10 \
-            --timeout 30 \
-            --delay 4 \
-            --scene03-member-delay 2 \
-            --price-delay 0.5 \
-            "${scene03_args[@]}"
-
-      - name: Validate generated static site
-        run: python3 scripts/validate_static_site.py
-
-      - name: Save historical data cache
-        uses: actions/cache/save@v4
-        with:
-          path: data/capitoltrades_historical.json
-          key: capitol-trades-history-${{ github.run_id }}-${{ github.run_attempt }}
-
-      - name: Commit generated outputs
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            capitoltrades_data.js \
-            index.html \
-            robots.txt \
-            sitemap.xml \
-            sitemap.txt \
-            rss.xml \
-            og-image.svg \
-            og-image.png \
-            prototypes/scene03_exposure_index.html \
-            methodology/index.html \
-            data/index.html \
-            datasets/committee-risk/index.html \
-            updates/latest/index.html \
-            faq/index.html \
-            scenes/*/index.html
-          if git diff --cached --quiet; then
-            echo "No generated changes to commit."
-          else
-            git commit -m "Refresh Capitol Trades data and SEO pages"
-            git push
-          fi
+      - name: Wait for this Monday's publication
+        run: >-
+          python3 scripts/check_weekly_publication.py
+          --attempts 10
+          --interval 300

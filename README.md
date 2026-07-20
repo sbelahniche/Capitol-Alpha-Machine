@@ -44,11 +44,21 @@ Do not commit `.vercel/` or `.env.local`; those are local machine/project-link f
 
 ## Data and SEO Refresh
 
-GitHub Actions runs a weekly refresh with `.github/workflows/refresh-data-and-seo.yml`.
-It rebuilds `capitoltrades_data.js`, refreshes the Scene 03 committee-risk
-exposure payload, regenerates the crawlable SEO pages, validates the static
-output, and commits generated changes. Vercel will auto-deploy that commit when
-the GitHub repo is connected to the Vercel project.
+A macOS LaunchAgent runs the weekly refresh from a dedicated clean clone. It
+checks every hour at minute 25, starts after Monday 08:20 UTC, and retries until
+the current Monday's report is live. The normal run refreshes recent trade data
+and SEO pages without rebuilding Scene 03, validates the site, pushes `main`,
+and deploys the linked Vercel production project.
+
+Install or update the unattended job with:
+
+```bash
+./scripts/install_weekly_refresh_launchd.sh
+```
+
+GitHub Actions independently waits for the Monday publication and reports a
+failure if the live report remains stale. It does not scrape Capitol Trades,
+because GitHub-hosted runner IPs are rate-limited by the source.
 
 Run the same pipeline locally with:
 
