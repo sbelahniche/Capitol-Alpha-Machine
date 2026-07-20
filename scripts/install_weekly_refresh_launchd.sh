@@ -28,13 +28,6 @@ fi
 git -C "$REPO_DIR" config user.name "Capitol Alpha Weekly Automation"
 git -C "$REPO_DIR" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-if [[ ! -f "$SOURCE_ROOT/.vercel/project.json" ]]; then
-  echo "Missing $SOURCE_ROOT/.vercel/project.json; link the Vercel project first." >&2
-  exit 1
-fi
-mkdir -p "$REPO_DIR/.vercel"
-cp "$SOURCE_ROOT/.vercel/project.json" "$REPO_DIR/.vercel/project.json"
-
 "$PYTHON_BIN" - "$PLIST_PATH" "$LABEL" "$PYTHON_BIN" "$REPO_DIR" "$AUTOMATION_HOME" "$STDOUT_LOG" "$STDERR_LOG" <<'PY'
 import os
 import plistlib

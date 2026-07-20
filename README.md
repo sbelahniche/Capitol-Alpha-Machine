@@ -48,7 +48,7 @@ A macOS LaunchAgent runs the weekly refresh from a dedicated clean clone. It
 checks every hour at minute 25, starts after Monday 08:20 UTC, and retries until
 the current Monday's report is live. The normal run refreshes recent trade data
 and SEO pages without rebuilding Scene 03, validates the site, pushes `main`,
-and deploys the linked Vercel production project.
+waits for the linked Vercel Git deployment, and verifies the live report.
 
 Install or update the unattended job with:
 

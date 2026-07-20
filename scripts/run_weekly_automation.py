@@ -6,9 +6,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import fcntl
-import os
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -128,25 +126,6 @@ def publish_latest_data(repo: Path, args: argparse.Namespace) -> None:
     run(command, repo)
 
 
-def deploy_production(repo: Path, state_dir: Path) -> None:
-    if not (repo / ".vercel" / "project.json").exists():
-        raise RuntimeError("The managed clone is not linked to its Vercel project.")
-
-    vercel = shutil.which("vercel")
-    if vercel:
-        command = [vercel, "deploy", ".", "--prod", "-y"]
-    else:
-        npx = shutil.which("npx")
-        if not npx:
-            raise RuntimeError("Neither vercel nor npx is installed.")
-        command = [npx, "--yes", "vercel@56.2.1", "deploy", ".", "--prod", "-y"]
-
-    env = os.environ.copy()
-    env["npm_config_cache"] = str(state_dir / "npm-cache")
-    env["NO_UPDATE_NOTIFIER"] = "1"
-    run(command, repo, env=env)
-
-
 def verify_publication(
     url: str,
     target: dt.date,
@@ -192,10 +171,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timeout", type=float, default=30.0)
     parser.add_argument("--delay", type=float, default=4.0)
     parser.add_argument("--price-delay", type=float, default=0.5)
-    parser.add_argument("--verify-attempts", type=int, default=6)
-    parser.add_argument("--verify-interval", type=float, default=10.0)
+    parser.add_argument("--verify-attempts", type=int, default=12)
+    parser.add_argument("--verify-interval", type=float, default=15.0)
     parser.add_argument("--managed-clone", action="store_true")
-    parser.add_argument("--skip-deploy", action="store_true")
+    parser.add_argument("--skip-verify", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
@@ -256,8 +235,8 @@ def main() -> None:
                 f"Local report {local_date} is current; retrying production deployment only."
             )
 
-        if not args.skip_deploy:
-            deploy_production(repo, state_dir)
+        if not args.skip_verify:
+            print("Waiting for Vercel's Git deployment to publish the pushed commit.")
             verify_publication(
                 args.site_url,
                 monday,

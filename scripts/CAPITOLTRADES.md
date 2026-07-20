@@ -91,9 +91,11 @@ or refresh it once with:
 The job wakes every hour at minute 25. It exits immediately before Monday 08:20
 UTC or when the current Monday is already live. Otherwise it updates ten recent
 pages sequentially, preserves Scene 03, commits and pushes generated data/SEO
-changes, deploys production, and verifies the live report. A failed source,
-push, or deployment attempt is retried at the next `:25` run. Logs are written
-to `~/Library/Logs/CapitolAlphaWeeklyRefresh.log` and the matching `.error.log`.
+changes, waits for Vercel's Git deployment, and verifies the live report. A
+failed source, push, or publication attempt is retried at the next `:25` run.
+Vercel's Git integration deploys each pushed `main` commit, so the job needs no
+Vercel token. Logs are written to
+`~/Library/Logs/CapitolAlphaWeeklyRefresh.log` and the matching `.error.log`.
 
 GitHub Actions now monitors the live Monday report instead of scraping from a
 rate-limited hosted runner.
