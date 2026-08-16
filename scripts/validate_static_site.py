@@ -34,6 +34,14 @@ REQUIRED_SCENES = [
     "CAPITOL_TRADES_SCENE04",
     "CAPITOL_TRADES_SCENE05",
 ]
+EXPECTED_SCENE_ORDER = ["scene03", "scene01", "scene02", "scene04", "scene05"]
+EXPECTED_SCENE_PATHS = [
+    "/scenes/exposure-index",
+    "/scenes/capital-flow",
+    "/scenes/the-ledger",
+    "/scenes/returns-spectrum",
+    "/scenes/timing-lattice",
+]
 
 
 def read_js_object(bundle: str, name: str) -> dict[str, Any]:
@@ -160,6 +168,46 @@ def validate_scene03(errors: list[str]) -> None:
         errors.append(f"Could not parse embedded Scene 03 HTML: {exc}")
 
 
+def validate_scene_order(errors: list[str]) -> None:
+    path = ROOT / "index.html"
+    if not path.exists():
+        return
+    text = path.read_text(encoding="utf-8")
+    switcher_match = re.search(
+        r'<nav class="scene-switcher"[^>]*>(.*?)</nav>', text, re.DOTALL
+    )
+    if not switcher_match:
+        errors.append("Homepage is missing the scene switcher")
+        return
+    order = re.findall(r'data-scene="(scene\d+)"', switcher_match.group(1))
+    if order != EXPECTED_SCENE_ORDER:
+        errors.append(
+            f"Homepage scene order is {order}; expected {EXPECTED_SCENE_ORDER}"
+        )
+    if "const initialScene = scenes[requestedScene] ? requestedScene : 'scene03';" not in text:
+        errors.append("Exposure Index is not the default homepage scene")
+
+    for rel_path in [path for path in REQUIRED_PAGES if path.startswith("scenes/")]:
+        scene_page = ROOT / rel_path
+        if not scene_page.exists():
+            continue
+        page_text = scene_page.read_text(encoding="utf-8")
+        nav_match = re.search(
+            r'<nav class="links" aria-label="Scene pages">(.*?)</nav>',
+            page_text,
+            re.DOTALL,
+        )
+        if not nav_match:
+            errors.append(f"{rel_path} is missing scene navigation")
+            continue
+        paths = re.findall(r'href="([^"]+)"', nav_match.group(1))
+        if paths != EXPECTED_SCENE_PATHS:
+            errors.append(
+                f"{rel_path} scene navigation is {paths}; "
+                f"expected {EXPECTED_SCENE_PATHS}"
+            )
+
+
 def validate_pages(errors: list[str]) -> None:
     for rel_path in REQUIRED_PAGES:
         path = ROOT / rel_path
@@ -255,6 +303,7 @@ def main() -> None:
     errors: list[str] = []
     validate_bundle(errors)
     validate_scene03(errors)
+    validate_scene_order(errors)
     validate_pages(errors)
     validate_xml(errors)
     validate_text_assets(errors)

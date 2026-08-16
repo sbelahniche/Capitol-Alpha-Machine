@@ -84,6 +84,16 @@ def breadcrumb_schema(trail: list[tuple[str, str]]) -> dict[str, Any]:
 
 SCENES = [
     {
+        "id": "scene03",
+        "order": "03",
+        "slug": "exposure-index",
+        "title": "Exposure Index",
+        "description": "A black-and-white data sculpture mapping disclosed congressional trades into a dense exposure field from Capitol Trades data.",
+        "dek": "Disclosed congressional trades become a living exposure field: density, motion, and intensity turn transaction records into a navigable market signal.",
+        "metric": "34,771 disclosures in the current data window",
+        "note": "The visualization is based on public disclosure data and should be read as editorial data art, not as an allegation of wrongdoing.",
+    },
+    {
         "id": "scene01",
         "order": "01",
         "slug": "capital-flow",
@@ -102,16 +112,6 @@ SCENES = [
         "dek": "A disclosure tape where ticker symbols fall as records, bright purchases and dimmer sales forming a mechanical ledger of congressional trading activity.",
         "metric": "Disclosure records, ticker lanes, and amount bands",
         "note": "Transaction values are disclosed as public reporting ranges; the scene uses representative values for visualization.",
-    },
-    {
-        "id": "scene03",
-        "order": "03",
-        "slug": "exposure-index",
-        "title": "Exposure Index",
-        "description": "A black-and-white data sculpture mapping disclosed congressional trades into a dense exposure field from Capitol Trades data.",
-        "dek": "Disclosed congressional trades become a living exposure field: density, motion, and intensity turn transaction records into a navigable market signal.",
-        "metric": "34,771 disclosures in the current data window",
-        "note": "The visualization is based on public disclosure data and should be read as editorial data art, not as an allegation of wrongdoing.",
     },
     {
         "id": "scene04",
