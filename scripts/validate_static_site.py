@@ -34,13 +34,20 @@ REQUIRED_SCENES = [
     "CAPITOL_TRADES_SCENE04",
     "CAPITOL_TRADES_SCENE05",
 ]
-EXPECTED_SCENE_ORDER = ["scene03", "scene01", "scene02", "scene04", "scene05"]
+EXPECTED_SCENE_ORDER = ["scene05", "scene03", "scene01", "scene02", "scene04"]
+EXPECTED_SCENE_LABELS = [
+    "01 · Policy Proximity",
+    "02 · Exposure Index",
+    "03 · Capital Flow",
+    "04 · The Ledger",
+    "05 · Returns Spectrum",
+]
 EXPECTED_SCENE_PATHS = [
+    "/scenes/timing-lattice",
     "/scenes/exposure-index",
     "/scenes/capital-flow",
     "/scenes/the-ledger",
     "/scenes/returns-spectrum",
-    "/scenes/timing-lattice",
 ]
 
 
@@ -184,8 +191,16 @@ def validate_scene_order(errors: list[str]) -> None:
         errors.append(
             f"Homepage scene order is {order}; expected {EXPECTED_SCENE_ORDER}"
         )
-    if "const initialScene = scenes[requestedScene] ? requestedScene : 'scene03';" not in text:
-        errors.append("Exposure Index is not the default homepage scene")
+    labels = [
+        re.sub(r"\s+", " ", label).strip()
+        for label in re.findall(r'<button[^>]*>(.*?)</button>', switcher_match.group(1))
+    ]
+    if labels != EXPECTED_SCENE_LABELS:
+        errors.append(
+            f"Homepage scene labels are {labels}; expected {EXPECTED_SCENE_LABELS}"
+        )
+    if "const initialScene = scenes[requestedScene] ? requestedScene : 'scene05';" not in text:
+        errors.append("Policy Proximity is not the default homepage scene")
 
     for rel_path in [path for path in REQUIRED_PAGES if path.startswith("scenes/")]:
         scene_page = ROOT / rel_path
@@ -205,6 +220,16 @@ def validate_scene_order(errors: list[str]) -> None:
             errors.append(
                 f"{rel_path} scene navigation is {paths}; "
                 f"expected {EXPECTED_SCENE_PATHS}"
+            )
+        nav_labels = [
+            re.sub(r"\s+", " ", label).strip()
+            for label in re.findall(r'<a[^>]*>(.*?)</a>', nav_match.group(1))
+        ]
+        expected_nav_labels = [label.replace(" · ", " - ") for label in EXPECTED_SCENE_LABELS]
+        if nav_labels != expected_nav_labels:
+            errors.append(
+                f"{rel_path} scene labels are {nav_labels}; "
+                f"expected {expected_nav_labels}"
             )
 
 

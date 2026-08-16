@@ -85,7 +85,7 @@ Lead with a finding. Make the link optional. Reply to comments. That's the whole
 ---
 
 ### 5 — X / Twitter (single, finding-led, for the every-other-day cadence)
-> The Timing Lattice: each dot is a congressional trade plotted against when it landed relative to committee activity.
+> The Policy Proximity: each dot is a congressional trade plotted against when it landed relative to committee activity.
 >
 > Patterns you can see with your own eyes 👇
 > https://capitolalpha.app/scenes/timing-lattice

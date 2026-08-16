@@ -84,8 +84,20 @@ def breadcrumb_schema(trail: list[tuple[str, str]]) -> dict[str, Any]:
 
 SCENES = [
     {
+        "id": "scene05",
+        "order": "05",
+        "position": "01",
+        "slug": "timing-lattice",
+        "title": "Policy Proximity",
+        "description": "Policy Proximity links public-law events with disclosed congressional trades through sector and date proximity heuristics.",
+        "dek": "Public-law events and disclosed trades form a proximity field, connecting sector lanes and dates as a visual heuristic rather than a claim of causation.",
+        "metric": "Congress.gov public-law events x Capitol Trades disclosures",
+        "note": "Links are timing and sector proximity heuristics only, not evidence of causation or unlawful conduct.",
+    },
+    {
         "id": "scene03",
         "order": "03",
+        "position": "02",
         "slug": "exposure-index",
         "title": "Exposure Index",
         "description": "A black-and-white data sculpture mapping disclosed congressional trades into a dense exposure field from Capitol Trades data.",
@@ -96,6 +108,7 @@ SCENES = [
     {
         "id": "scene01",
         "order": "01",
+        "position": "03",
         "slug": "capital-flow",
         "title": "Capital Flow",
         "description": "Capital Flow shows total disclosed trading volume as a cumulative line climbing to the full public total, with net cumulative flow snaking faintly underneath.",
@@ -106,6 +119,7 @@ SCENES = [
     {
         "id": "scene02",
         "order": "02",
+        "position": "04",
         "slug": "the-ledger",
         "title": "The Ledger",
         "description": "A congressional trading tape built from Capitol Trades disclosures, showing tickers, transaction direction, member names, and disclosed value bands.",
@@ -116,22 +130,13 @@ SCENES = [
     {
         "id": "scene04",
         "order": "04",
+        "position": "05",
         "slug": "returns-spectrum",
         "title": "Returns Spectrum",
         "description": "A returns spectrum visualization comparing disclosed congressional trades with trailing excess-return signals across members and sectors.",
         "dek": "Member rows and return traces organize disclosed trades into a spectrum of trailing market performance, scanning for distance from a baseline.",
         "metric": "Member rows x trailing 90-day excess return",
         "note": "Return signals are calculated for visualization and should not be interpreted as investment advice.",
-    },
-    {
-        "id": "scene05",
-        "order": "05",
-        "slug": "timing-lattice",
-        "title": "Timing Lattice",
-        "description": "A timing lattice linking public-law events with disclosed congressional trades through sector and date proximity heuristics.",
-        "dek": "Public-law events and disclosed trades form a timing lattice, connecting sector lanes and dates as a visual heuristic rather than a claim of causation.",
-        "metric": "Congress.gov public-law events x Capitol Trades disclosures",
-        "note": "Links are timing and sector proximity heuristics only, not evidence of causation or unlawful conduct.",
     },
 ]
 
@@ -464,7 +469,7 @@ def methodology_page(metrics: dict[str, Any]) -> str:
   </section>
   <section class="band">
     <h2>Sources</h2>
-    <p>The primary trading source is Capitol Trades public disclosure data. Returns Spectrum combines the disclosure bundle with end-of-day market price signals. Timing Lattice also uses Congress.gov public-law listings for the 118th and 119th Congresses.</p>
+    <p>The primary trading source is Capitol Trades public disclosure data. Returns Spectrum combines the disclosure bundle with end-of-day market price signals. Policy Proximity also uses Congress.gov public-law listings for the 118th and 119th Congresses.</p>
     <div class="facts">
       <div class="fact"><div class="label">Disclosure window</div><div class="value">{esc(metrics["source_from"])} to {esc(metrics["source_to"])}</div></div>
       <div class="fact"><div class="label">Disclosures read</div><div class="value">{number(metrics["disclosure_count"])}</div></div>
@@ -489,10 +494,10 @@ def methodology_page(metrics: dict[str, Any]) -> str:
   </section>
   <section class="band">
     <h2>Timing and sector heuristics</h2>
-    <p>Committee exposure and Timing Lattice are triage heuristics. They are designed to help readers inspect patterns, not to make claims about motive or inside information.</p>
+    <p>Committee exposure and Policy Proximity are triage heuristics. They are designed to help readers inspect patterns, not to make claims about motive or inside information.</p>
     <ul class="list">
       <li>Committee-sector exposure compares a member's committee context with sectors represented in disclosed trades.</li>
-      <li>Timing Lattice links public-law events to trades by date proximity and sector proximity.</li>
+      <li>Policy Proximity links public-law events to trades by date proximity and sector proximity.</li>
       <li>Returns Spectrum compares disclosed trades with trailing market movement for visualization context only.</li>
       <li>Reporting dates can lag transaction dates, and some disclosures include spouse, dependent, or joint transactions.</li>
     </ul>
@@ -590,7 +595,7 @@ def data_page(metrics: dict[str, Any]) -> str:
       <tr><td>Trading disclosures</td><td>{esc(metrics["source_from"])} to {esc(metrics["source_to"])}</td><td>{number(metrics["disclosure_count"])} disclosures from {number(metrics.get("source_pages"))} source pages</td></tr>
       <tr><td>Buy/sell flow</td><td>{esc(metrics["source_from"])} to {esc(metrics["source_to"])}</td><td>{number(metrics["buy_sell_count"])} directionally comparable rows</td></tr>
       <tr><td>Returns Spectrum</td><td>{esc(metrics["returns_from"])} to {esc(metrics["returns_to"])}</td><td>{number(metrics["returns_count"])} rows from {number(metrics.get("returns_source_count"))} source disclosures</td></tr>
-      <tr><td>Timing Lattice</td><td>{esc(metrics["event_from"])} to {esc(metrics["event_to"])}</td><td>{number(metrics["event_count"])} public-law events linked to {number(metrics["timing_trade_count"])} trades</td></tr>
+      <tr><td>Policy Proximity</td><td>{esc(metrics["event_from"])} to {esc(metrics["event_to"])}</td><td>{number(metrics["event_count"])} public-law events linked to {number(metrics["timing_trade_count"])} trades</td></tr>
       <tr><td>Generated page date</td><td>{TODAY_ISO}</td><td>Static trust page regenerated from bundled data</td></tr>
     </tbody></table>
   </section>
@@ -599,7 +604,7 @@ def data_page(metrics: dict[str, Any]) -> str:
     <table class="table"><thead><tr><th>Source</th><th>Use</th></tr></thead><tbody>
       <tr><td>{esc(metrics.get("source") or "Capitol Trades")}</td><td>Public congressional trading disclosures and disclosed volume.</td></tr>
       <tr><td>{esc(metrics.get("returns_source") or "Capitol Trades + EOD prices")}</td><td>Returns Spectrum rows and trailing market movement context.</td></tr>
-      <tr><td>{esc(metrics.get("event_source") or "Congress.gov public laws + Capitol Trades")}</td><td>Timing Lattice event spine and sector/date proximity links.</td></tr>
+      <tr><td>{esc(metrics.get("event_source") or "Congress.gov public laws + Capitol Trades")}</td><td>Policy Proximity event spine and sector/date proximity links.</td></tr>
       {event_source_rows}
       <tr><td>Timing bundle generated</td><td>{esc(metrics.get("timing_generated_at") or "not available")}</td></tr>
     </tbody></table>
@@ -691,7 +696,7 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
   <section class="hero">
     <p class="eyebrow">Dataset</p>
     <h1>Committee-risk proximity dataset.</h1>
-    <p class="dek">A controlled aggregate page for the Timing Lattice dataset: committee context, sector proximity, public-law timing, and representative disclosed values. No individual member, ticker, or committee pages are generated yet.</p>
+    <p class="dek">A controlled aggregate page for Policy Proximity dataset: committee context, sector proximity, public-law timing, and representative disclosed values. No individual member, ticker, or committee pages are generated yet.</p>
   </section>
   <section class="band">
     <h2>Current dataset</h2>
@@ -703,11 +708,11 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
       <div class="fact"><div class="label">Members represented</div><div class="value">{number(metrics["committee_member_count"])}</div></div>
       <div class="fact"><div class="label">Representative value</div><div class="value">{money(metrics["committee_total_value"])}</div></div>
     </div>
-    <p class="note">Generated from the bundled Timing Lattice data on {TODAY_ISO}. Source bundle generated at {esc(metrics.get("timing_generated_at") or "not available")}.</p>
+    <p class="note">Generated from the bundled Policy Proximity data on {TODAY_ISO}. Source bundle generated at {esc(metrics.get("timing_generated_at") or "not available")}.</p>
   </section>
   <section class="band">
     <h2>Sources and method</h2>
-    <p>This page summarizes the committee-risk dataset used by the Timing Lattice scene. It links public-law events to disclosed trade rows using date proximity and sector proximity. Committee-sector overlap is a heuristic flag, not a claim of causation.</p>
+    <p>This page summarizes the committee-risk dataset used by Policy Proximity. It links public-law events to disclosed trade rows using date proximity and sector proximity. Committee-sector overlap is a heuristic flag, not a claim of causation.</p>
     <table class="table"><thead><tr><th>Source</th><th>Use</th></tr></thead><tbody>
       <tr><td>{esc(metrics.get("event_source") or "Congress.gov public laws + Capitol Trades")}</td><td>Event spine, disclosed trades, committee labels, sectors, and proximity flags.</td></tr>
       <tr><td>Capitol Trades</td><td><a href="{esc(metrics.get("trade_source_url") or "https://www.capitoltrades.com/trades")}">{esc(metrics.get("trade_source_url") or "https://www.capitoltrades.com/trades")}</a></td></tr>
@@ -723,7 +728,7 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
   <section class="band">
     <h2>Risk flags</h2>
     <table class="table"><thead><tr><th>Flag</th><th>Rows</th></tr></thead><tbody>{flag_rows}</tbody></table>
-    <p class="note">Flags describe why a row became visually prominent inside the Timing Lattice. They should be read as triage labels for inspection, not conclusions.</p>
+    <p class="note">Flags describe why a row became visually prominent inside Policy Proximity. They should be read as triage labels for inspection, not conclusions.</p>
   </section>
   <section class="band">
     <h2>Generation policy</h2>
@@ -737,7 +742,7 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
       <a href="/methodology/">Methodology</a>
       <a href="/data/">Data summary</a>
       <a href="/updates/latest/">Latest update</a>
-      <a href="/scenes/timing-lattice">Timing Lattice</a>
+      <a href="/scenes/timing-lattice">Policy Proximity</a>
     </div>
   </section>
 </main>
@@ -800,7 +805,7 @@ def latest_update_page(metrics: dict[str, Any]) -> str:
       <tr><td>Capital Flow</td><td>A cumulative total-flow line climbs to the full disclosed volume while net cumulative flow snakes underneath.</td></tr>
       <tr><td>Disclosure coverage</td><td>{number(metrics["disclosure_count"])} public disclosures across {esc(metrics["source_from"])} to {esc(metrics["source_to"])}.</td></tr>
       <tr><td>Returns coverage</td><td>{number(metrics["returns_count"])} rows in the current returns bundle.</td></tr>
-      <tr><td>Timing Lattice coverage</td><td>{number(metrics["event_count"])} public-law events and {number(metrics["timing_trade_count"])} proximity-linked trades.</td></tr>
+      <tr><td>Policy Proximity coverage</td><td>{number(metrics["event_count"])} public-law events and {number(metrics["timing_trade_count"])} proximity-linked trades.</td></tr>
     </tbody></table>
   </section>
   <section class="band">
@@ -814,13 +819,13 @@ def latest_update_page(metrics: dict[str, Any]) -> str:
   </section>
   <section class="band">
     <h2>Read the scenes</h2>
-    <p>Capital Flow emphasizes total disclosed trading volume as a cumulative climb while net cumulative flow snakes underneath. Exposure Index frames committee-sector overlap as a triage signal. Returns Spectrum compares disclosed trades to trailing market movement. Timing Lattice links public laws and trades through date and sector proximity only.</p>
+    <p>Capital Flow emphasizes total disclosed trading volume as a cumulative climb while net cumulative flow snakes underneath. Exposure Index frames committee-sector overlap as a triage signal. Returns Spectrum compares disclosed trades to trailing market movement. Policy Proximity links public laws and trades through date and sector proximity only.</p>
     <div class="callout">This weekly report is a crawlable editorial layer over the visualization data. It does not accuse any member of wrongdoing and does not claim causation between trades and public-law events.</div>
     <div class="links">
       <a href="/scenes/capital-flow">Capital Flow</a>
       <a href="/scenes/exposure-index">Exposure Index</a>
       <a href="/scenes/returns-spectrum">Returns Spectrum</a>
-      <a href="/scenes/timing-lattice">Timing Lattice</a>
+      <a href="/scenes/timing-lattice">Policy Proximity</a>
       <a href="/methodology/">Methodology</a>
       <a href="/data/">Data summary</a>
       <a href="/datasets/committee-risk/">Committee-risk dataset</a>
@@ -855,7 +860,7 @@ def faq_items(metrics: dict[str, Any]) -> list[tuple[str, str]]:
         (
             "Where does the congressional trading data come from?",
             f"The primary source is Capitol Trades public disclosure data. Returns Spectrum adds "
-            f"end-of-day market prices, and Timing Lattice uses Congress.gov public-law listings "
+            f"end-of-day market prices, and Policy Proximity uses Congress.gov public-law listings "
             f"for the 118th and 119th Congresses. The current bundle reads {disclosures} "
             f"disclosures from {esc(metrics['source_from'])} to {esc(metrics['source_to'])}.",
         ),
@@ -888,8 +893,8 @@ def faq_items(metrics: dict[str, Any]) -> list[tuple[str, str]]:
             "and are not exact transaction accounting.",
         ),
         (
-            "How is the Timing Lattice built?",
-            f"Timing Lattice links public-law events to disclosed trades using date proximity and "
+            "How is Policy Proximity built?",
+            f"Policy Proximity links public-law events to disclosed trades using date proximity and "
             f"sector proximity. The current bundle connects {number(metrics['event_count'])} "
             f"public-law events to {number(metrics['timing_trade_count'])} trades. Links are "
             f"visualization heuristics for inspection, not claims that any law caused any trade.",
@@ -990,7 +995,7 @@ def scene_page(scene: dict[str, str], metrics: dict[str, Any]) -> str:
         (scene["title"], scene_path(scene)),
     ])
     links = "\n        ".join(
-        f'<a href="{scene_path(s)}">{esc(s["order"])} - {esc(s["title"])}</a>' for s in SCENES
+        f'<a href="{scene_path(s)}">{esc(s["position"])} - {esc(s["title"])}</a>' for s in SCENES
     )
     return f"""<!doctype html>
 <html lang="en">
