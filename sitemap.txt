@@ -4,8 +4,8 @@ https://capitolalpha.app/data
 https://capitolalpha.app/updates/latest
 https://capitolalpha.app/datasets/committee-risk
 https://capitolalpha.app/faq
+https://capitolalpha.app/scenes/timing-lattice
+https://capitolalpha.app/scenes/exposure-index
 https://capitolalpha.app/scenes/capital-flow
 https://capitolalpha.app/scenes/the-ledger
-https://capitolalpha.app/scenes/exposure-index
 https://capitolalpha.app/scenes/returns-spectrum
-https://capitolalpha.app/scenes/timing-lattice
