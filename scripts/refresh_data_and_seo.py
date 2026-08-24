@@ -54,6 +54,21 @@ def js_assignment(name: str, payload: Any) -> str:
     return f"window.{name}={json.dumps(payload, separators=(',', ':'), ensure_ascii=False)};\n"
 
 
+def read_js_object(path: Path, name: str) -> dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"Existing data bundle does not exist: {path}")
+    bundle = path.read_text(encoding="utf-8")
+    marker = f"window.{name}="
+    try:
+        start = bundle.index(marker) + len(marker)
+        payload, _ = json.JSONDecoder().raw_decode(bundle[start:])
+    except (ValueError, json.JSONDecodeError) as error:
+        raise ValueError(f"Could not read {name} from {path}") from error
+    if not isinstance(payload, dict):
+        raise ValueError(f"Existing {name} payload is not an object: {path}")
+    return payload
+
+
 def load_scene05(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Scene 05 input does not exist: {path}")
@@ -204,16 +219,22 @@ def build_bundle(args: argparse.Namespace, payload: dict[str, Any]) -> str:
         scene02_payload(payload, args.scene02_record_limit)
     )
 
-    scene04_args = SimpleNamespace(
-        scene04_start=args.scene04_start,
-        scene04_end=args.scene04_end,
-        scene04_member_limit=args.scene04_member_limit,
-        scene04_trade_limit=args.scene04_trade_limit,
-        timeout=args.timeout,
-        price_delay=args.price_delay,
-        progress=True,
-    )
-    scene04 = capitoltrades_scrape.build_scene04_data(payload, scene04_args)
+    if args.reuse_scene04:
+        scene04 = read_js_object(
+            root_path(args.bundle_output), "CAPITOL_TRADES_SCENE04"
+        )
+        print("Reused the validated Scene 04 price payload", file=sys.stderr)
+    else:
+        scene04_args = SimpleNamespace(
+            scene04_start=args.scene04_start,
+            scene04_end=args.scene04_end,
+            scene04_member_limit=args.scene04_member_limit,
+            scene04_trade_limit=args.scene04_trade_limit,
+            timeout=args.timeout,
+            price_delay=args.price_delay,
+            progress=True,
+        )
+        scene04 = capitoltrades_scrape.build_scene04_data(payload, scene04_args)
     if len(scene04["TR"]) < args.require_priced_trades:
         raise ValueError(
             f"Only {len(scene04['TR'])} priced Scene 04 disclosures were available; "
@@ -329,6 +350,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scene04-member-limit", type=int, default=60)
     parser.add_argument("--scene04-trade-limit", type=int, default=6000)
     parser.add_argument("--price-delay", type=float, default=0.15)
+    parser.add_argument(
+        "--reuse-scene04",
+        action="store_true",
+        help="Reuse the validated Scene 04 price payload from the existing data bundle.",
+    )
     parser.add_argument("--require-priced-trades", type=int, default=1500)
     parser.add_argument("--require-priced-members", type=int, default=25)
     parser.add_argument("--public-volume-total", type=int, default=DEFAULT_PUBLIC_VOLUME_TOTAL)

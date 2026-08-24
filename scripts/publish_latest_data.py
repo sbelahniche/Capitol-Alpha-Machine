@@ -131,6 +131,8 @@ def refresh_command(args: argparse.Namespace) -> list[str]:
     ]
     if not args.refresh_scene03:
         command.append("--skip-scene03")
+    if not args.refresh_scene04:
+        command.append("--reuse-scene04")
     return command
 
 
@@ -163,6 +165,11 @@ def parse_args() -> argparse.Namespace:
         "--refresh-scene03",
         action="store_true",
         help="Also refresh the heavy committee-risk Scene 3 dataset.",
+    )
+    parser.add_argument(
+        "--refresh-scene04",
+        action="store_true",
+        help="Also refresh the rate-limit-sensitive Scene 04 price dataset.",
     )
     parser.add_argument(
         "--no-update-seed",
