@@ -5,33 +5,33 @@
     <link>https://capitolalpha.app/</link>
     <description>Data-art updates from Capitol Alpha Machine, a congressional trading disclosure visualization project.</description>
     <language>en-us</language>
-    <lastBuildDate>Mon, 31 Aug 2026 08:26:01 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 07 Sep 2026 08:26:14 +0000</lastBuildDate>
     <item>
       <title>Latest Capitol Alpha Machine data update</title>
       <link>https://capitolalpha.app/updates/latest</link>
       <guid>https://capitolalpha.app/updates/latest</guid>
-      <pubDate>Mon, 31 Aug 2026 08:26:01 +0000</pubDate>
+      <pubDate>Mon, 07 Sep 2026 08:26:14 +0000</pubDate>
       <description>$2.27B in total disclosed trading volume across 34,800 public disclosures.</description>
     </item>
     <item>
       <title>Capital Flow</title>
       <link>https://capitolalpha.app/scenes/capital-flow</link>
       <guid>https://capitolalpha.app/scenes/capital-flow</guid>
-      <pubDate>Mon, 31 Aug 2026 08:26:01 +0000</pubDate>
+      <pubDate>Mon, 07 Sep 2026 08:26:14 +0000</pubDate>
       <description>A cumulative total-flow line climbs to total disclosed trading volume while net cumulative flow snakes underneath.</description>
     </item>
     <item>
       <title>Committee-risk dataset</title>
       <link>https://capitolalpha.app/datasets/committee-risk</link>
       <guid>https://capitolalpha.app/datasets/committee-risk</guid>
-      <pubDate>Mon, 31 Aug 2026 08:26:01 +0000</pubDate>
+      <pubDate>Mon, 07 Sep 2026 08:26:14 +0000</pubDate>
       <description>Aggregate committee-sector and timing-proximity dataset with 372 linked trade rows and 31 public-law events.</description>
     </item>
     <item>
       <title>Methodology</title>
       <link>https://capitolalpha.app/methodology</link>
       <guid>https://capitolalpha.app/methodology</guid>
-      <pubDate>Mon, 31 Aug 2026 08:26:01 +0000</pubDate>
+      <pubDate>Mon, 07 Sep 2026 08:26:14 +0000</pubDate>
       <description>Sources, caveats, and heuristics behind Capitol Alpha Machine.</description>
     </item>
   </channel>
