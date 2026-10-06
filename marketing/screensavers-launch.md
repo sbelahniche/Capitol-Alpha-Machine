@@ -10,7 +10,7 @@ Promotion plan for **capitolalpha.app/screensavers**: three free Mac screensaver
 
 ## 1. Before launch (this week)
 
-- [ ] **Push and deploy** the screensavers page, then check that `/screensavers` is live with the new copy.
+- [x] **Push and deploy.** Website, optimized downloads, updated copy and share image pushed to GitHub; Vercel reported the production deployment READY for `capitolalpha.app` on 2026-10-06.
 - [ ] **Search Console.** Resubmit `sitemap.xml`, then use URL Inspection on `/screensavers` and request indexing.
 - [x] **Share image.** Rebuilt `screensavers/og-screensavers.png` with the new H1, full brand name, and current point/member counts.
 - [x] **Data freshness.** Synced the newer GitHub history and fetched filings published through 2026-10-05, covering trades through 2026-09-28. Weekly refreshes now regenerate the previews and showcase metadata. The page separately states the older returns and policy study windows; native savers check weekly for published updates.
