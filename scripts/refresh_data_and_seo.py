@@ -159,13 +159,18 @@ def merge_historical_payloads(
 
 def load_incremental_historical(args: argparse.Namespace, historical_path: Path) -> dict[str, Any]:
     historical_seed = getattr(args, "historical_seed", Path("data/capitoltrades_historical_seed.json.gz"))
-    seed_path = historical_path if historical_path.exists() else root_path(historical_seed)
+    candidates = [path for path in (historical_path, root_path(historical_seed)) if path.exists()]
+    # The ignored local cache can lag behind a seed received from GitHub.
+    # Choose by publication date rather than always preferring the local file.
+    payloads = [(path, read_json(path)) for path in candidates]
+    seed_path, seed_payload = max(payloads, key=lambda item: max(
+        (str(row.get('pubDate') or '') for row in item[1].get('data', [])), default=''
+    )) if payloads else (root_path(historical_seed), {})
     if not seed_path.exists():
         raise FileNotFoundError(
             f"Incremental refresh needs a cached historical payload at {historical_path} "
             f"or a seed payload at {root_path(historical_seed)}"
         )
-    seed_payload = read_json(seed_path)
     if not isinstance(seed_payload.get("data"), list) or not seed_payload["data"]:
         raise ValueError(f"Historical seed does not contain trade rows: {seed_path}")
     if args.incremental_pages > 0:
@@ -373,6 +378,8 @@ def main() -> None:
         run_scene03_refresh(args, root_path(args.historical_output))
     if not args.skip_seo:
         run_seo_generator()
+        if (ROOT / 'screensavers' / 'index.html').exists():
+            subprocess.run([sys.executable, str(ROOT / 'scripts' / 'build_screensaver_previews.py')], check=True)
 
 
 if __name__ == "__main__":

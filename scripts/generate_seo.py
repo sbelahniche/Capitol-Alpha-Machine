@@ -960,9 +960,10 @@ def latest_update_page(metrics: dict[str, Any]) -> str:
     <table class="table"><thead><tr><th>Signal</th><th>Current read</th></tr></thead><tbody>
       <tr><td>Capital Flow</td><td>A cumulative total-flow line climbs to the full disclosed volume while net cumulative flow snakes underneath.</td></tr>
       <tr><td>Disclosure coverage</td><td>{number(metrics["disclosure_count"])} public disclosures across {esc(metrics["source_from"])} to {esc(metrics["source_to"])}.</td></tr>
-      <tr><td>Returns coverage</td><td>{number(metrics["returns_count"])} rows in the current returns bundle.</td></tr>
-      <tr><td>Policy Proximity coverage</td><td>{number(metrics["event_count"])} public-law events and {number(metrics["timing_trade_count"])} proximity-linked trades.</td></tr>
+      <tr><td>Returns coverage</td><td>{number(metrics["returns_count"])} rows; trade dates {esc(metrics["returns_from"])} to {esc(metrics["returns_to"])}. This price study is refreshed separately.</td></tr>
+      <tr><td>Policy Proximity coverage</td><td>{number(metrics["event_count"])} public-law events and {number(metrics["timing_trade_count"])} proximity-linked trades, {esc(metrics["event_from"])} to {esc(metrics["event_to"])}. This law study is refreshed separately.</td></tr>
     </tbody></table>
+    <p class="note">The report date records when this page was generated. It does not mean that every dataset or price observation is from that date. Each study has its own coverage window.</p>
   </section>
   <section class="band">
     <h2>Largest ticker rows in the current returns bundle</h2>

@@ -109,6 +109,10 @@ def write_seed() -> None:
 def generated_files(include_seed: bool) -> list[str]:
     paths = [path for path in GENERATED_PATHS if (ROOT / path).exists()]
     paths.extend(str(path.relative_to(ROOT)) for path in sorted((ROOT / "scenes").glob("*/index.html")))
+    for directory in ('preview', 'previews'):
+        paths.extend(str(path.relative_to(ROOT)) for path in sorted((ROOT / 'screensavers' / directory).glob('*.html')))
+    if (ROOT / 'screensavers/index.html').exists():
+        paths.append('screensavers/index.html')
     if include_seed and HISTORICAL_SEED.exists():
         paths.append(str(HISTORICAL_SEED.relative_to(ROOT)))
     return sorted(dict.fromkeys(paths))

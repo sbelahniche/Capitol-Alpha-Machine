@@ -16,7 +16,7 @@ The guarded WebKit occlusion workaround follows the approach documented by [WebV
 
 The one-page showcase lives at `/screensavers`. Run a local static server from the repository root to preview it. Its canonical URL currently uses the verified production host, `https://capitolalpha.app/screensavers`. If the project moves to `.com`, update canonical and social metadata together.
 
-The live browser previews are exported from `index.html` by `python3 scripts/build_screensaver_previews.py`. Each contains only its selected scene's data, so it makes no additional request for the full data bundle. Run that export again after changing a scene's design or bundled data. Both `/screensavers/preview/` and the older `/screensavers/previews/` paths are generated. Only one preview runs at a time, including full-screen mode; it pauses outside the viewport and when the tab is hidden. Reduced-motion visitors start with a still frame and can explicitly play an animation.
+The live browser previews are exported from `index.html` by `python3 scripts/build_screensaver_previews.py`. Each contains only its selected scene's data, so it makes no additional request for the full data bundle. The weekly refresh runs this export automatically and commits both preview paths and the showcase's counts, date windows, hero points, and structured metadata. Run it manually after changing a scene's design. Both `/screensavers/preview/` and the older `/screensavers/previews/` paths are generated. Only one preview runs at a time, including full-screen mode; it pauses outside the viewport and when the tab is hidden. Reduced-motion visitors start with a still frame and can explicitly play an animation.
 
 ## Performance
 
