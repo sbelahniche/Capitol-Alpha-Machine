@@ -14,6 +14,16 @@
       "permanent": true
     },
     {
+      "source": "/data",
+      "destination": "/methodology#data",
+      "permanent": true
+    },
+    {
+      "source": "/datasets/committee-risk",
+      "destination": "/methodology#committee-risk",
+      "permanent": true
+    },
+    {
       "source": "/exposure-index",
       "destination": "/scenes/exposure-index",
       "permanent": true

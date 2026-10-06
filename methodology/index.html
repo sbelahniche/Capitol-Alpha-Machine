@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Methodology | Capitol Alpha Machine</title>
-<meta name="description" content="Methodology for Capitol Alpha Machine, a data-art intelligence project visualizing congressional trading disclosures, committee exposure, timing patterns, and market movement.">
+<title>Methodology &amp; Data | Capitol Alpha Machine</title>
+<meta name="description" content="Methodology, current disclosure data, committee-risk heuristics, sources, and caveats for Capitol Alpha Machine.">
 <meta name="author" content="Sylvain Belahniche">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://capitolalpha.app/methodology">
@@ -13,26 +13,34 @@
 <meta name="theme-color" content="#000000">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Capitol Alpha Machine">
-<meta property="og:title" content="Methodology | Capitol Alpha Machine">
-<meta property="og:description" content="Methodology for Capitol Alpha Machine, a data-art intelligence project visualizing congressional trading disclosures, committee exposure, timing patterns, and market movement.">
+<meta property="og:title" content="Methodology &amp; Data | Capitol Alpha Machine">
+<meta property="og:description" content="Methodology, current disclosure data, committee-risk heuristics, sources, and caveats for Capitol Alpha Machine.">
 <meta property="og:url" content="https://capitolalpha.app/methodology">
 <meta property="og:image" content="https://capitolalpha.app/og-image.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Methodology | Capitol Alpha Machine">
-<meta name="twitter:description" content="Methodology for Capitol Alpha Machine, a data-art intelligence project visualizing congressional trading disclosures, committee exposure, timing patterns, and market movement.">
+<meta name="twitter:title" content="Methodology &amp; Data | Capitol Alpha Machine">
+<meta name="twitter:description" content="Methodology, current disclosure data, committee-risk heuristics, sources, and caveats for Capitol Alpha Machine.">
 <meta name="twitter:image" content="https://capitolalpha.app/og-image.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Capitol Alpha Machine methodology","url":"https://capitolalpha.app/methodology","dateModified":"2026-10-05","author":{"@type":"Person","@id":"https://capitolalpha.app/#author","name":"Sylvain Belahniche","url":"https://github.com/sbelahniche","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"]},"publisher":{"@type":"Organization","@id":"https://capitolalpha.app/#org","name":"Capitol Alpha Machine","url":"https://capitolalpha.app/","logo":{"@type":"ImageObject","url":"https://capitolalpha.app/favicon-ct.png"},"image":"https://capitolalpha.app/og-image.png","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"],"founder":{"@id":"https://capitolalpha.app/#author"}},"about":["congressional trading disclosures","data visualization","Capitol Trades"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Capitol Alpha Machine methodology and data","url":"https://capitolalpha.app/methodology","dateModified":"2026-10-06","author":{"@type":"Person","@id":"https://capitolalpha.app/#author","name":"Sylvain Belahniche","url":"https://github.com/sbelahniche","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"]},"publisher":{"@type":"Organization","@id":"https://capitolalpha.app/#org","name":"Capitol Alpha Machine","url":"https://capitolalpha.app/","logo":{"@type":"ImageObject","url":"https://capitolalpha.app/favicon-ct.png"},"image":"https://capitolalpha.app/og-image.png","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"],"founder":{"@id":"https://capitolalpha.app/#author"}},"about":["congressional trading disclosures","data visualization","Capitol Trades"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Capitol Alpha Machine disclosure and committee-risk data","description":"The public disclosure, returns, committee-sector, and timing-proximity datasets behind Capitol Alpha Machine.","url":"https://capitolalpha.app/methodology#data","dateModified":"2026-10-06","creator":{"@type":"Person","@id":"https://capitolalpha.app/#author","name":"Sylvain Belahniche","url":"https://github.com/sbelahniche","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"]},"publisher":{"@type":"Organization","@id":"https://capitolalpha.app/#org","name":"Capitol Alpha Machine","url":"https://capitolalpha.app/","logo":{"@type":"ImageObject","url":"https://capitolalpha.app/favicon-ct.png"},"image":"https://capitolalpha.app/og-image.png","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"],"founder":{"@id":"https://capitolalpha.app/#author"}},"temporalCoverage":"2023-06-30/2026-09-23","isAccessibleForFree":true,"license":{"@type":"CreativeWork","name":"Capitol Alpha Machine data use notes","url":"https://capitolalpha.app/methodology#data-use-notes"},"usageInfo":"https://capitolalpha.app/methodology#data-use-notes","variableMeasured":["disclosed trading volume","buy and sell disclosure count","trailing excess return","committee-sector proximity","public-law event proximity"],"distribution":{"@type":"DataDownload","encodingFormat":"application/javascript","contentUrl":"https://capitolalpha.app/capitoltrades_data.js"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Capitol Alpha Machine","item":"https://capitolalpha.app/"},{"@type":"ListItem","position":2,"name":"Methodology","item":"https://capitolalpha.app/methodology"}]}</script>
-<style>:root { color-scheme: dark; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
+<style>:root { color-scheme: dark; --menu-h:72px; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
 * { box-sizing: border-box; }
 html, body { margin:0; background:#000; color:var(--fg); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
 a { color:inherit; }
-.topbar { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; gap:24px; padding:18px clamp(18px,5vw,72px); background:#000; border-bottom:1px solid var(--line); }
-.brand { text-decoration:none; font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap; }
-.nav { display:flex; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+.topbar { position:sticky; top:0; z-index:50; height:var(--menu-h); display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:18px; padding:0 22px; background:#000; border-bottom:1px solid var(--line); }
+.brand-block { min-width:0; }
+.brand { display:block; overflow:hidden; color:#fff; font-size:clamp(15px,2vw,24px); font-weight:700; letter-spacing:.16em; line-height:1; text-decoration:none; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
+.nav { display:flex; align-items:center; gap:9px 13px; flex-wrap:wrap; margin-top:8px; color:var(--muted); font-size:10px; line-height:1.4; text-transform:uppercase; letter-spacing:.12em; }
+.nav a { color:rgba(255,255,255,.62); text-decoration:none; }
+.nav a:hover { color:#fff; }
+.scene-menu { display:flex; align-items:center; gap:8px; }
+.scene-menu-link { display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:0 14px; border:1px solid var(--line); border-radius:999px; color:rgba(255,255,255,.68); font-size:11px; letter-spacing:.09em; text-decoration:none; text-transform:uppercase; white-space:nowrap; }
+.scene-menu-link:hover { color:#fff; border-color:rgba(255,255,255,.45); }
+.scene-menu-link[aria-current="page"] { color:#000; background:#fff; border-color:#fff; }
 main { min-height:100svh; }
 .hero, .band { padding:clamp(42px,8vw,104px) clamp(18px,6vw,96px); border-bottom:1px solid var(--line); }
 .hero { min-height:58svh; display:grid; align-content:end; }
@@ -55,29 +63,50 @@ p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19
 .list li { margin:10px 0; }
 .kicker { margin-top:28px; color:rgba(255,255,255,.45); font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.12em; }
 .links { display:flex; flex-wrap:wrap; gap:12px 22px; margin-top:28px; color:rgba(255,255,255,.66); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.section-nav { display:flex; flex-wrap:wrap; gap:10px; margin-top:30px; }
+.section-nav a { padding:9px 13px; border:1px solid var(--line); border-radius:999px; color:rgba(255,255,255,.76); font-size:11px; letter-spacing:.08em; text-decoration:none; text-transform:uppercase; }
+.section-nav a:hover { color:#000; background:#fff; }
 .footer { padding:28px clamp(18px,6vw,96px); color:rgba(255,255,255,.36); font-size:11px; }
-@media (max-width:720px) { .topbar { align-items:flex-start; flex-direction:column; } .table { font-size:12px; } }</style>
+@media (max-width:720px) {
+  :root { --menu-h:148px; }
+  .topbar { grid-template-columns:1fr; align-content:center; gap:12px; padding:14px 16px; }
+  .scene-menu { width:100%; flex-wrap:wrap; }
+  .scene-menu-link { flex:1 1 calc(50% - 6px); padding:0 10px; font-size:10px; }
+  .table { font-size:12px; }
+}</style>
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="/">Capitol Alpha Machine</a>
-  <nav class="nav" aria-label="Primary">
-    <a href="/methodology">Methodology</a>
-    <a href="/data">Data</a>
-    <a href="/datasets/committee-risk">Committee Risk</a>
-    <a href="/updates/latest">Latest</a>
-    <a href="/faq">FAQ</a>
-    <a href="/scenes/capital-flow">Capital Flow</a>
+  <div class="brand-block">
+    <a class="brand" href="/">Capitol Alpha Machine</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="/methodology">Methodology &amp; Data</a>
+      <a href="/updates/latest">Latest</a>
+      <a href="/faq">FAQ</a>
+      <a href="/screensavers">Screensavers</a>
+    </nav>
+  </div>
+  <nav class="scene-menu" aria-label="Scenes">
+    <a class="scene-menu-link" href="/scenes/timing-lattice">01 · Policy Proximity</a>
+    <a class="scene-menu-link" href="/scenes/exposure-index">02 · Exposure Index</a>
+    <a class="scene-menu-link" href="/scenes/capital-flow">03 · Capital Flow</a>
+    <a class="scene-menu-link" href="/scenes/the-ledger">04 · The Ledger</a>
+    <a class="scene-menu-link" href="/scenes/returns-spectrum">05 · Returns Spectrum</a>
   </nav>
 </header>
 
 <main>
-  <section class="hero">
-    <p class="eyebrow">Methodology</p>
+  <section class="hero" id="methodology">
+    <p class="eyebrow">Methodology &amp; Data</p>
     <h1>How the machine reads disclosed congressional trading data.</h1>
-    <p class="dek">Capitol Alpha Machine turns public disclosure records into cinematic data scenes: disclosed trading volume, member exposure, market movement, and timing proximity to public-law events.</p>
+    <p class="dek">One reference page for the project's sources, methods, current disclosure bundle, committee-risk heuristics, and caveats.</p>
+    <nav class="section-nav" aria-label="On this page">
+      <a href="#methodology-details">Methodology</a>
+      <a href="#data">Data</a>
+      <a href="#committee-risk">Committee Risk</a>
+    </nav>
   </section>
-  <section class="band">
+  <section class="band" id="methodology-details">
     <h2>Sources</h2>
     <p>The primary trading source is Capitol Trades public disclosure data. Returns Spectrum combines the disclosure bundle with end-of-day market price signals. Policy Proximity also uses Congress.gov public-law listings for the 118th and 119th Congresses.</p>
     <div class="facts">
@@ -90,7 +119,7 @@ p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19
       <a href="https://www.capitoltrades.com/trades">Capitol Trades source</a>
       <a href="https://www.congress.gov/public-laws/118th-congress">Congress.gov public laws</a>
       <a href="https://www.congress.gov/public-laws/119th-congress">Congress.gov public laws</a>
-      <a href="/data">Current dataset summary</a>
+      <a href="#data">Current dataset summary</a>
     </div>
   </section>
   <section class="band">
@@ -124,8 +153,107 @@ p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19
       <tr><td>Timing links</td><td>Presented as proximity heuristics only.</td></tr>
     </tbody></table>
     <div class="links">
-      <a href="/data">Read the data summary</a>
+      <a href="#data">Read the data summary</a>
       <a href="/updates/latest">Latest update</a>
+    </div>
+  </section>
+  <section class="band" id="data">
+    <p class="eyebrow">Data</p>
+    <h2>Current disclosure bundle</h2>
+    <p>A crawlable summary of the public data currently bundled into the interactive scenes, generated on 2026-10-06.</p>
+    <div class="facts">
+      <div class="fact"><div class="label">Trading disclosure window</div><div class="value">2023-06-30 to 2026-09-23</div></div>
+      <div class="fact"><div class="label">Disclosures</div><div class="value">34,800</div></div>
+      <div class="fact"><div class="label">Buy/sell disclosures</div><div class="value">34,663</div></div>
+      <div class="fact"><div class="label">Total disclosed volume</div><div class="value">$2.27B</div></div>
+      <div class="fact"><div class="label">Returns rows</div><div class="value">5,621</div></div>
+      <div class="fact"><div class="label">Public-law events</div><div class="value">31</div></div>
+    </div>
+    <p class="note">Capitol Trades public 3-year volume total, read 2026-06-14</p>
+  </section>
+  <section class="band">
+    <h2>Dataset windows and sources</h2>
+    <table class="table"><thead><tr><th>Bundle</th><th>Window</th><th>Rows / events</th></tr></thead><tbody>
+      <tr><td>Trading disclosures</td><td>2023-06-30 to 2026-09-23</td><td>34,800 disclosures from 348 source pages</td></tr>
+      <tr><td>Buy/sell flow</td><td>2023-06-30 to 2026-09-23</td><td>34,663 directionally comparable rows</td></tr>
+      <tr><td>Returns Spectrum</td><td>2023-07-05 to 2026-08-05</td><td>5,621 rows from 34,800 source disclosures</td></tr>
+      <tr><td>Policy Proximity</td><td>2024-07-09 to 2025-08-19</td><td>31 public-law events linked to 372 trades</td></tr>
+    </tbody></table>
+    <table class="table"><thead><tr><th>Source</th><th>Use</th></tr></thead><tbody>
+      <tr><td>CAPITOL TRADES</td><td>Public congressional trading disclosures and disclosed volume.</td></tr>
+      <tr><td>CAPITOL TRADES + EOD PRICES</td><td>Returns Spectrum rows and trailing market movement context.</td></tr>
+      <tr><td>Congress.gov public laws + Capitol Trades committee-risk scrape</td><td>Policy Proximity event spine and sector/date proximity links.</td></tr>
+      <tr><td>Congress.gov public laws</td><td><a href="https://www.congress.gov/public-laws/118th-congress">https://www.congress.gov/public-laws/118th-congress</a></td></tr>
+<tr><td>Congress.gov public laws</td><td><a href="https://www.congress.gov/public-laws/119th-congress">https://www.congress.gov/public-laws/119th-congress</a></td></tr>
+    </tbody></table>
+  </section>
+  <section class="band" id="data-use-notes">
+    <h2>Data use notes</h2>
+    <p>This dataset describes an editorial visualization bundle derived from public disclosure sources. Original source records remain subject to their publishers' terms. Reuse should cite Capitol Alpha Machine and the underlying public sources, preserve the caveats about disclosure ranges and timing heuristics, and avoid presenting representative values as exact holdings, profit, intent, or evidence of wrongdoing.</p>
+  </section>
+  <section class="band">
+    <h2>Top tickers and members in the returns bundle</h2>
+    <table class="table"><thead><tr><th>Ticker</th><th>Rows</th><th>Representative disclosed value</th></tr></thead><tbody><tr><td>MSFT</td><td>137</td><td>$154.8M</td></tr>
+<tr><td>AAPL</td><td>90</td><td>$53.5M</td></tr>
+<tr><td>JPM</td><td>63</td><td>$46.7M</td></tr>
+<tr><td>NVDA</td><td>113</td><td>$32.7M</td></tr>
+<tr><td>BMO</td><td>21</td><td>$17.8M</td></tr>
+<tr><td>WMB</td><td>4</td><td>$15.5M</td></tr>
+<tr><td>PRU</td><td>5</td><td>$15.1M</td></tr>
+<tr><td>PUK</td><td>1</td><td>$15.0M</td></tr></tbody></table>
+    <table class="table"><thead><tr><th>Member</th><th>Rows</th><th>Representative disclosed value</th></tr></thead><tbody><tr><td>Michael Mccaul</td><td>1,483</td><td>$172.7M</td></tr>
+<tr><td>Joshua Gottheimer</td><td>177</td><td>$144.4M</td></tr>
+<tr><td>Nancy Pelosi</td><td>39</td><td>$96.3M</td></tr>
+<tr><td>Jefferson Shreve</td><td>301</td><td>$81.1M</td></tr>
+<tr><td>Rohit Khanna</td><td>1,485</td><td>$51.4M</td></tr>
+<tr><td>Cleo Fields</td><td>168</td><td>$21.9M</td></tr>
+<tr><td>Kevin Hern</td><td>58</td><td>$17.5M</td></tr>
+<tr><td>Alan Armstrong</td><td>40</td><td>$17.4M</td></tr></tbody></table>
+    <p class="note">These rankings use representative disclosed values inside the returns scene bundle. They are not a complete accounting of holdings, profit, or intent.</p>
+  </section>
+  <section class="band" id="committee-risk">
+    <p class="eyebrow">Committee Risk</p>
+    <h2>Committee-risk proximity dataset</h2>
+    <p>This aggregate links public-law events to disclosed trade rows using date proximity and sector proximity. Committee-sector overlap is a heuristic flag, not a claim of causation.</p>
+    <div class="facts">
+      <div class="fact"><div class="label">Event window</div><div class="value">2024-07-09 to 2025-08-19</div></div>
+      <div class="fact"><div class="label">Public-law events</div><div class="value">31</div></div>
+      <div class="fact"><div class="label">Linked trade rows</div><div class="value">372</div></div>
+      <div class="fact"><div class="label">Committees</div><div class="value">18</div></div>
+      <div class="fact"><div class="label">Members represented</div><div class="value">35</div></div>
+      <div class="fact"><div class="label">Representative value</div><div class="value">$46.6M</div></div>
+    </div>
+    <div class="callout">Scores and links are visualization heuristics only. They are not evidence of intent, privileged information, causation, profit, or unlawful conduct.</div>
+  </section>
+  <section class="band">
+    <h2>Top committees in the current aggregate</h2>
+    <table class="table"><thead><tr><th>Committee</th><th>Rows</th><th>Representative value</th><th>Members</th><th>Avg risk</th><th>Avg timing</th><th>Top sectors</th></tr></thead><tbody><tr><td>Intelligence</td><td>34</td><td>$33.2M</td><td>2</td><td>84</td><td>91</td><td>information-technology, industrials, communication-services</td></tr>
+<tr><td>Ways &amp; Means</td><td>4</td><td>$4.1M</td><td>1</td><td>77</td><td>82</td><td>financials</td></tr>
+<tr><td>Commerce, Science &amp; Transportation</td><td>13</td><td>$3.5M</td><td>2</td><td>85</td><td>92</td><td>communication-services, consumer-discretionary</td></tr>
+<tr><td>Homeland Security</td><td>32</td><td>$2.1M</td><td>5</td><td>83</td><td>89</td><td>information-technology, communication-services, industrials</td></tr>
+<tr><td>Armed Services</td><td>74</td><td>$1.3M</td><td>4</td><td>88</td><td>90</td><td>industrials, information-technology, communication-services</td></tr>
+<tr><td>Environment &amp; Public Works</td><td>13</td><td>$378K</td><td>5</td><td>72</td><td>75</td><td>energy, utilities</td></tr>
+<tr><td>Appropriations</td><td>39</td><td>$361K</td><td>8</td><td>87</td><td>86</td><td>energy, health-care, information-technology</td></tr>
+<tr><td>Financial Services</td><td>38</td><td>$304K</td><td>3</td><td>85</td><td>91</td><td>financials</td></tr>
+<tr><td>Natural Resources</td><td>37</td><td>$296K</td><td>1</td><td>79</td><td>77</td><td>health-care, materials, energy</td></tr>
+<tr><td>Budget</td><td>30</td><td>$240K</td><td>1</td><td>88</td><td>95</td><td>financials</td></tr></tbody></table>
+    <p class="note">Rows are aggregate only. Individual committee pages are not generated.</p>
+  </section>
+  <section class="band">
+    <h2>Risk flags</h2>
+    <table class="table"><thead><tr><th>Flag</th><th>Rows</th></tr></thead><tbody><tr><td>committee sector overlap</td><td>351</td></tr>
+<tr><td>repeat committee sector trades 90d</td><td>326</td></tr>
+<tr><td>owner spouse</td><td>198</td></tr>
+<tr><td>reporting gap 180d plus</td><td>103</td></tr>
+<tr><td>owner joint</td><td>79</td></tr>
+<tr><td>top 10pct value</td><td>46</td></tr>
+<tr><td>reporting gap 45d plus</td><td>46</td></tr>
+<tr><td>top 25pct value</td><td>42</td></tr></tbody></table>
+    <p class="note">Flags describe why a row became visually prominent inside Policy Proximity. Read them as triage labels for inspection, not conclusions.</p>
+    <div class="links">
+      <a href="/updates/latest">Latest update</a>
+      <a href="/scenes/timing-lattice">Policy Proximity</a>
+      <a href="#methodology">Back to top</a>
     </div>
   </section>
 </main>

@@ -1,9 +1,8 @@
 https://capitolalpha.app/
 https://capitolalpha.app/methodology
-https://capitolalpha.app/data
 https://capitolalpha.app/updates/latest
-https://capitolalpha.app/datasets/committee-risk
 https://capitolalpha.app/faq
+https://capitolalpha.app/screensavers
 https://capitolalpha.app/scenes/timing-lattice
 https://capitolalpha.app/scenes/exposure-index
 https://capitolalpha.app/scenes/capital-flow

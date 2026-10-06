@@ -16,7 +16,7 @@ An ominous visualization of political trading signals, sourced from CapitolTrade
 - `favicon-ct.png` - project favicon.
 - `scripts/` - scraper and committee-risk dataset builders.
 - `data/scene05_real_payload.json` - real congressional bill/event payload used while wiring scene 5.
-- `prototypes/` - useful standalone scene source snapshots.
+- `prototypes/scene03_exposure_index.html` - generated Scene 03 source snapshot used by the embedding and validation pipeline.
 
 ## Local Preview
 

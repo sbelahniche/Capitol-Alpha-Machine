@@ -1,0 +1,4 @@
+ba776c4bf3877dede94f161c9367fd1619fa7fa0c6b53cad35bf8e680239a941  policy-proximity-mac.zip
+35e04db999e7445410279d5b11414d321baf2f4bc0ead7c04e6dc23d0506e582  the-ledger-mac.zip
+fa5a6d4ac8df836505154d81cbbbfeae1ae4b40e5c27f6f2869beaed3b30ca63  returns-spectrum-mac.zip
+a192578d3da34105dc43a18c71a2d9e6475e6759091a475d8721d620186eea64  capitol-alpha-screensavers-mac.zip

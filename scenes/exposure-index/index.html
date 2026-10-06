@@ -24,16 +24,23 @@
 <meta name="twitter:title" content="Exposure Index | Capitol Alpha Machine">
 <meta name="twitter:description" content="A black-and-white data sculpture mapping disclosed congressional trades into a dense exposure field from Capitol Trades data.">
 <meta name="twitter:image" content="https://capitolalpha.app/og-image.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"CreativeWork","name":"Exposure Index - Capitol Alpha Machine","url":"https://capitolalpha.app/scenes/exposure-index","isPartOf":{"@type":"WebSite","name":"Capitol Alpha Machine","url":"https://capitolalpha.app/"},"description":"A black-and-white data sculpture mapping disclosed congressional trades into a dense exposure field from Capitol Trades data.","creator":{"@type":"Person","@id":"https://capitolalpha.app/#author","name":"Sylvain Belahniche","url":"https://github.com/sbelahniche","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"]},"publisher":{"@type":"Organization","@id":"https://capitolalpha.app/#org","name":"Capitol Alpha Machine","url":"https://capitolalpha.app/","logo":{"@type":"ImageObject","url":"https://capitolalpha.app/favicon-ct.png"},"image":"https://capitolalpha.app/og-image.png","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"],"founder":{"@id":"https://capitolalpha.app/#author"}},"image":"https://capitolalpha.app/og-image.png","about":["congressional trading disclosures","Capitol Trades data","financial data visualization"],"dateModified":"2026-10-05"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CreativeWork","name":"Exposure Index - Capitol Alpha Machine","url":"https://capitolalpha.app/scenes/exposure-index","isPartOf":{"@type":"WebSite","name":"Capitol Alpha Machine","url":"https://capitolalpha.app/"},"description":"A black-and-white data sculpture mapping disclosed congressional trades into a dense exposure field from Capitol Trades data.","creator":{"@type":"Person","@id":"https://capitolalpha.app/#author","name":"Sylvain Belahniche","url":"https://github.com/sbelahniche","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"]},"publisher":{"@type":"Organization","@id":"https://capitolalpha.app/#org","name":"Capitol Alpha Machine","url":"https://capitolalpha.app/","logo":{"@type":"ImageObject","url":"https://capitolalpha.app/favicon-ct.png"},"image":"https://capitolalpha.app/og-image.png","sameAs":["https://github.com/sbelahniche/Capitol-Alpha-Machine","https://github.com/sbelahniche"],"founder":{"@id":"https://capitolalpha.app/#author"}},"image":"https://capitolalpha.app/og-image.png","about":["congressional trading disclosures","Capitol Trades data","financial data visualization"],"dateModified":"2026-10-06"}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Capitol Alpha Machine","item":"https://capitolalpha.app/"},{"@type":"ListItem","position":2,"name":"Exposure Index","item":"https://capitolalpha.app/scenes/exposure-index"}]}</script>
 <style>
-:root { color-scheme: dark; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
+:root { color-scheme: dark; --menu-h:72px; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
 * { box-sizing: border-box; }
 html, body { margin:0; background:#000; color:var(--fg); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
 a { color:inherit; }
-.topbar { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; gap:24px; padding:18px clamp(18px,5vw,72px); background:#000; border-bottom:1px solid var(--line); }
-.brand { text-decoration:none; font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap; }
-.nav { display:flex; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+.topbar { position:sticky; top:0; z-index:50; height:var(--menu-h); display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:18px; padding:0 22px; background:#000; border-bottom:1px solid var(--line); }
+.brand-block { min-width:0; }
+.brand { display:block; overflow:hidden; color:#fff; font-size:clamp(15px,2vw,24px); font-weight:700; letter-spacing:.16em; line-height:1; text-decoration:none; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
+.nav { display:flex; align-items:center; gap:9px 13px; flex-wrap:wrap; margin-top:8px; color:var(--muted); font-size:10px; line-height:1.4; text-transform:uppercase; letter-spacing:.12em; }
+.nav a { color:rgba(255,255,255,.62); text-decoration:none; }
+.nav a:hover { color:#fff; }
+.scene-menu { display:flex; align-items:center; gap:8px; }
+.scene-menu-link { display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:0 14px; border:1px solid var(--line); border-radius:999px; color:rgba(255,255,255,.68); font-size:11px; letter-spacing:.09em; text-decoration:none; text-transform:uppercase; white-space:nowrap; }
+.scene-menu-link:hover { color:#fff; border-color:rgba(255,255,255,.45); }
+.scene-menu-link[aria-current="page"] { color:#000; background:#fff; border-color:#fff; }
 main { min-height:100svh; }
 .hero, .band { padding:clamp(42px,8vw,104px) clamp(18px,6vw,96px); border-bottom:1px solid var(--line); }
 .hero { min-height:58svh; display:grid; align-content:end; }
@@ -56,13 +63,40 @@ p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19
 .list li { margin:10px 0; }
 .kicker { margin-top:28px; color:rgba(255,255,255,.45); font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.12em; }
 .links { display:flex; flex-wrap:wrap; gap:12px 22px; margin-top:28px; color:rgba(255,255,255,.66); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.section-nav { display:flex; flex-wrap:wrap; gap:10px; margin-top:30px; }
+.section-nav a { padding:9px 13px; border:1px solid var(--line); border-radius:999px; color:rgba(255,255,255,.76); font-size:11px; letter-spacing:.08em; text-decoration:none; text-transform:uppercase; }
+.section-nav a:hover { color:#000; background:#fff; }
 .footer { padding:28px clamp(18px,6vw,96px); color:rgba(255,255,255,.36); font-size:11px; }
-@media (max-width:720px) { .topbar { align-items:flex-start; flex-direction:column; } .table { font-size:12px; } }
-.scene-hero { min-height:100svh; position:relative; background:#000; border-bottom:1px solid var(--line); }
+@media (max-width:720px) {
+  :root { --menu-h:148px; }
+  .topbar { grid-template-columns:1fr; align-content:center; gap:12px; padding:14px 16px; }
+  .scene-menu { width:100%; flex-wrap:wrap; }
+  .scene-menu-link { flex:1 1 calc(50% - 6px); padding:0 10px; font-size:10px; }
+  .table { font-size:12px; }
+}
+.scene-hero { min-height:calc(100svh - var(--menu-h)); position:relative; background:#000; border-bottom:1px solid var(--line); }
 .scene-hero iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#000; display:block; }
 </style>
 </head>
 <body>
+<header class="topbar">
+  <div class="brand-block">
+    <a class="brand" href="/">Capitol Alpha Machine</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="/methodology">Methodology &amp; Data</a>
+      <a href="/updates/latest">Latest</a>
+      <a href="/faq">FAQ</a>
+      <a href="/screensavers">Screensavers</a>
+    </nav>
+  </div>
+  <nav class="scene-menu" aria-label="Scenes">
+    <a class="scene-menu-link" href="/scenes/timing-lattice">01 · Policy Proximity</a>
+    <a class="scene-menu-link" href="/scenes/exposure-index" aria-current="page">02 · Exposure Index</a>
+    <a class="scene-menu-link" href="/scenes/capital-flow">03 · Capital Flow</a>
+    <a class="scene-menu-link" href="/scenes/the-ledger">04 · The Ledger</a>
+    <a class="scene-menu-link" href="/scenes/returns-spectrum">05 · Returns Spectrum</a>
+  </nav>
+</header>
 <main>
   <section class="scene-hero" aria-label="Interactive Exposure Index visualization">
     <iframe src="/index.html?scene=scene03&embed=1" title="Exposure Index interactive visualization" loading="eager"></iframe>
@@ -83,7 +117,7 @@ p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19
     <div class="links">
       <a href="/index.html?scene=scene03">Open in the full interactive machine</a>
       <a href="/methodology">Methodology</a>
-      <a href="/data">Data summary</a>
+      <a href="/methodology#data">Data summary</a>
     </div>
   </section>
 </main>

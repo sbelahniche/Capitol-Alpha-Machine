@@ -13,9 +13,18 @@ __pycache__
 *.log
 *.bak
 *.pre_scene3
+prototypes
+
+# Internal promotion notes and source videos, not part of the site.
+marketing
 
 data/capitoltrades_historical.json
 data/capitoltrades_historical_seed.json.gz
 data/capitoltrades_committee_risk_2y.json
 data/capitoltrades_committee_risk_2y.csv
 data/capitoltrades_committee_relationships_2y.csv
+
+# Public screensaver downloads.
+!screensavers/downloads/*.zip
+
+macos-screensaver

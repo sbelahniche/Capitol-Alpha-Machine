@@ -25,7 +25,7 @@ TODAY = dt.date.today()
 TODAY_ISO = TODAY.isoformat()
 NOW_UTC = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
 RSS_DATE = email.utils.format_datetime(NOW_UTC)
-DATA_LICENSE_URL = f"{SITE_URL}/data#data-use-notes"
+DATA_LICENSE_URL = f"{SITE_URL}/methodology#data-use-notes"
 DATA_LICENSE = {
     "@type": "CreativeWork",
     "name": "Capitol Alpha Machine data use notes",
@@ -349,13 +349,20 @@ def json_script(data: dict[str, Any]) -> str:
 
 
 COMMON_CSS = """
-:root { color-scheme: dark; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
+:root { color-scheme: dark; --menu-h:72px; --fg:#fff; --muted:rgba(255,255,255,.62); --dim:rgba(255,255,255,.38); --line:rgba(255,255,255,.18); }
 * { box-sizing: border-box; }
 html, body { margin:0; background:#000; color:var(--fg); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
 a { color:inherit; }
-.topbar { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; gap:24px; padding:18px clamp(18px,5vw,72px); background:#000; border-bottom:1px solid var(--line); }
-.brand { text-decoration:none; font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap; }
-.nav { display:flex; gap:18px; flex-wrap:wrap; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+.topbar { position:sticky; top:0; z-index:50; height:var(--menu-h); display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:18px; padding:0 22px; background:#000; border-bottom:1px solid var(--line); }
+.brand-block { min-width:0; }
+.brand { display:block; overflow:hidden; color:#fff; font-size:clamp(15px,2vw,24px); font-weight:700; letter-spacing:.16em; line-height:1; text-decoration:none; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
+.nav { display:flex; align-items:center; gap:9px 13px; flex-wrap:wrap; margin-top:8px; color:var(--muted); font-size:10px; line-height:1.4; text-transform:uppercase; letter-spacing:.12em; }
+.nav a { color:rgba(255,255,255,.62); text-decoration:none; }
+.nav a:hover { color:#fff; }
+.scene-menu { display:flex; align-items:center; gap:8px; }
+.scene-menu-link { display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:0 14px; border:1px solid var(--line); border-radius:999px; color:rgba(255,255,255,.68); font-size:11px; letter-spacing:.09em; text-decoration:none; text-transform:uppercase; white-space:nowrap; }
+.scene-menu-link:hover { color:#fff; border-color:rgba(255,255,255,.45); }
+.scene-menu-link[aria-current="page"] { color:#000; background:#fff; border-color:#fff; }
 main { min-height:100svh; }
 .hero, .band { padding:clamp(42px,8vw,104px) clamp(18px,6vw,96px); border-bottom:1px solid var(--line); }
 .hero { min-height:58svh; display:grid; align-content:end; }
@@ -378,8 +385,17 @@ p { max-width:900px; color:rgba(255,255,255,.75); font-size:clamp(14px,1.65vw,19
 .list li { margin:10px 0; }
 .kicker { margin-top:28px; color:rgba(255,255,255,.45); font-size:11px; line-height:1.6; text-transform:uppercase; letter-spacing:.12em; }
 .links { display:flex; flex-wrap:wrap; gap:12px 22px; margin-top:28px; color:rgba(255,255,255,.66); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+.section-nav { display:flex; flex-wrap:wrap; gap:10px; margin-top:30px; }
+.section-nav a { padding:9px 13px; border:1px solid var(--line); border-radius:999px; color:rgba(255,255,255,.76); font-size:11px; letter-spacing:.08em; text-decoration:none; text-transform:uppercase; }
+.section-nav a:hover { color:#000; background:#fff; }
 .footer { padding:28px clamp(18px,6vw,96px); color:rgba(255,255,255,.36); font-size:11px; }
-@media (max-width:720px) { .topbar { align-items:flex-start; flex-direction:column; } .table { font-size:12px; } }
+@media (max-width:720px) {
+  :root { --menu-h:148px; }
+  .topbar { grid-template-columns:1fr; align-content:center; gap:12px; padding:14px 16px; }
+  .scene-menu { width:100%; flex-wrap:wrap; }
+  .scene-menu-link { flex:1 1 calc(50% - 6px); padding:0 10px; font-size:10px; }
+  .table { font-size:12px; }
+}
 """.strip()
 
 
@@ -389,6 +405,29 @@ def render_schemas(schema: dict[str, Any] | list[dict[str, Any]]) -> str:
         f'<script type="application/ld+json">{json_script(block)}</script>'
         for block in blocks
     )
+
+
+def site_header(active_scene: str | None = None) -> str:
+    scene_links = "\n    ".join(
+        f'<a class="scene-menu-link" href="{scene_path(scene)}"'
+        f'{" aria-current=\"page\"" if scene["id"] == active_scene else ""}>'
+        f'{esc(scene["position"])} · {esc(scene["title"])}</a>'
+        for scene in SCENES
+    )
+    return f"""<header class="topbar">
+  <div class="brand-block">
+    <a class="brand" href="/">Capitol Alpha Machine</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="/methodology">Methodology &amp; Data</a>
+      <a href="/updates/latest">Latest</a>
+      <a href="/faq">FAQ</a>
+      <a href="/screensavers">Screensavers</a>
+    </nav>
+  </div>
+  <nav class="scene-menu" aria-label="Scenes">
+    {scene_links}
+  </nav>
+</header>"""
 
 
 def base_page(title: str, description: str, path: str, body: str,
@@ -424,17 +463,7 @@ def base_page(title: str, description: str, path: str, body: str,
 <style>{COMMON_CSS}</style>
 </head>
 <body>
-<header class="topbar">
-  <a class="brand" href="/">Capitol Alpha Machine</a>
-  <nav class="nav" aria-label="Primary">
-    <a href="/methodology">Methodology</a>
-    <a href="/data">Data</a>
-    <a href="/datasets/committee-risk">Committee Risk</a>
-    <a href="/updates/latest">Latest</a>
-    <a href="/faq">FAQ</a>
-    <a href="/scenes/capital-flow">Capital Flow</a>
-  </nav>
-</header>
+{site_header()}
 {body}
 <footer class="footer">By <a href="{AUTHOR_URL}" rel="author">{esc(AUTHOR)}</a> &middot; Capitol Alpha Machine. Public disclosure data is used for visualization and research context only. Not investment advice, not an allegation of unlawful conduct.</footer>
 </body>
@@ -446,15 +475,69 @@ def methodology_page(metrics: dict[str, Any]) -> str:
     event_links = "\n      ".join(
         f'<a href="{esc(url)}">Congress.gov public laws</a>' for url in metrics.get("event_source_urls", [])
     )
-    schema = {
+    event_source_rows = "\n".join(
+        f'<tr><td>Congress.gov public laws</td><td><a href="{esc(url)}">{esc(url)}</a></td></tr>'
+        for url in metrics.get("event_source_urls", [])
+    )
+    top_ticker_rows = "\n".join(
+        f"<tr><td>{esc(name)}</td><td>{number(count)}</td><td>{money(total)}</td></tr>"
+        for name, count, total in metrics["top_tickers"]
+    )
+    top_member_rows = "\n".join(
+        f"<tr><td>{esc(name.title())}</td><td>{number(count)}</td><td>{money(total)}</td></tr>"
+        for name, count, total in metrics["top_members"]
+    )
+    committee_rows = "\n".join(
+        "<tr>"
+        f"<td>{esc(row['committee'])}</td>"
+        f"<td>{number(row['count'])}</td>"
+        f"<td>{money(row['value'])}</td>"
+        f"<td>{number(row['member_count'])}</td>"
+        f"<td>{number(row['avg_risk'])}</td>"
+        f"<td>{number(row['avg_timing'])}</td>"
+        f"<td>{esc(', '.join(sector for sector, _ in row['top_sectors']))}</td>"
+        "</tr>"
+        for row in metrics["committee_top"]
+    )
+    flag_rows = "\n".join(
+        f"<tr><td>{esc(flag.replace('-', ' '))}</td><td>{number(count)}</td></tr>"
+        for flag, count in metrics["risk_flags"]
+    )
+    article_schema = {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Capitol Alpha Machine methodology",
+        "headline": "Capitol Alpha Machine methodology and data",
         "url": url_for("/methodology"),
         "dateModified": TODAY_ISO,
         "author": PERSON,
         "publisher": ORGANIZATION,
         "about": ["congressional trading disclosures", "data visualization", "Capitol Trades"],
+    }
+    data_schema = {
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        "name": "Capitol Alpha Machine disclosure and committee-risk data",
+        "description": "The public disclosure, returns, committee-sector, and timing-proximity datasets behind Capitol Alpha Machine.",
+        "url": url_for("/methodology") + "#data",
+        "dateModified": TODAY_ISO,
+        "creator": PERSON,
+        "publisher": ORGANIZATION,
+        "temporalCoverage": f"{metrics['source_from']}/{metrics['source_to']}",
+        "isAccessibleForFree": True,
+        "license": DATA_LICENSE,
+        "usageInfo": DATA_LICENSE_URL,
+        "variableMeasured": [
+            "disclosed trading volume",
+            "buy and sell disclosure count",
+            "trailing excess return",
+            "committee-sector proximity",
+            "public-law event proximity",
+        ],
+        "distribution": {
+            "@type": "DataDownload",
+            "encodingFormat": "application/javascript",
+            "contentUrl": f"{SITE_URL}/capitoltrades_data.js",
+        },
     }
     crumbs = breadcrumb_schema([
         ("Capitol Alpha Machine", "/"),
@@ -462,12 +545,17 @@ def methodology_page(metrics: dict[str, Any]) -> str:
     ])
     body = f"""
 <main>
-  <section class="hero">
-    <p class="eyebrow">Methodology</p>
+  <section class="hero" id="methodology">
+    <p class="eyebrow">Methodology &amp; Data</p>
     <h1>How the machine reads disclosed congressional trading data.</h1>
-    <p class="dek">Capitol Alpha Machine turns public disclosure records into cinematic data scenes: disclosed trading volume, member exposure, market movement, and timing proximity to public-law events.</p>
+    <p class="dek">One reference page for the project's sources, methods, current disclosure bundle, committee-risk heuristics, and caveats.</p>
+    <nav class="section-nav" aria-label="On this page">
+      <a href="#methodology-details">Methodology</a>
+      <a href="#data">Data</a>
+      <a href="#committee-risk">Committee Risk</a>
+    </nav>
   </section>
-  <section class="band">
+  <section class="band" id="methodology-details">
     <h2>Sources</h2>
     <p>The primary trading source is Capitol Trades public disclosure data. Returns Spectrum combines the disclosure bundle with end-of-day market price signals. Policy Proximity also uses Congress.gov public-law listings for the 118th and 119th Congresses.</p>
     <div class="facts">
@@ -479,7 +567,7 @@ def methodology_page(metrics: dict[str, Any]) -> str:
     <div class="links">
       <a href="https://www.capitoltrades.com/trades">Capitol Trades source</a>
       {event_links}
-      <a href="/data/">Current dataset summary</a>
+      <a href="#data">Current dataset summary</a>
     </div>
   </section>
   <section class="band">
@@ -513,18 +601,86 @@ def methodology_page(metrics: dict[str, Any]) -> str:
       <tr><td>Timing links</td><td>Presented as proximity heuristics only.</td></tr>
     </tbody></table>
     <div class="links">
-      <a href="/data/">Read the data summary</a>
+      <a href="#data">Read the data summary</a>
       <a href="/updates/latest/">Latest update</a>
+    </div>
+  </section>
+  <section class="band" id="data">
+    <p class="eyebrow">Data</p>
+    <h2>Current disclosure bundle</h2>
+    <p>A crawlable summary of the public data currently bundled into the interactive scenes, generated on {TODAY_ISO}.</p>
+    <div class="facts">
+      <div class="fact"><div class="label">Trading disclosure window</div><div class="value">{esc(metrics["source_from"])} to {esc(metrics["source_to"])}</div></div>
+      <div class="fact"><div class="label">Disclosures</div><div class="value">{number(metrics["disclosure_count"])}</div></div>
+      <div class="fact"><div class="label">Buy/sell disclosures</div><div class="value">{number(metrics["buy_sell_count"])}</div></div>
+      <div class="fact"><div class="label">Total disclosed volume</div><div class="value">{money(metrics["total_volume"])}</div></div>
+      <div class="fact"><div class="label">Returns rows</div><div class="value">{number(metrics["returns_count"])}</div></div>
+      <div class="fact"><div class="label">Public-law events</div><div class="value">{number(metrics["event_count"])}</div></div>
+    </div>
+    <p class="note">{esc(metrics.get("volume_source") or "Volume is derived from disclosed transaction values in the bundled data.")}</p>
+  </section>
+  <section class="band">
+    <h2>Dataset windows and sources</h2>
+    <table class="table"><thead><tr><th>Bundle</th><th>Window</th><th>Rows / events</th></tr></thead><tbody>
+      <tr><td>Trading disclosures</td><td>{esc(metrics["source_from"])} to {esc(metrics["source_to"])}</td><td>{number(metrics["disclosure_count"])} disclosures from {number(metrics.get("source_pages"))} source pages</td></tr>
+      <tr><td>Buy/sell flow</td><td>{esc(metrics["source_from"])} to {esc(metrics["source_to"])}</td><td>{number(metrics["buy_sell_count"])} directionally comparable rows</td></tr>
+      <tr><td>Returns Spectrum</td><td>{esc(metrics["returns_from"])} to {esc(metrics["returns_to"])}</td><td>{number(metrics["returns_count"])} rows from {number(metrics.get("returns_source_count"))} source disclosures</td></tr>
+      <tr><td>Policy Proximity</td><td>{esc(metrics["event_from"])} to {esc(metrics["event_to"])}</td><td>{number(metrics["event_count"])} public-law events linked to {number(metrics["timing_trade_count"])} trades</td></tr>
+    </tbody></table>
+    <table class="table"><thead><tr><th>Source</th><th>Use</th></tr></thead><tbody>
+      <tr><td>{esc(metrics.get("source") or "Capitol Trades")}</td><td>Public congressional trading disclosures and disclosed volume.</td></tr>
+      <tr><td>{esc(metrics.get("returns_source") or "Capitol Trades + EOD prices")}</td><td>Returns Spectrum rows and trailing market movement context.</td></tr>
+      <tr><td>{esc(metrics.get("event_source") or "Congress.gov public laws + Capitol Trades")}</td><td>Policy Proximity event spine and sector/date proximity links.</td></tr>
+      {event_source_rows}
+    </tbody></table>
+  </section>
+  <section class="band" id="data-use-notes">
+    <h2>Data use notes</h2>
+    <p>This dataset describes an editorial visualization bundle derived from public disclosure sources. Original source records remain subject to their publishers' terms. Reuse should cite Capitol Alpha Machine and the underlying public sources, preserve the caveats about disclosure ranges and timing heuristics, and avoid presenting representative values as exact holdings, profit, intent, or evidence of wrongdoing.</p>
+  </section>
+  <section class="band">
+    <h2>Top tickers and members in the returns bundle</h2>
+    <table class="table"><thead><tr><th>Ticker</th><th>Rows</th><th>Representative disclosed value</th></tr></thead><tbody>{top_ticker_rows}</tbody></table>
+    <table class="table"><thead><tr><th>Member</th><th>Rows</th><th>Representative disclosed value</th></tr></thead><tbody>{top_member_rows}</tbody></table>
+    <p class="note">These rankings use representative disclosed values inside the returns scene bundle. They are not a complete accounting of holdings, profit, or intent.</p>
+  </section>
+  <section class="band" id="committee-risk">
+    <p class="eyebrow">Committee Risk</p>
+    <h2>Committee-risk proximity dataset</h2>
+    <p>This aggregate links public-law events to disclosed trade rows using date proximity and sector proximity. Committee-sector overlap is a heuristic flag, not a claim of causation.</p>
+    <div class="facts">
+      <div class="fact"><div class="label">Event window</div><div class="value">{esc(metrics["event_from"])} to {esc(metrics["event_to"])}</div></div>
+      <div class="fact"><div class="label">Public-law events</div><div class="value">{number(metrics["event_count"])}</div></div>
+      <div class="fact"><div class="label">Linked trade rows</div><div class="value">{number(metrics["timing_trade_count"])}</div></div>
+      <div class="fact"><div class="label">Committees</div><div class="value">{number(metrics["committee_count"])}</div></div>
+      <div class="fact"><div class="label">Members represented</div><div class="value">{number(metrics["committee_member_count"])}</div></div>
+      <div class="fact"><div class="label">Representative value</div><div class="value">{money(metrics["committee_total_value"])}</div></div>
+    </div>
+    <div class="callout">Scores and links are visualization heuristics only. They are not evidence of intent, privileged information, causation, profit, or unlawful conduct.</div>
+  </section>
+  <section class="band">
+    <h2>Top committees in the current aggregate</h2>
+    <table class="table"><thead><tr><th>Committee</th><th>Rows</th><th>Representative value</th><th>Members</th><th>Avg risk</th><th>Avg timing</th><th>Top sectors</th></tr></thead><tbody>{committee_rows}</tbody></table>
+    <p class="note">Rows are aggregate only. Individual committee pages are not generated.</p>
+  </section>
+  <section class="band">
+    <h2>Risk flags</h2>
+    <table class="table"><thead><tr><th>Flag</th><th>Rows</th></tr></thead><tbody>{flag_rows}</tbody></table>
+    <p class="note">Flags describe why a row became visually prominent inside Policy Proximity. Read them as triage labels for inspection, not conclusions.</p>
+    <div class="links">
+      <a href="/updates/latest">Latest update</a>
+      <a href="/scenes/timing-lattice">Policy Proximity</a>
+      <a href="#methodology">Back to top</a>
     </div>
   </section>
 </main>
 """
     return base_page(
-        "Methodology | Capitol Alpha Machine",
-        "Methodology for Capitol Alpha Machine, a data-art intelligence project visualizing congressional trading disclosures, committee exposure, timing patterns, and market movement.",
+        "Methodology & Data | Capitol Alpha Machine",
+        "Methodology, current disclosure data, committee-risk heuristics, sources, and caveats for Capitol Alpha Machine.",
         "/methodology",
         body,
-        [schema, crumbs],
+        [article_schema, data_schema, crumbs],
     )
 
 
@@ -624,7 +780,7 @@ def data_page(metrics: dict[str, Any]) -> str:
     <p class="note">These rankings use representative disclosed values inside the returns scene bundle. They are not a complete accounting of holdings, profit, or intent.</p>
     <div class="links">
       <a href="/methodology/">Methodology and caveats</a>
-      <a href="/datasets/committee-risk/">Committee-risk dataset</a>
+      <a href="/methodology#committee-risk">Committee-risk dataset</a>
       <a href="/updates/latest/">Latest weekly report</a>
       <a href="/scenes/capital-flow">Capital Flow scene</a>
     </div>
@@ -740,7 +896,7 @@ def committee_risk_page(metrics: dict[str, Any]) -> str:
     </tbody></table>
     <div class="links">
       <a href="/methodology/">Methodology</a>
-      <a href="/data/">Data summary</a>
+      <a href="/methodology#data">Data summary</a>
       <a href="/updates/latest/">Latest update</a>
       <a href="/scenes/timing-lattice">Policy Proximity</a>
     </div>
@@ -827,8 +983,8 @@ def latest_update_page(metrics: dict[str, Any]) -> str:
       <a href="/scenes/returns-spectrum">Returns Spectrum</a>
       <a href="/scenes/timing-lattice">Policy Proximity</a>
       <a href="/methodology/">Methodology</a>
-      <a href="/data/">Data summary</a>
-      <a href="/datasets/committee-risk/">Committee-risk dataset</a>
+      <a href="/methodology#data">Data summary</a>
+      <a href="/methodology#committee-risk">Committee-risk dataset</a>
     </div>
   </section>
 </main>
@@ -950,8 +1106,8 @@ def faq_page(metrics: dict[str, Any]) -> str:
   <section class="band">
     <div class="links">
       <a href="/methodology">Methodology and caveats</a>
-      <a href="/data">Data summary</a>
-      <a href="/datasets/committee-risk">Committee-risk dataset</a>
+      <a href="/methodology#data">Data summary</a>
+      <a href="/methodology#committee-risk">Committee-risk dataset</a>
       <a href="/updates/latest">Latest update</a>
     </div>
   </section>
@@ -1026,11 +1182,12 @@ def scene_page(scene: dict[str, str], metrics: dict[str, Any]) -> str:
 {render_schemas([schema, crumbs])}
 <style>
 {COMMON_CSS}
-.scene-hero {{ min-height:100svh; position:relative; background:#000; border-bottom:1px solid var(--line); }}
+.scene-hero {{ min-height:calc(100svh - var(--menu-h)); position:relative; background:#000; border-bottom:1px solid var(--line); }}
 .scene-hero iframe {{ position:absolute; inset:0; width:100%; height:100%; border:0; background:#000; display:block; }}
 </style>
 </head>
 <body>
+{site_header(scene["id"])}
 <main>
   <section class="scene-hero" aria-label="Interactive {esc(scene["title"])} visualization">
     <iframe src="/index.html?scene={esc(scene["id"])}&embed=1" title="{esc(scene["title"])} interactive visualization" loading="eager"></iframe>
@@ -1047,7 +1204,7 @@ def scene_page(scene: dict[str, str], metrics: dict[str, Any]) -> str:
     <div class="links">
       <a href="/index.html?scene={esc(scene["id"])}">Open in the full interactive machine</a>
       <a href="/methodology/">Methodology</a>
-      <a href="/data/">Data summary</a>
+      <a href="/methodology#data">Data summary</a>
     </div>
   </section>
 </main>
@@ -1068,10 +1225,9 @@ def sitemap_urls() -> list[tuple[str, str, str]]:
     return [
         ("/", "1.0", "weekly"),
         ("/methodology", "0.9", "monthly"),
-        ("/data", "0.9", "weekly"),
         ("/updates/latest", "0.9", "weekly"),
-        ("/datasets/committee-risk", "0.85", "weekly"),
         ("/faq", "0.7", "monthly"),
+        ("/screensavers", "0.8", "weekly"),
         *[(scene_path(scene), "0.8", "monthly") for scene in SCENES],
     ]
 
@@ -1112,7 +1268,7 @@ def rss_xml(metrics: dict[str, Any]) -> str:
         },
         {
             "title": "Committee-risk dataset",
-            "link": url_for("/datasets/committee-risk"),
+            "link": url_for("/methodology") + "#committee-risk",
             "description": f"Aggregate committee-sector and timing-proximity dataset with {number(metrics['timing_trade_count'])} linked trade rows and {number(metrics['event_count'])} public-law events.",
         },
         {
@@ -1197,7 +1353,7 @@ def index_schema(metrics: dict[str, Any]) -> dict[str, Any]:
                 "@type": "Dataset",
                 "@id": f"{SITE_URL}/#dataset",
                 "name": "Capitol Alpha Machine disclosure visualization bundle",
-                "url": f"{SITE_URL}/data",
+                "url": f"{SITE_URL}/methodology#data",
                 "dateModified": TODAY_ISO,
                 "temporalCoverage": f"{metrics['source_from']}/{metrics['source_to']}",
                 "creator": PERSON_REF,
@@ -1226,8 +1382,9 @@ def index_schema(metrics: dict[str, Any]) -> dict[str, Any]:
 
 def index_scene_nav() -> str:
     links = "\n  ".join(
-        f'<a href="{scene_path(scene)}">{esc(scene["title"])} congressional trading visualization</a>'
-        for scene in SCENES
+        [f'<a href="{scene_path(scene)}">{esc(scene["title"])} congressional trading visualization</a>'
+         for scene in SCENES]
+        + ['<a href="/screensavers">Free Mac screensavers of congressional stock trades</a>']
     )
     return f"""<nav class="seo-links" aria-label="Scene pages">
   {links}
@@ -1236,8 +1393,9 @@ def index_scene_nav() -> str:
 
 def index_noscript(metrics: dict[str, Any]) -> str:
     items = "\n      ".join(
-        f'<li><a href="{scene_path(scene)}">{esc(scene["title"])}</a></li>'
-        for scene in SCENES
+        [f'<li><a href="{scene_path(scene)}">{esc(scene["title"])}</a></li>'
+         for scene in SCENES]
+        + ['<li><a href="/screensavers">Free Mac screensavers</a></li>']
     )
     return f"""<noscript>
   <section>
