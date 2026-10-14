@@ -36,70 +36,104 @@ body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libe
 (() => {
   'use strict';
   const preview = true;
-  const controlled = preview && parent !== window;
-  const nativeRAF = window.requestAnimationFrame.bind(window);
-  const nativeCancel = window.cancelAnimationFrame.bind(window);
-  const pending = new Map();
-  const interval = 1000 / 30;
-  let playing = !controlled, initialFrame = controlled, nativeId = 0, nextId = 0;
-  let lastRendered = null, lastTick = null, animationTime = 0;
-  const visible = () => !preview || !document.hidden;
-  function schedule() {
-    if (!nativeId && pending.size && visible() && (playing || initialFrame)) {
-      nativeId = nativeRAF(tick);
-    }
-  }
-  function tick(timestamp) {
-    nativeId = 0;
-    if (!visible() || (!playing && !initialFrame)) return;
-    if (lastRendered !== null && timestamp - lastRendered < interval - 0.5) {
-      schedule();
-      return;
-    }
-    if (lastTick !== null) animationTime += timestamp - lastTick;
-    lastTick = timestamp;
-    lastRendered = timestamp;
-    initialFrame = false;
-    const callbacks = [...pending.values()];
-    pending.clear();
-    for (const callback of callbacks) callback(animationTime);
-    if (!playing) lastTick = null;
-    schedule();
-  }
-  window.requestAnimationFrame = callback => {
-    const id = ++nextId;
-    pending.set(id, callback);
-    schedule();
-    return id;
-  };
-  window.cancelAnimationFrame = id => {
-    pending.delete(id);
-    if (!pending.size && nativeId) { nativeCancel(nativeId); nativeId = 0; }
-  };
-  function setPlaying(value) {
-    if (playing === value) return;
-    playing = value;
-    lastTick = null;
-    lastRendered = null;
-    if (nativeId) { nativeCancel(nativeId); nativeId = 0; }
-    schedule();
-  }
-  window.__capitolSetPlaying = setPlaying;
-  if (controlled) {
-    window.addEventListener('message', event => {
-      if (event.source !== parent || event.origin !== location.origin) return;
-      if (event.data === 'cam:play') setPlaying(true);
-      else if (event.data === 'cam:pause') setPlaying(false);
-      else if (event.data?.type === 'capitol-preview-control') setPlaying(event.data.playing === true);
-    });
-    window.addEventListener('load', () => parent.postMessage({type:'capitol-preview-ready'}, location.origin));
-  }
+  // Native savers use WebKit's own vsync-driven requestAnimationFrame, like
+  // the website. A pacing layer here skipped frames whenever a callback
+  // arrived a fraction of a millisecond early, producing 16/33 ms judder.
   if (preview) {
+    const controlled = parent !== window;
+    const nativeRAF = window.requestAnimationFrame.bind(window);
+    const nativeCancel = window.cancelAnimationFrame.bind(window);
+    const pending = new Map();
+    const interval = 1000 / 60;
+    let playing = !controlled, initialFrame = controlled, nativeId = 0, nextId = 0;
+    let lastRendered = null, lastTick = null, animationTime = 0;
+    const visible = () => !document.hidden;
+    function schedule() {
+      if (!nativeId && pending.size && visible() && (playing || initialFrame)) {
+        nativeId = nativeRAF(tick);
+      }
+    }
+    function tick(timestamp) {
+      nativeId = 0;
+      if (!visible() || (!playing && !initialFrame)) return;
+      if (lastRendered !== null && timestamp - lastRendered < interval - 0.5) {
+        schedule();
+        return;
+      }
+      if (lastTick !== null) animationTime += timestamp - lastTick;
+      lastTick = timestamp;
+      // Preserve the cadence across slightly late vsyncs. Resetting to each
+      // timestamp can turn 60 Hz into 30 Hz when a callback is just late.
+      lastRendered = lastRendered === null ? timestamp :
+        timestamp - ((timestamp - lastRendered + 0.5) % interval) + 0.5;
+      initialFrame = false;
+      const callbacks = [...pending.values()];
+      pending.clear();
+      for (const callback of callbacks) callback(animationTime);
+      if (!playing) lastTick = null;
+      schedule();
+    }
+    window.requestAnimationFrame = callback => {
+      const id = ++nextId;
+      pending.set(id, callback);
+      schedule();
+      return id;
+    };
+    window.cancelAnimationFrame = id => {
+      pending.delete(id);
+      if (!pending.size && nativeId) { nativeCancel(nativeId); nativeId = 0; }
+    };
+    function setPlaying(value) {
+      if (playing === value) return;
+      playing = value;
+      lastTick = null;
+      lastRendered = null;
+      if (nativeId) { nativeCancel(nativeId); nativeId = 0; }
+      schedule();
+    }
+    window.__capitolSetPlaying = setPlaying;
+    if (controlled) {
+      window.addEventListener('message', event => {
+        if (event.source !== parent || event.origin !== location.origin) return;
+        if (event.data === 'cam:play') setPlaying(true);
+        else if (event.data === 'cam:pause') setPlaying(false);
+        else if (event.data?.type === 'capitol-preview-control') setPlaying(event.data.playing === true);
+      });
+      window.addEventListener('load', () => parent.postMessage({type:'capitol-preview-ready'}, location.origin));
+    }
     document.addEventListener('visibilitychange', () => {
       lastTick = null;
       lastRendered = null;
       if (document.hidden && nativeId) { nativeCancel(nativeId); nativeId = 0; }
       schedule();
+    });
+  }
+  // Diagnostics builds (build.py --stats) overlay live frame timing measured
+  // inside the real screensaver host.
+  if (!preview && window.__capitolStats) {
+    const raf = window.requestAnimationFrame.bind(window), intervals = [], work = [];
+    let last = 0;
+    window.requestAnimationFrame = callback => raf(ts => {
+      const start = performance.now();
+      callback(ts);
+      work.push(performance.now() - start);
+      if (last) intervals.push(ts - last);
+      last = ts;
+    });
+    const pct = (values, p) => values.slice().sort((a, b) => a - b)[Math.min(values.length - 1, Math.floor(values.length * p))] || 0;
+    window.addEventListener('load', () => {
+      const box = document.createElement('div');
+      box.style.cssText = 'position:fixed;right:12px;bottom:64px;z-index:9;padding:4px 6px;background:rgba(0,0,0,.75);' +
+        'color:#fff;font:11px ui-monospace,Menlo,monospace;white-space:pre;pointer-events:none';
+      document.body.appendChild(box);
+      setInterval(() => {
+        const frames = intervals.length, slow = intervals.filter(v => v > 20).length;
+        box.textContent = (frames ? (1000 * frames / intervals.reduce((a, b) => a + b, 0)).toFixed(1) : '0') + ' fps  ' +
+          'frame p95 ' + pct(intervals, .95).toFixed(1) + ' max ' + pct(intervals, 1).toFixed(1) + ' ms  ' +
+          'late ' + slow + '\nscript p95 ' + pct(work, .95).toFixed(1) + ' ms  ' + (window.__capitolGPU ? 'GPU' : 'CPU') +
+          ' ' + (document.querySelector('canvas') || {}).width + '\u00d7' + (document.querySelector('canvas') || {}).height;
+        intervals.length = 0; work.length = 0;
+      }, 2000);
     });
   }
   // Text fitting repeatedly measures the same ticker/member labels. Bound the
@@ -113,6 +147,37 @@ body { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libe
       if (metrics.size >= 2048) metrics.clear();
       metrics.set(key, value);
       return value;
+    };
+  };
+
+  // Rasterize ticker labels once per resize, then composite the same glyphs
+  // at fractional positions. One bounded atlas avoids hundreds of canvases.
+  window.__capitolCreateLabelAtlas = (labels, font, maxWidth, dpr) => {
+    const cellW = Math.ceil(maxWidth) + 4, cellH = 28, columns = 8;
+    const rows = Math.max(1, Math.ceil(labels.length / columns));
+    let scale = Math.min(dpr, Math.sqrt(4000000 / (columns * cellW * rows * cellH)));
+    // Include cell rounding in the allocation budget, not just ideal area.
+    while (columns * Math.ceil(cellW * scale) * rows * Math.ceil(cellH * scale) > 4000000) scale *= 0.99;
+    const atlas = document.createElement('canvas');
+    const pw = Math.ceil(cellW * scale), ph = Math.ceil(cellH * scale);
+    atlas.width = columns * pw; atlas.height = rows * ph;
+    const paint = atlas.getContext('2d');
+    paint.scale(scale, scale); paint.font = font; paint.fillStyle = '#fff';
+    const widths = [];
+    for (let i = 0; i < labels.length; i++) {
+      widths.push(paint.measureText(labels[i]).width);
+      paint.fillText(labels[i], (i % columns) * pw / scale + 2,
+        Math.floor(i / columns) * ph / scale + 20, maxWidth);
+    }
+    return {
+      widths,
+      draw(ctx, index, x, y, alpha) {
+        const previous = ctx.globalAlpha;
+        ctx.globalAlpha = previous * alpha;
+        ctx.drawImage(atlas, (index % columns) * pw, Math.floor(index / columns) * ph,
+          pw, ph, x - 2, y - 20, pw / scale, ph / scale);
+        ctx.globalAlpha = previous;
+      }
     };
   };
 })();
@@ -199,9 +264,10 @@ const DOME=(function(){
 
 function resize(){const r=cv.parentElement.getBoundingClientRect();W=Math.max(320,r.width);H=Math.max(360,r.height);DPR=Math.min(2,window.devicePixelRatio||1,Math.sqrt(4000000/(W*H)));cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);buildCols();}
 
+let labelAtlas;
 let COLS=[],colW=0,rowH=15,nCols=0;
 function buildCols(){
-  colW=175; nCols=Math.max(1,Math.floor(W/colW)+1);
+  colW=175; labelAtlas=window.__capitolCreateLabelAtlas(PJ.TICK,'11px '+MONO,colW-12,DPR); nCols=Math.max(1,Math.floor(W/colW)+1);
   COLS=[];
   for(let c=0;c<nCols;c++) COLS.push({list:[],speed:34+ (c%5)*4, off:0, last:-1, pause:0});
   for(let i=0;i<PJ.TR.length;i++) COLS[i%nCols].list.push(PJ.TR[i]);
@@ -306,6 +372,14 @@ function drawRain(t,readY){
       if(near<headDist){headDist=near;headRow=j;headY=y;}
 
       const label=PJ.TICK[tr[1]];
+
+
+      // Lock candidates are intentionally NOT on the read-head line anymore.
+      // They must also have enough upward travel headroom to stay visible
+      // for the whole highlight while the locked column keeps scrolling.
+      if(!locked && y>LOCK_EDGE_PAD && y<H-LOCK_EDGE_PAD && near>=minLockDistance){
+        const maxHold=Math.min(LOCK_HOLD_MAX,(y-LOCK_EDGE_PAD)/(col.speed*LOCKED_COLUMN_SPEED));
+        if(maxHold>=LOCK_HOLD_MIN){
       const amtP=amountPct(tr);
       const lockCandidate={
         tr,
@@ -314,18 +388,11 @@ function drawRain(t,readY){
         off,
         x:colX,
         y,
-        w:Math.max(34,ctx.measureText(label).width+8),
+        w:Math.max(34,labelAtlas.widths[tr[1]]+8),
         dist:near,
         amountPct:amtP,
         priority:amtP*180-near*0.018
       };
-
-      // Lock candidates are intentionally NOT on the read-head line anymore.
-      // They must also have enough upward travel headroom to stay visible
-      // for the whole highlight while the locked column keeps scrolling.
-      if(!locked && y>LOCK_EDGE_PAD && y<H-LOCK_EDGE_PAD && near>=minLockDistance){
-        const maxHold=Math.min(LOCK_HOLD_MAX,(y-LOCK_EDGE_PAD)/(col.speed*LOCKED_COLUMN_SPEED));
-        if(maxHold>=LOCK_HOLD_MIN){
           lockCandidate.maxHold=maxHold;
           if(y<readY) lockCandidatesUp.push(lockCandidate);
           else lockCandidatesDown.push(lockCandidate);
@@ -338,7 +405,7 @@ function drawRain(t,readY){
       if(rowLocked) a=Math.min(1,a+0.12);
       else if(lockedCol) a*=LOCKED_COLUMN_DIM;
       ctx.fillStyle='rgba(255,255,255,'+a.toFixed(2)+')';
-      ctx.fillText(label, colX, y, colW-12);
+      labelAtlas.draw(ctx,tr[1],colX,y,Number(a.toFixed(2)));
       const bw2=Math.min(colW-12,4+tr[3]*4.2);
       let barA=buy?0.45:0.20;
       if(lockedCol && !rowLocked) barA*=LOCKED_COLUMN_DIM;
@@ -355,7 +422,7 @@ function drawRain(t,readY){
       if(!locked && headDist<rowH*0.85){
         const tr=col.list[headRow];
         const label=PJ.TICK[tr[1]];
-        readCandidates.push({tr,col:c,row:headRow,off,x:colX,y:headY,w:Math.max(34,ctx.measureText(label).width+8)});
+        readCandidates.push({tr,col:c,row:headRow,off,x:colX,y:headY,w:Math.max(34,labelAtlas.widths[tr[1]]+8)});
       }
     }
 

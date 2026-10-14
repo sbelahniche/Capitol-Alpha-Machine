@@ -31,6 +31,7 @@ static BOOL CapitolValidJSON(NSString *json, NSArray<NSString *> *requiredArrays
 @property NSString *dataPlaceholder;
 @property NSString *dataPrefix;
 @property NSArray<NSString *> *requiredArrays;
+@property id<NSObject> animationActivity;
 @end
 
 @implementation SAVER_VIEW
@@ -67,6 +68,11 @@ static BOOL CapitolValidJSON(NSString *json, NSArray<NSString *> *requiredArrays
     self.runGeneration++;
     WKWebViewConfiguration *config = [WKWebViewConfiguration new];
     config.websiteDataStore = WKWebsiteDataStore.nonPersistentDataStore;
+    // The screensaver host can report the web view as inactive; never let
+    // WebKit suspend or throttle its rendering for that reason.
+    if (@available(macOS 14.0, *)) {
+        config.preferences.inactiveSchedulingPolicy = WKInactiveSchedulingPolicyNone;
+    }
     self.web = [[WKWebView alloc] initWithFrame:self.bounds configuration:config];
     self.web.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     // macOS 14+ may mark the screensaver's web view as occluded, pausing canvas.
@@ -74,6 +80,14 @@ static BOOL CapitolValidJSON(NSString *json, NSArray<NSString *> *requiredArrays
         [self.web _setWindowOcclusionDetectionEnabled:NO];
     }
     [self addSubview:self.web];
+    // Keep the host process out of App Nap and timer coalescing while
+    // animating, so frames are delivered on time. Idle system sleep and
+    // display sleep stay governed by the user's settings.
+    if (!self.isPreview && !self.animationActivity) {
+        self.animationActivity = [NSProcessInfo.processInfo
+            beginActivityWithOptions:NSActivityUserInitiatedAllowingIdleSystemSleep | NSActivityLatencyCritical
+                              reason:@"Capitol Alpha screensaver animation"];
+    }
     self.currentJSON = nil;
     NSUserDefaults *prefs = [ScreenSaverDefaults defaultsForModuleWithName:self.preferencesModule];
     NSString *json = [prefs stringForKey:@"lastGoodDataset"];
@@ -150,6 +164,10 @@ static BOOL CapitolValidJSON(NSString *json, NSArray<NSString *> *requiredArrays
     [self.web stopLoading];
     [self.web removeFromSuperview];
     self.web = nil;
+    if (self.animationActivity) {
+        [NSProcessInfo.processInfo endActivity:self.animationActivity];
+        self.animationActivity = nil;
+    }
     self.currentJSON = nil;
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 }

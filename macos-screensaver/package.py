@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package the built screensavers for download without local data or settings."""
+"""Package notarized screensavers for download without local data or settings."""
 from pathlib import Path
 import hashlib
 import subprocess
@@ -23,10 +23,9 @@ Universal builds for Apple Silicon and Intel Macs, macOS 12 or later.
 Animation rendering tested on macOS 15.6.1. Other macOS versions and
 locked-screen behavior have not been verified.
 
-These downloads are locally signed, but are not Apple-notarized. macOS
-may block installation after downloading. For a download you trust,
-review the message in System Settings > Privacy & Security and use
-Open Anyway if offered. Do not disable Gatekeeper system-wide.
+These downloads are signed with Developer ID and notarized by Apple.
+macOS can verify the developer signature and the stapled notarization ticket
+before installation. Keep Gatekeeper enabled.
 
 DATA UPDATES
 Checks for published data on Monday at 12:00 in your Mac's local time zone.
@@ -57,13 +56,16 @@ for filename, selected in packages:
         for name in selected:
             bundle = root / 'build' / f'{name}.saver'
             subprocess.run(['codesign', '--verify', '--strict', str(bundle)], check=True)
+            subprocess.run(['xcrun', 'stapler', 'validate', str(bundle)], check=True)
             for path in sorted(bundle.rglob('*')):
                 if path.is_file() and path.name != '.DS_Store':
                     z.write(path, path.relative_to(bundle.parent))
     with tempfile.TemporaryDirectory(prefix='verify-savers-', dir=root / 'build') as tmp:
         subprocess.run(['ditto', '-x', '-k', str(archive), tmp], check=True)
         for name in selected:
-            subprocess.run(['codesign', '--verify', '--strict', str(Path(tmp) / f'{name}.saver')], check=True)
+            extracted = Path(tmp) / f'{name}.saver'
+            subprocess.run(['codesign', '--verify', '--strict', str(extracted)], check=True)
+            subprocess.run(['xcrun', 'stapler', 'validate', str(extracted)], check=True)
     checksums.append(hashlib.sha256(archive.read_bytes()).hexdigest() + '  ' + filename)
     print(f'{archive} ({archive.stat().st_size:,} bytes; extracted signatures verified)')
 (output / 'SHA256SUMS.txt').write_text('\n'.join(checksums) + '\n')

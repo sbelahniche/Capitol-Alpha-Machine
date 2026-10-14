@@ -1,68 +1,89 @@
 # Capitol Alpha Machine
 
-An ominous visualization of political trading signals, sourced from CapitolTrades.com.
+Politicians' stock trades, turned into monochrome data sculptures and free Mac screensavers.
 
-## Live Project
+I worked on [Capitol Trades](https://www.capitoltrades.com/), which tracks stock trades disclosed by members of the US Congress. This project takes those records somewhere else: moving fields of text, lines, and patterns. There's a bit of irony in making something beautiful out of such a controversial subject. I liked that, so I kept going—and turned three of the experiments into screensavers, as originally intended.
 
-- Production URL: https://capitolalpha.app/
-- Vercel preview URL: https://capitol-alpha-machine.vercel.app/ (redirects to the custom domain)
-- Vercel project: `capitol-trades-data-visualization`
-- GitHub repo: `sbelahniche/Capitol-Alpha-Machine`
+**[Explore the website](https://capitolalpha.app/) · [Try the screensavers](https://capitolalpha.app/screensavers) · [Download all three for Mac](https://capitolalpha.app/screensavers/downloads/capitol-alpha-screensavers-mac.zip)**
 
-## Files
+![The Ledger: a monochrome field of congressional stock-trade disclosures](screensavers/assets/the-ledger.jpg)
 
-- `index.html` - the complete five-scene static visualization.
-- `capitoltrades_data.js` - current bundled data used by the visualization.
-- `favicon-ct.png` - project favicon.
-- `scripts/` - scraper and committee-risk dataset builders.
-- `data/scene05_real_payload.json` - real congressional bill/event payload used while wiring scene 5.
-- `prototypes/scene03_exposure_index.html` - generated Scene 03 source snapshot used by the embedding and validation pipeline.
+## The screensavers
 
-## Local Preview
+| Screensaver | What it shows |
+| --- | --- |
+| **The Ledger** | A moving field of disclosed trades: members, tickers, transaction types, and value bands. |
+| **Returns Spectrum** | Disclosed trades arranged around historical market returns. |
+| **Policy Proximity** | Public-law events and trade disclosures connected by timing and sector proximity. |
 
-Because this is a static project, you can preview it with any simple local server:
+All three public downloads are free, signed with Developer ID, and notarized by Apple. They include Apple's notarization tickets and individual thumbnails for System Settings. Universal builds support Apple Silicon and Intel Macs running macOS 12 or later; rendering has been tested on macOS 15.6.1.
 
-```bash
+Unzip a download, double-click its `.saver` file, and choose it in **System Settings → Screen Saver → Other**. No browser needs to stay open. Each saver checks for published data weekly and uses saved or bundled data when offline. Design changes require a new download.
+
+## What I built
+
+- A static website with animated scenes and browser previews.
+- Three native macOS screensaver bundles hosting the scenes in WebKit.
+- A WebGL2 renderer for the screensavers, with Retina rendering, smooth text motion, and a Canvas fallback.
+- Data preparation, generated methodology and scene pages, and a weekly publication pipeline.
+
+The website uses HTML, CSS, and JavaScript. The macOS host uses Objective-C, ScreenSaver, and WebKit; Python handles building and data preparation.
+
+## Run locally
+
+From the repository root, with Python 3 installed:
+
+```sh
 python3 -m http.server 8765
 ```
 
-Then open:
+Open [localhost:8765](http://localhost:8765/) for the website or [localhost:8765/screensavers](http://localhost:8765/screensavers) for the screensavers page.
 
-```text
-http://127.0.0.1:8765/
+To build the Mac screensavers, use macOS with Xcode command-line tools installed:
+
+```sh
+python3 macos-screensaver/build.py
 ```
 
-## Vercel
+The bundles appear in `build/`. Local builds are ad-hoc signed by default; they do not inherit the public downloads' Apple notarization. Developer ID signing and notarization require your own Apple credentials. See the [screensaver documentation](macos-screensaver/README.md) for build options and the [performance audit](macos-screensaver/PERFORMANCE_AUDIT.md) for measurements and limitations.
 
-Vercel can deploy this repo directly from the root. The Analytics loader is already included in `index.html` and loads on Vercel from:
+## Repository layout
 
-```text
-/_vercel/insights/script.js
-```
+| Path | Purpose |
+| --- | --- |
+| `index.html` | Main visualization and embedded scene sources. |
+| `screensavers/` | Showcase, browser previews, scene images, and public ZIP downloads. |
+| `macos-screensaver/` | Native host, rendering support, build and packaging scripts. |
+| `scripts/` | Data preparation, page generation, and validation. |
+| `capitoltrades_data.js` | Published scene datasets. |
+| `data/` | Supporting datasets and policy-event payload. |
+| `methodology/` and `scenes/` | Generated explanatory pages. |
 
-Do not commit `.vercel/` or `.env.local`; those are local machine/project-link files.
+## Data and interpretation
 
-## Data and SEO Refresh
+Trading disclosures come from Capitol Trades; Policy Proximity also uses Congress.gov public-law records. Data windows differ between scenes. Timing links and scores are visualization heuristics, not evidence of causation or wrongdoing. Disclosed value bands are not exact holdings or profits.
 
-A macOS LaunchAgent runs the weekly refresh from a dedicated clean clone. It
-checks every hour at minute 25, starts after Monday 08:20 UTC, and retries until
-the current Monday's report is live. The normal run refreshes recent trade data
-and SEO pages without rebuilding Scene 03, validates the site, pushes `main`,
-waits for the linked Vercel Git deployment, and verifies the live report.
+Original source records remain subject to their publishers' terms. See the [methodology and data-use notes](https://capitolalpha.app/methodology#data-use-notes) before reusing the datasets. The project's MIT license does not apply to third-party data.
 
-Install or update the unattended job with:
+## Maintenance
 
-```bash
-./scripts/install_weekly_refresh_launchd.sh
-```
+The local weekly publication pipeline refreshes trade data and generated pages. Policy Proximity's event payload is prepared separately; it is not regenerated by the regular trade refresh. GitHub Actions checks whether the weekly report was published.
 
-GitHub Actions independently waits for the Monday publication and reports a
-failure if the live report remains stale. It does not scrape Capitol Trades,
-because GitHub-hosted runner IPs are rate-limited by the source.
-
-Run the same pipeline locally with:
-
-```bash
+```sh
 python3 scripts/refresh_data_and_seo.py
 python3 scripts/validate_static_site.py
 ```
+
+For unattended publication on a Mac, see `scripts/install_weekly_refresh_launchd.sh`. The website deploys from the repository root to Vercel. Keep `.env.local`, `.vercel/`, signing credentials, and temporary builds out of Git.
+
+## Credits
+
+Built by [Sylvain Belahniche](https://github.com/sbelahniche). Shout-out to Markus Klug and Niccolò Prada from my Capitol Trades work.
+
+The WebKit occlusion workaround follows the approach documented by [WebViewScreenSaver](https://github.com/liquidx/webviewscreensaver).
+
+## License
+
+Original project code and documentation are licensed under the [MIT License](LICENSE).
+
+Copyright © 2026 Sylvain Belahniche. Third-party datasets, assets, and code retain their respective rights and terms; the MIT license does not grant rights to those materials.
